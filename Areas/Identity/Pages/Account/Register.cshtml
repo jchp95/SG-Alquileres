@@ -1,0 +1,94 @@
+﻿@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<section class="vh-100 d-flex align-items-center justify-content-center" style="
+    background: linear-gradient(135deg, #0077cc 0%, #ffffff 70%);
+    background-repeat: no-repeat;
+    background-size: cover;
+">
+    <div class="container py-5 h-100">
+        <div class="row justify-content-center align-items-center h-100">
+            <div class="col-lg-10">
+                <div class="row g-0 shadow-lg rounded-4 overflow-hidden">
+
+                    <!-- Imagen lateral -->
+                    <div class="col-md-6 d-none d-md-block">
+                        <img src="~/images/login.webp" alt="register visual" class="img-fluid h-100 w-100"
+                            style="object-fit: cover;" />
+                    </div>
+
+                    <!-- Formulario -->
+                    <div class="col-md-6 bg-white d-flex align-items-center">
+                        <div class="p-5 w-100">
+                            <div class="text-center mb-4">
+                                <img src="~/favicon_io/android-chrome-192x192.png" alt="logo"
+                                    style="height: 200px; width: auto;" class="img-fluid" />
+                                <h3 class="fw-bold mb-2" style="color: #0077cc;">Create an Account</h3>
+                                <p class="text-muted">Sign up to get started</p>
+                            </div>
+
+                            <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                                <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+
+                                <div class="mb-3">
+                                    <label asp-for="Input.UserName" class="form-label fw-semibold">UserName</label>
+                                    <input asp-for="Input.UserName" class="form-control form-control-lg"
+                                        autocomplete="username" aria-required="true" />
+                                    <span asp-validation-for="Input.UserName" class="text-danger"></span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="Input.Password" class="form-label fw-semibold">Password</label>
+                                    <input asp-for="Input.Password" class="form-control form-control-lg"
+                                        autocomplete="new-password" aria-required="true" />
+                                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="Input.ConfirmPassword" class="form-label fw-semibold">Confirm
+                                        Password</label>
+                                    <input asp-for="Input.ConfirmPassword" class="form-control form-control-lg"
+                                        autocomplete="new-password" aria-required="true" />
+                                    <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+                                </div>
+
+                                <div class="d-grid gap-2">
+                                    <button id="registerSubmit" type="submit" class="btn btn-primary btn-lg">
+                                        Register
+                                    </button>
+                                </div>
+                            </form>
+
+
+                            @if ((Model.ExternalLogins?.Count ?? 0) > 0)
+                            {
+                                <hr />
+                                <div class="text-center">
+                                    <p class="mb-2 text-muted">Or register with</p>
+                                    <form id="external-account" asp-page="./ExternalLogin"
+                                        asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                                        @foreach (var provider in Model.ExternalLogins!)
+                                        {
+                                            <button type="submit" class="btn btn-outline-primary me-2 mb-2" name="provider"
+                                                value="@provider.Name" title="Register using @provider.DisplayName">
+                                                @provider.DisplayName
+                                            </button>
+                                        }
+                                    </form>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

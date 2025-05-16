@@ -1,0 +1,233 @@
+/* Variables de diseño */
+:root {
+    --primary-color: #4361ee;
+    --secondary-color: #3f37c9;
+    --light-gray: #f8f9fa;
+    --medium-gray: #e9ecef;
+    --dark-gray: #495057;
+    --success-color: #4cc9f0;
+    --warning-color: #f8961e;
+    --danger-color: #f72585;
+
+    --card-vertical-padding: 1.25rem;
+    --card-horizontal-padding: 1.5rem;
+    --element-spacing: 0.75rem;
+}
+
+/* Estructura base de cards */
+.card-detail {
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    border: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    background: white;
+    padding: 20px;
+}
+
+.card-detail:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Encabezado de card */
+.card-header {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    color: white;
+    padding: var(--card-vertical-padding) var(--card-horizontal-padding);
+    font-weight: 600;
+    font-size: 1.05rem;
+}
+
+/* Cuerpo de card */
+.card-body {
+    padding: var(--card-vertical-padding) var(--card-horizontal-padding);
+}
+
+/* Filas de detalle */
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--medium-gray);
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+/* Textos */
+.detail-label {
+    font-weight: 500;
+    color: var(--dark-gray);
+    font-size: 0.9rem;
+}
+
+.detail-value {
+    font-weight: 600;
+    color: #212529;
+    font-size: 0.95rem;
+}
+
+/* Elementos destacados */
+.amount-highlight {
+    font-size: 1.15rem;
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+/* Tablas */
+.compact-table {
+    width: 100%;
+    font-size: 0.85rem;
+}
+
+.compact-table th {
+    font-weight: 600;
+    background-color: var(--light-gray);
+    padding: 0.75rem 1rem;
+}
+
+.compact-table td {
+    padding: 0.65rem 1rem;
+    vertical-align: middle;
+}
+
+/* Estados */
+.empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: var(--dark-gray);
+}
+
+/* Badges */
+.badge-status {
+    padding: 0.4rem 0.85rem;
+    border-radius: 50px;
+    font-weight: 500;
+}
+
+/* Efectos hover */
+.hover-effect:hover {
+    background-color: var(--light-gray);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    :root {
+        --card-vertical-padding: 1rem;
+        --card-horizontal-padding: 1.25rem;
+    }
+
+    .detail-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .detail-value {
+        margin-top: 0.25rem;
+        text-align: left !important;
+    }
+}
+
+/* Estilos para el ticket de 80mm */
+.ticket-80mm {
+    width: 80mm;
+    max-width: 80mm;
+    font-family: "Matrix Sans";
+    font-size: 12px;
+    padding: 5mm;
+    margin: 0 auto;
+}
+
+.ticket-80mm .header {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.ticket-80mm .header img {
+    max-width: 50mm;
+    max-height: 20mm;
+}
+
+.ticket-80mm .title {
+    font-weight: bold;
+    font-size: 14px;
+    text-align: center;
+    margin: 5px 0;
+}
+
+.ticket-80mm .divider {
+    border-top: 1px dashed #000;
+    margin: 5px 0;
+}
+
+.item-title {
+    display: flex;
+    justify-content: center;
+}
+
+.ticket-80mm .item-content {
+    display: flex;
+    justify-content: space-between;
+    margin: 3px 0;
+}
+
+.item-content-large {
+    display: flex;
+}
+
+.ticket-80mm .item .label {
+    font-weight: bold;
+}
+
+.label {
+    font-weight: 800;
+}
+
+.ticket-80mm .total {
+    font-weight: bold;
+    font-size: 14px;
+    text-align: right;
+    margin-top: 10px;
+}
+
+.item-content-resto {
+    display: flex;
+    justify-content: end;
+}
+
+.item-content-image {
+    display: flex;
+    justify-content: center;
+}
+
+.ticket-80mm .footer {
+    text-align: center;
+    font-size: 10px;
+    margin-top: 15px;
+}
+
+@media print {
+    body * {
+        visibility: hidden;
+    }
+
+    #ticketContent,
+    #ticketContent * {
+        visibility: visible;
+    }
+
+    #ticketContent {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 80mm;
+    }
+
+    .modal-footer {
+        display: none !important;
+    }
+}

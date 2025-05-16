@@ -1,0 +1,275 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "API de Alquileres",
+    "description": "API para la gestión de alquileres",
+    "version": "v1"
+  },
+  "paths": {
+    "/api/TbCobrosApi/create": {
+      "post": {
+        "tags": [
+          "TbCobrosApi"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CobroRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CobroRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CobroRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": { }
+              },
+              "application/json": {
+                "schema": { }
+              },
+              "text/json": {
+                "schema": { }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": { }
+              },
+              "application/json": {
+                "schema": { }
+              },
+              "text/json": {
+                "schema": { }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": { }
+              },
+              "application/json": {
+                "schema": { }
+              },
+              "text/json": {
+                "schema": { }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "text/plain": {
+                "schema": { }
+              },
+              "application/json": {
+                "schema": { }
+              },
+              "text/json": {
+                "schema": { }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CobroRequest": {
+        "type": "object",
+        "properties": {
+          "cobro": {
+            "$ref": "#/components/schemas/TbCobro"
+          },
+          "cuotasSeleccionadas": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
+          },
+          "detalles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TbCobrosDetalle"
+            },
+            "nullable": true
+          },
+          "desglose": {
+            "$ref": "#/components/schemas/TbCobrosDesglose"
+          }
+        },
+        "additionalProperties": false
+      },
+      "OrigenCobro": {
+        "enum": [
+          1,
+          2
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "TbCobro": {
+        "required": [
+          "fmonto"
+        ],
+        "type": "object",
+        "properties": {
+          "fidCobro": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fkidCxc": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ffecha": {
+            "type": "string",
+            "format": "date"
+          },
+          "fhora": {
+            "type": "string",
+            "format": "time"
+          },
+          "fmonto": {
+            "type": "number",
+            "format": "double"
+          },
+          "fdescuento": {
+            "type": "number",
+            "format": "double"
+          },
+          "fcargos": {
+            "type": "number",
+            "format": "double"
+          },
+          "fconcepto": {
+            "type": "string",
+            "nullable": true
+          },
+          "fkidUsuario": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fkidOrigen": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "origen": {
+            "$ref": "#/components/schemas/OrigenCobro"
+          },
+          "factivo": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TbCobrosDesglose": {
+        "type": "object",
+        "properties": {
+          "fidDesglose": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fkidCobro": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fefectivo": {
+            "type": "number",
+            "format": "double"
+          },
+          "ftransferencia": {
+            "type": "number",
+            "format": "double"
+          },
+          "fmontoRecibido": {
+            "type": "number",
+            "format": "double"
+          },
+          "ftarjeta": {
+            "type": "number",
+            "format": "double"
+          },
+          "fnotaCredito": {
+            "type": "number",
+            "format": "double"
+          },
+          "fcheque": {
+            "type": "number",
+            "format": "double"
+          },
+          "fdeposito": {
+            "type": "number",
+            "format": "double"
+          },
+          "fdebitoAutomatico": {
+            "type": "number",
+            "format": "double"
+          },
+          "fnoNotaCredito": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "fkidUsuario": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "factivo": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TbCobrosDetalle": {
+        "type": "object",
+        "properties": {
+          "fid": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fkidCobro": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fnumeroCuota": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fmonto": {
+            "type": "number",
+            "format": "double"
+          },
+          "fmora": {
+            "type": "number",
+            "format": "double"
+          },
+          "factivo": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}

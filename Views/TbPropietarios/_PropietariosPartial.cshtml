@@ -1,0 +1,53 @@
+@model IEnumerable<Alquileres.Models.TbPropietario>
+
+<table id="propietariosTable" class="table table-hover">
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Apellidos</th>
+            <th>Cédula</th>
+            <th>Dirección</th>
+            <th>Teléfono</th>
+            <th>Célular</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var propietario in Model)
+        {
+            <tr>
+                <td>@propietario.Fnombre</td>
+                <td>@propietario.Fapellidos</td>
+                <td>@propietario.Fcedula</td>
+                <td>@propietario.Fdireccion</td>
+                <td id="telefono-input">@propietario.Ftelefono</td>
+                <td id="celular-input">@propietario.Fcelular</td>
+                <td>@(propietario.Factivo ? "Activo" : "No Activo")</td>
+                <td>
+                    @if (propietario.Factivo)
+                    {
+                        <a href="javascript:void(0);" class="btn btn-sm btn-warning me-1 editPropietario"
+                            data-id="@propietario.FidPropietario">
+                            <i class="fa fa-edit"></i>
+                        </a>
+                    }
+                    else
+                    {
+                        <button class="btn btn-sm btn-warning me-1" title="Editar (Inactivo)" disabled>
+                            <i class="fa fa-edit"></i>
+                        </button>
+                    }
+
+                    <form asp-action="CambiarEstado" method="post" class="d-inline cambiarEstadoForm">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@propietario.FidPropietario" />
+                        <button type="submit" class="btn btn-sm @(propietario.Factivo ? "btn-secondary" : "btn-success")">
+                            <i class="fa @(propietario.Factivo ? "fa-ban" : "fa-undo")"></i>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

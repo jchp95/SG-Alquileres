@@ -1,0 +1,331 @@
+html,
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-size: 14px;
+    scroll-behavior: smooth;
+    position: relative;
+    background-color: var(--color-muted);
+    color: #333;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+body>.container,
+body>.container-fluid {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Estilos para el enfoque en elementos interactivos */
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.2rem var(--color-white), 0 0 0 0.4rem var(--color-primary);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+/* Mejora de formularios flotantes */
+.form-floating>.form-control-plaintext::placeholder,
+.form-floating>.form-control::placeholder {
+    color: #6c757d;
+    text-align: end;
+    opacity: 0.75;
+    transition: opacity 0.3s ease;
+}
+
+.form-floating>.form-control-plaintext:focus::placeholder,
+.form-floating>.form-control:focus::placeholder {
+    text-align: start;
+    opacity: 0.5;
+}
+
+/* Animación sutil de entrada */
+.form-floating>.form-control,
+.form-floating>.form-control-plaintext {
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-soft);
+    border: 1px solid var(--color-border);
+}
+
+/* ==================== */
+/* ESTILOS MEJORADOS PARA DATATABLES */
+/* ==================== */
+.dataTables_wrapper {
+    padding: 1rem;
+    background-color: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-soft);
+    margin-bottom: 2rem;
+}
+
+table.dataTable {
+    width: 100% !important;
+    margin: 1rem 0;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+table.dataTable thead th {
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+    vertical-align: middle;
+    border-bottom: 2px solid var(--color-border);
+    background-color: var(--color-primary);
+    color: #333;
+}
+
+table.dataTable tbody td {
+    padding: 0.75rem 1rem;
+    vertical-align: middle;
+    border-top: 1px solid var(--color-border-light);
+}
+
+table.dataTable tbody tr:hover td {
+    background-color: rgba(0, 123, 255, 0.05);
+    transition: background-color 0.2s ease;
+    cursor: pointer;
+}
+
+/* Controles de DataTables */
+.dataTables_filter {
+    margin-bottom: 1rem;
+}
+
+.dataTables_filter input {
+    padding: 0.5rem 0.75rem;
+    margin-left: 0.5rem;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--color-border);
+    transition: all 0.3s ease;
+}
+
+.dataTables_length {
+    margin-bottom: 1rem;
+}
+
+.dataTables_length select {
+    padding: 0.5rem;
+    margin: 0 0.5rem;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--color-border);
+    transition: border-color 0.3s ease;
+}
+
+/* Paginación mejorada */
+div.dt-container div.dt-paging {
+    margin-top: 2.5rem;
+    display: flex;
+    justify-content: end;
+}
+
+div.table-responsive>div.dt-container>div.row>div[class^=col-]:first-child {
+    padding-left: 0;
+    display: flex;
+}
+
+.dt-info {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.dataTables_paginate .paginate_button {
+    padding: 0.5rem 0.75rem;
+    margin: 0 0.75rem;
+    min-width: 2.5rem;
+    text-align: center;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    border: 1px solid var(--color-border);
+    background-color: var(--color-primary);
+    color: white;
+}
+
+.dataTables_paginate .paginate_button.current {
+    background-color: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+}
+
+.dataTables_paginate .paginate_button:hover {
+    background-color: var(--color-secondary);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.dataTables_paginate .paginate_button.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.dataTables_info {
+    padding: 0.5rem 0;
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+}
+
+/* Estilos específicos para #cuotasVencidasTable */
+#cuotasVencidasTable {
+    border-collapse: collapse;
+    width: 100%;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+}
+
+#cuotasVencidasTable th,
+#cuotasVencidasTable td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border-light);
+    transition: background-color 0.3s;
+}
+
+#cuotasVencidasTable thead {
+    background-color: var(--color-primary);
+    color: white;
+}
+
+#cuotasVencidasTable tbody tr:nth-child(even) {
+    background-color: rgba(242, 242, 242, 0.5);
+}
+
+#cuotasVencidasTable tbody tr:hover {
+    background-color: rgba(233, 236, 239, 0.7);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .dataTables_wrapper {
+        padding: 0.5rem;
+    }
+
+    table.dataTable thead th,
+    table.dataTable tbody td,
+    #cuotasVencidasTable th,
+    #cuotasVencidasTable td {
+        padding: 0.5rem;
+    }
+
+    .dataTables_length,
+    .dataTables_filter {
+        margin-bottom: 0.75rem;
+    }
+}
+
+/* ==================== */
+/* ESTILOS GENERALES */
+/* ==================== */
+@keyframes bell-shake {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    25% {
+        transform: rotate(15deg);
+    }
+
+    50% {
+        transform: rotate(-15deg);
+    }
+
+    75% {
+        transform: rotate(15deg);
+    }
+
+    100% {
+        transform: rotate(0deg);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.2);
+        opacity: 0.7;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.badge {
+    --bs-badge-font-size: 0.95em;
+}
+
+.badge-pulse {
+    animation: pulse 0.8s ease-in-out;
+    animation-iteration-count: infinite;
+}
+
+.btn {
+    border-radius: 25px;
+    transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.form-control {
+    border-radius: 10px;
+    border: 1px solid #ced4da;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-control:focus {
+    border-color: #80bdff;
+}
+
+.form-select:focus {
+    border-color: #86b7fe;
+    outline: 0;
+    box-shadow: 0 0 0 .05rem rgba(13, 110, 253, .25);
+}
+
+h3 {
+    color: #343a40;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border: none;
+}
+
+.btn-primary:hover,
+.btn-secondary:hover {
+    opacity: 0.9;
+}
+
+.text-danger {
+    font-weight: bold;
+}

@@ -1,0 +1,58 @@
+@model Alquileres.Models.TbInmueble
+
+<div class="mb-4">
+    <h3>Crear Inmueble</h3>
+</div>
+<hr />
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <!-- Select para Propietarios -->
+            <div class="form-group">
+                <label class="control-label">Propietario</label>
+                <select id="busquedaPropietario" class="form-control select2" name="busquedaPropietario"
+                    style="width: 100%">
+                    <option></option> <!-- Opción vacía para placeholder -->
+                </select>
+                <input type="hidden" id="FkidPropietario" name="FkidPropietario" asp-for="FkidPropietario" />
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Descripción</label>
+                <input asp-for="Fdescripcion" class="form-control" />
+                <span asp-validation-for="Fdescripcion" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Dirección</label>
+                <input asp-for="Fdireccion" class="form-control" />
+                <span asp-validation-for="Fdireccion" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Ubicación</label>
+                <input asp-for="Fubicacion" class="form-control" />
+                <span asp-validation-for="Fubicacion" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Precio</label>
+                <!-- Elimina data-inputmask y asegura el type="text" -->
+                <input asp-for="Fprecio" class="form-control" id="precio-input" inputmode="decimal" type="text"
+                    autocomplete="off" value="" />
+                <span asp-validation-for="Fprecio" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mt-2">
+                <input type="submit" value="Crear" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary ml-2">Volver a la Lista</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

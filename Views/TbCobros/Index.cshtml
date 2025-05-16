@@ -1,0 +1,1153 @@
+﻿@model IEnumerable<dynamic>
+
+@{
+    ViewData["Title"] = "Gestión de Cobros";
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/detalles-cobro.css" asp-append-version="true" />
+}
+
+<div class="text-center mb-4">
+    <h1>Gestión de Cobros</h1>
+</div>
+
+<div class="d-flex justify-content-center mb-4">
+    <button id="loadCobro" class="btn btn-secondary me-2">
+        Cargar Cobros
+    </button>
+    <a id="createCobro" class="btn btn-primary shadow-sm">
+        <i class="fa fa-plus"></i> Crear Cobro
+    </a>
+</div>
+<!-- Contenedor para toasts -->
+<div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3"></div>
+
+<!-- Spinner de carga -->
+<div id="loadingSpinner" class="spinner-border text-primary position-fixed top-50 start-50" style="display: none;">
+</div>
+
+<div id="dataTableContainer" style="display: none;">
+    <!-- Contenido dinámico: tabla o formulario -->
+</div>
+
+<!-- Modal para el ticket -->
+<div class="modal fade" id="ticketModal" tabindex="-1" aria-labelledby="ticketModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title" id="ticketModalLabel">Ticket de Cobro</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div id="ticketContent" class="ticket-80mm">
+                    <div class="header">
+                        <div class="title"></div>
+                        <div class="item-title">
+                            <span class="label me-2">DIR:</span>
+                            <span class="direccion"></span>
+                        </div>
+                        <div class="item-title">
+                            <span class="ubicacion"></span>
+                        </div>
+                        <div class="item-title">
+                            <span class="label me-2">TEL:</span>
+                            <span class="telefono"></span>
+                        </div>
+                        <div class="fecha-hora"></div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="item-content-large">
+                        <span class="label me-2">CLIENTE:</span>
+                        <span class="cliente"></span>
+                    </div>
+                    <div class="item-content">
+                        <span class="label">NO. COBRO:</span>
+                        <span class="noCobro"></span>
+                    </div>
+                    <div class="item-content-large">
+                        <span class="label me-2">CONCEPTO:</span>
+                        <span class="concepto"></span>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="item-content">
+                        <span class="label">SUBTOTAL:</span>
+                        <span class="subtotal"></span>
+                    </div>
+                    <div class="item-content">
+                        <span class="label">CARGOS:</span>
+                        <span class="cargos"></span>
+                    </div>
+                    <div class="item-content">
+                        <span class="label">MORA COBRADA:</span>
+                        <span class="mora"></span>
+                    </div>
+                    <div class="item-content">
+                        <span class="label">DESCUENTO:</span>
+                        <span class="descuento"></span>
+                    </div>
+                    <div class="item-content">
+                        <span class="label">TOTAL:</span>
+                        <span class="total"></span>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="item-content">
+                        <span class="label">EFECTIVO RECIBIDO:</span>
+                        <span class="efectivo-recibido"></span>
+                    </div>
+                    <div class="item-content">
+                        <span class="label">CAMBIO:</span>
+                        <span class="cambio"></span>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="item-content-resto">
+                        <span class="resto"></span>
+                    </div>
+                    <div class="item-content-image mt-5">
+                        <span class="qr"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="imprimirTicket">Imprimir</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    <script>
+        /////// FUNCIONES DE CALCULOS ///////
+        ////////////// Función para calcular el Monto Total ///////////////////////////////////////////////////////////
+        function calcularMontoTotal() {
+            console.log('Cargos raw:', $('#Fcargos').val());
+            console.log('Descuento raw:', $('#Fdescuento').val());
+
+            const monto = parseFloat($('#Fmonto').val()) || 0;
+            const cargos = parseFloat($('#Fcargos').val()) || 0;
+            const descuento = parseFloat($('#Fdescuento').val()) || 0;
+            const montoTotal = monto + cargos - descuento;
+
+            console.log({ monto, cargos, descuento, montoTotal });
+            $('#MontoTotal').val(montoTotal.toFixed(2));
+        }
+
+        /////////// Función para calcular el porcentaje de descuento basado en el valor absoluto ////////////////////////////////////////////
+        function calcularPorcentajeDescuento() {
+            const descuento = parseFloat($('#Fdescuento').val()) || 0;
+            const porcentaje = descuento / 100;
+            $('#FdescuentoPorcentaje').val(porcentaje.toFixed(2));
+            calcularMontoTotal();
+        }
+
+        //////////// Función para calcular el valor absoluto de descuento basado en el porcentaje //////////////////////////////////
+        function calcularDescuentoAbsoluto() {
+            const porcentaje = parseFloat($('#FdescuentoPorcentaje').val()) || 0;
+            const descuento = porcentaje * 100;
+            $('#Fdescuento').val(descuento.toFixed(2));
+            calcularMontoTotal();
+        }
+
+        //////////// Función para calcular el Total Ingresado en el modal //////////////////////////////////
+        // Función para calcular el Total Ingresado en el modal - MODIFICADA
+        function calcularTotalIngresado() {
+            let total = 0;
+            const montoTotal = parseFloat($('#modalMontoTotal').val()) || 0;
+            const montoRecibido = parseFloat($('#montoRecibido').val()) || 0;
+
+            // Siempre sumar el monto recibido al total, independientemente del cambio
+            total += montoRecibido;
+
+            // Calcular el cambio si montoRecibido es mayor que montoTotal
+            if (montoRecibido > montoTotal) {
+                const cambio = montoRecibido - montoTotal;
+                $('#efectivo').val(cambio.toFixed(2));
+            } else {
+                $('#efectivo').val('0.00');
+            }
+
+            // Sumar los otros medios de pago
+            total += parseFloat($('#transferencia').val()) || 0;
+            total += parseFloat($('#tarjeta').val()) || 0;
+            total += parseFloat($('#notaCredito').val()) || 0;
+            total += parseFloat($('#cheque').val()) || 0;
+            total += parseFloat($('#deposito').val()) || 0;
+            total += parseFloat($('#debitoAutomatico').val()) || 0;
+
+            const pendiente = montoTotal - total;
+
+            $('#totalIngresado').text(total.toFixed(2));
+            $('#montoPendiente').text(pendiente.toFixed(2));
+
+            // Siempre habilitar el botón sin importar el monto
+            $('#finalizarCobro').prop('disabled', false);
+
+            // Opcional: mantener el mensaje de validación visible si hay diferencia
+            if (Math.abs(pendiente) > 0.01) {
+                $('#errorValidacion').removeClass('d-none');
+            } else {
+                $('#errorValidacion').addClass('d-none');
+            }
+        }
+
+        /////// Funcion para cargar vista tabla Cobro ///////
+        function cargarTablaCobro() {
+            $.ajax({
+                url: '@Url.Action("CargarCobro", "TbCobros")',
+                type: 'GET',
+                success: function (html) {
+                    $('#dataTableContainer').html(html).fadeIn();
+                    inicializarDataTable();
+                },
+                error: function () {
+                    alert('Error al cargar la tabla de cobros.');
+                }
+            });
+        }
+
+        // Función para mostrar toasts
+        function showToast(message, type = 'error', duration = 3000) {
+            const toast = $(`
+                                                                                                                                                                                                                                                                                                                                                                <div class="toast align-items-center text-white bg-${type === 'error' ? 'danger' : type === 'success' ? 'success' : 'warning'} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                                                                                                                                                                                                                                                                                                                                                                    <div class="d-flex">
+                                                                                                                                                                                                                                                                                                                                                                        <div class="toast-body">${message}</div>
+                                                                                                                                                                                                                                                                                                                                                                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                                                                                                                                                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                                                                                                                                                            `);
+
+            $('#toastContainer').append(toast);
+            const bsToast = new bootstrap.Toast(toast[0], { delay: duration });
+            bsToast.show();
+
+            // Eliminar el toast después de desaparecer
+            toast.on('hidden.bs.toast', function () {
+                $(this).remove();
+            });
+        }
+
+        // Manejador de eventos para el botón "Anular/Activar"
+        // Manejador para el formulario de anulación
+        $(document).on('submit', '.anularCobroForm', function (e) {
+            e.preventDefault();
+            const form = $(this);
+            const cobroId = form.find('input[name="cobroId"]').val();
+
+            if (!cobroId) {
+                console.error('No se pudo obtener el ID del cobro');
+                showToast('Error al obtener el cobro a anular', 'error');
+                return;
+            }
+
+            // Mostrar modal de confirmación y guardar el ID
+            $('#confirmAnularModal').data('cobro-id', cobroId).modal('show');
+
+            // Cargar datos del usuario actual
+            $.get('/api/TbCobrosApi/usuario-actual')
+                .done(function (response) {
+                    if (response.success) {
+                        const userName = response.usuario.UserName || response.usuario.userName;
+                        $('#userName').val(userName || 'Usuario no identificado');
+                    }
+                })
+                .fail(function () {
+                    $('#userName').val('Error al cargar usuario');
+                    showToast('Error al cargar datos del usuario', 'error');
+                });
+        });
+
+        // Manejador para el botón de confirmación (usa delegación de eventos)
+        $(document).on('click', '#confirmAnularBtn', async function () {
+            const btn = $(this);
+            const cobroId = $('#confirmAnularModal').data('cobro-id');
+
+            if (!cobroId) {
+                showToast('No se pudo identificar el cobro a anular', 'error');
+                return;
+            }
+
+            btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Anulando...');
+
+            const motivo = $('#motivoAnulacion').val();
+            const password = $('#usuarioPassword').val();
+
+            if (!motivo || !password) {
+                showToast('Debe completar todos los campos', 'error');
+                btn.prop('disabled', false).html('<i class="fas fa-ban me-1"></i> Anular Cobro');
+                return;
+            }
+
+            try {
+                // Validar contraseña
+                const validacion = await $.ajax({
+                    url: '/api/TbCobrosApi/validar-contrasena',
+                    type: 'POST',
+                    data: JSON.stringify({ password: password }),
+                    contentType: 'application/json',
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    }
+                });
+
+                if (!validacion.success) {
+                    showToast(validacion.message || 'Contraseña incorrecta', 'error');
+                    btn.prop('disabled', false).html('<i class="fas fa-ban me-1"></i> Anular Cobro');
+                    return;
+                }
+
+                // Anular el cobro
+                const response = await $.ajax({
+                    url: `/api/TbCobrosApi/anular/${cobroId}`,
+                    type: 'POST',
+                    data: JSON.stringify({
+                        motivoAnulacion: motivo,
+                        password: password
+                    }),
+                    contentType: 'application/json',
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    }
+                });
+
+                if (response.success) {
+                    $('#confirmAnularModal').modal('hide');
+                    showToast(response.message, 'success');
+                    await cargarTablaCobro();
+                } else {
+                    showToast(response.message || 'Error al anular el cobro', 'error');
+                }
+            } catch (error) {
+                console.error('Error al anular cobro:', error);
+                const errorMsg = error.responseJSON?.message || 'Error al anular el cobro';
+                showToast(errorMsg, 'error');
+            } finally {
+                btn.prop('disabled', false).html('<i class="fas fa-ban me-1"></i> Anular Cobro');
+                $('#motivoAnulacion').val('');
+                $('#usuarioPassword').val('');
+            }
+        });
+
+
+        function mostrarDetallesCobro(idCobro) {
+            $.ajax({
+                url: '@Url.Action("Detalles", "TbCobros")',
+                type: 'GET',
+                data: { id: idCobro },
+                success: function (html) {
+                    // Reemplazar el contenido del contenedor con la vista parcial
+                    $('#dataTableContainer').html(html).fadeIn();
+
+                    // Opcional: animación de scroll suave
+                    $('html, body').animate({
+                        scrollTop: $('#dataTableContainer').offset().top - 20
+                    }, 500);
+                },
+                error: function () {
+                    alert('Error al cargar los detalles del cobro.');
+                }
+            });
+        }
+
+        // Modificar el evento click de los botones de detalles
+        $(document).on('click', '.btn-detalles', function (e) {
+            e.preventDefault();
+            const idCobro = $(this).attr('data-id');
+            mostrarDetallesCobro(idCobro);
+        });
+
+        function agregarInputOculto(cuotaId, monto, mora) {
+            const container = $('#inputsSeleccionados');
+
+            // Validar que el contenedor existe
+            if (container.length === 0) {
+                console.error('Error: El contenedor #inputsSeleccionados no existe en el DOM.');
+                return;
+            }
+
+            // Limpiar inputs existentes para esta cuota
+            $(`#cuota_inputs_${cuotaId}`).remove();
+
+            const inputHtml = `
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <div id="cuota_inputs_${cuotaId}" class="mb-2">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <input type="hidden" name="cuotasSeleccionadas" value="${cuotaId}" />
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <input type="hidden" name="cuotas[${cuotaId}].Monto" id="cuota_monto_${cuotaId}" value="${monto}" />
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <input type="hidden" name="cuotas[${cuotaId}].Mora" id="cuota_mora_${cuotaId}" value="${mora}" />
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <input type="hidden" name="cuotas[${cuotaId}].Id" value="${cuotaId}" />
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                `;
+
+            container.append(inputHtml);
+            console.log(`Inputs ocultos creados para cuota ${cuotaId}:`, { monto, mora });
+        }
+
+
+        //////////////////////////// SOLICITUD PARA CREAR LOS COBROS UTILIZANDO AXIOS ///////////////////////////////////////
+
+        async function crearCobro() {
+            // Obtener cuotas seleccionadas
+            const cuotasSeleccionadas = Array.from(
+                document.querySelectorAll('input[name="cuotasSeleccionadas"]:checked')
+            ).map(el => parseInt(el.value));
+
+            // Validar cuotas seleccionadas
+            if (cuotasSeleccionadas.length === 0) {
+                alert('Seleccione al menos una cuota.');
+                return false;
+            }
+
+            // Calcular el total realmente ingresado
+            const totalIngresado = parseFloat($('#totalIngresado').text()) || 0;
+            if (totalIngresado <= 0) {
+                alert('Debe ingresar al menos un monto en el desglose de pago.');
+                return false;
+            }
+
+            // Obtener datos de la primera cuota seleccionada
+            const primeraCuotaId = cuotasSeleccionadas[0];
+            const saldoCuota = parseFloat($(`#cuota_monto_${primeraCuotaId}`).val()) || 0;
+            const moraCuota = parseFloat($(`#cuota_mora_${primeraCuotaId}`).val()) || 0;
+
+            const cobroData = {
+                fkidCxc: parseInt($('#busquedaCxC').val()),
+                fmontoCobro: totalIngresado,  // Enviar el monto realmente ingresado
+                fdescuento: parseFloat($('#Fdescuento').val()) || 0,
+                fcargos: parseFloat($('#Fcargos').val()) || 0,
+                fconcepto: $('#Fconcepto').val(),
+                cuotasSeleccionadas: cuotasSeleccionadas,
+                fnumeroCuota: primeraCuotaId,
+                fmontoCuota: saldoCuota,
+                fmora: moraCuota,
+                fefectivo: parseFloat($('#efectivo').val()) || 0,
+                fmontoRecibido: parseFloat($('#montoRecibido').val()) || 0,
+                ftransferencia: parseFloat($('#transferencia').val()) || 0,
+                ftarjeta: parseFloat($('#tarjeta').val()) || 0,
+                fnotaCredito: parseFloat($('#notaCredito').val()) || 0,
+                fcheque: parseFloat($('#cheque').val()) || 0,
+                fdeposito: parseFloat($('#deposito').val()) || 0,
+                fdebitoAutomatico: parseFloat($('#debitoAutomatico').val()) || 0,
+                fnoNotaCredito: parseInt($('#FnoNotaCredito').val(), 10) || 0
+            };
+
+            // Validación adicional en el cliente
+            if (cobroData.FnoNotaCredito < 0) {
+                alert('El número de nota de crédito no puede ser negativo');
+                return false;
+            }
+
+            if (cobroData.FnotaCredito > 0 && cobroData.FnoNotaCredito <= 0) {
+                alert('Debe ingresar un número de nota de crédito válido (mayor a 0) cuando hay monto');
+                return false;
+            }
+
+            console.log("Datos del cobro enviados al backend:", JSON.stringify(cobroData, null, 2));
+
+            try {
+                const response = await axios.post('/api/TbCobrosApi/create', cobroData, {
+
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Source': 'Web',
+                        'RequestVerificationToken': document.getElementById('__RequestVerificationToken').value
+                    }
+
+                });
+                console.log("Success:", response.data);
+                if (response.data.success) {
+                    alert('Cobro registrado exitosamente');
+
+                    $('#staticBackdrop').modal('hide');
+
+                    // Generar el ticket
+                    generarTicket(); // Asegúrate de que el servidor devuelva los datos del cobro
+                    // Mostrar el modal del ticket
+                    $('#ticketModal').modal('show');
+
+                    return true;
+                } else {
+                    alert('Error: ' + response.data.message);
+                    return false;
+                }
+            } catch (error) {
+                console.error('Error completo:', error);
+                if (error.response) {
+                    console.error('Detalles del error:', error.response.data);
+                }
+                console.error('Full error:', error.response.data);
+                alert('Error al procesar la solicitud. Ver consola para detalles.');
+            }
+        }
+
+        function generarTicket() {
+            // Obtener la fecha y hora actual
+            const ahora = new Date();
+            const fecha = ahora.toLocaleDateString();
+            const hora = ahora.toLocaleTimeString();
+
+            // Obtener el ID de la cuenta por cobrar
+            const cuentaId = $('#busquedaCxC').val();
+            console.log('ID de cuenta obtenido del input:', cuentaId); // Debug 1
+
+            // Obtener el concepto ingresado por el usuario (si lo hay)
+            const conceptoUsuario = $('#Fconcepto').val();
+
+            // Obtener otros datos del formulario que puedan ser necesarios
+            const efectivoRecibido = $('#montoRecibido').val();
+            const cambio = $('#efectivo').val();
+
+            // Hacer la llamada AJAX para obtener los datos del ticket
+            $.ajax({
+                url: '/TbCobros/GetDatosTicket',
+                type: 'GET',
+                data: { cuentaId: cuentaId },
+                success: function (response) {
+                    console.log('Respuesta completa del backend:', response); // Debug 2
+
+                    if (response.success) {
+                        const datos = response.datos;
+                        console.log('Datos recibidos del backend:', datos); // Debug 3
+                        console.log('Nombre del cliente recibido:', datos.cliente); // Debug 4
+
+                        // Actualizar el contenido del ticket en el modal
+                        $('#ticketContent .header .title').text("LOGO");
+                        $('#ticketContent .direccion').text(datos.direccion);
+                        $('#ticketContent .ubicacion').text(datos.ubicacion);
+                        $('#ticketContent .telefono').text(datos.telefono);
+                        $('#ticketContent .fecha-hora').text(`${fecha} ${hora}`);
+
+                        // Debug para el elemento cliente
+                        const clienteElement = $('#ticketContent .cliente');
+                        console.log('Elemento HTML del cliente:', clienteElement); // Debug 5
+                        clienteElement.text(datos.cliente);
+
+                        $('#ticketContent .noCobro').text(datos.noCobro);
+
+                        // Usar el concepto del usuario si lo ingresó, sino el de la base de datos
+                        $('#ticketContent .concepto').text(conceptoUsuario || datos.concepto);
+
+                        // Datos numéricos
+                        $('#ticketContent .subtotal').text(datos.subtotal.toFixed(2));
+                        $('#ticketContent .cargos').text('+' + datos.cargos.toFixed(2));
+                        $('#ticketContent .mora').text('+' + datos.mora.toFixed(2));
+                        $('#ticketContent .descuento').text('-' + datos.descuento.toFixed(2));
+                        $('#ticketContent .total').text(datos.total.toFixed(2));
+                        $('#ticketContent .efectivo-recibido').text(efectivoRecibido);
+                        $('#ticketContent .cambio').text(cambio);
+                        $('#ticketContent .resto').text("0.00");
+                        $('#ticketContent .qr').text("Imagen QR");
+
+                        // Mostrar el modal del ticket
+                        $('#ticketModal').modal('show');
+                    } else {
+                        console.error('Error del backend:', response.message); // Debug 6
+                        alert('Error al cargar los datos del ticket: ' + response.message);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error en la llamada AJAX:', status, error); // Debug 7
+                    alert('Error al comunicarse con el servidor');
+                }
+            });
+        }
+
+
+        // Asegúrate de que el botón de imprimir funcione correctamente
+        $('#imprimirTicket').on('click', function () {
+            window.print();
+        });
+
+
+        function validarDatosCobro() {
+            const requiredFields = [
+                { field: $('#busquedaCxC').val(), message: 'Seleccione una cuenta por cobrar' },
+                { field: $('#MontoTotal').val(), message: 'El monto total no puede ser cero' }
+            ];
+
+            for (const item of requiredFields) {
+                if (!item.field) {
+                    alert(item.message);
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /////// Funcion para cargar vista formulario Create ///////
+        function cargarVistaCrearCobro() {
+            console.log('Iniciando carga de vista de creación...');
+
+            $.ajax({
+                url: '@Url.Action("Create", "TbCobros")',
+                type: 'GET',
+                success: function (html) {
+                    console.log('Vista recibida del servidor, procediendo a renderizar...');
+
+                    $('#dataTableContainer').html(html).fadeIn();
+                    console.log('Formulario cargado con éxito en el contenedor');
+
+                    // Inicialización de componentes
+                    console.log('Inicializando componentes...');
+                    inicializarSelect2();
+                    aplicarMascarasNumericas();
+                    filtrarCuotasPorCxc();
+
+                    // Eventos de cálculo
+                    console.log('Configurando eventos de cálculo...');
+                    $('#Fmonto, #Fcargos, #Fdescuento').on('input change', function () {
+                        console.log('Evento input/change en campos de monto');
+                        calcularMontoTotal();
+                    });
+
+                    $('#Fdescuento').on('input change', function () {
+                        console.log('Evento input/change en descuento');
+                        calcularPorcentajeDescuento();
+                    });
+
+                    $('#FdescuentoPorcentaje').on('input change', function () {
+                        console.log('Evento input/change en porcentaje de descuento');
+                        calcularDescuentoAbsoluto();
+                    });
+
+                    // Validación de cuotas seleccionadas
+                    $('#continuarBtn').on('click', function (e) {
+                        console.log('Botón continuar clickeado');
+                        const cuotasSeleccionadas = $('input[name="cuotasSeleccionadas"]:checked');
+                        console.log('Cuotas seleccionadas:', cuotasSeleccionadas.length);
+
+                        if (cuotasSeleccionadas.length === 0) {
+                            console.warn('No hay cuotas seleccionadas - mostrando error');
+                            e.preventDefault();
+                            $('#cuotasError').show();
+                            $('#tablaCobros').addClass('is-invalid');
+                            return;
+                        }
+
+                        console.log('Cuotas válidas - procediendo');
+                        $('#cuotasError').hide();
+                        $('#tablaCobros').removeClass('is-invalid');
+                    });
+
+                    // Modal de confirmación
+                    $('[data-bs-target="#staticBackdrop"]').on('click', function (e) {
+                        console.log('Preparando modal de confirmación...');
+                        e.preventDefault();
+                        calcularMontoTotal();
+
+                        const montoPreModal = $('#MontoTotal').val();
+                        console.log('Monto total calculado antes de abrir modal:', montoPreModal);
+
+                        $('#staticBackdrop').modal('show');
+                    });
+
+                    $('#staticBackdrop').on('shown.bs.modal', function () {
+                        console.log('Modal completamente mostrado - inicializando...');
+                        aplicarMascarasModal();
+
+                        const montoTotal = $('#MontoTotal').val();
+                        console.log('MontoTotal obtenido del formulario:', montoTotal);
+
+                        $('#modalMontoTotal').val(montoTotal);
+                        $('#montoPendiente').text(montoTotal);
+
+                        console.log('Valores en modal después de asignación:');
+                        console.log('- modalMontoTotal:', $('#modalMontoTotal').val());
+                        console.log('- montoPendiente (text):', $('#montoPendiente').text());
+
+                        // Resetear valores del modal
+                        $('.modal-body input[type="text"]:not(#modalMontoTotal)').val('0.00');
+                        $('#FnoNotaCredito').val('');
+                        $('#totalIngresado').text('0.00');
+                        $('#errorValidacion').addClass('d-none');
+                        $('#finalizarCobro').prop('disabled', false);
+
+                        console.log('Modal inicializado correctamente');
+                    });
+
+                    // Cálculo en tiempo real en el modal
+                    $('.modal-body input[type="text"]').on('input', function () {
+                        // Si es el campo montoRecibido, forzar recálculo
+                        if ($(this).is('#montoRecibido')) {
+                            calcularTotalIngresado();
+                        } else {
+                            // Para otros campos, calcular normalmente
+                            calcularTotalIngresado();
+                        }
+                    });
+
+                    // Finalización del cobro
+                    $('#finalizarCobro').off('click').on('click', async function () {
+                        console.log('Iniciando proceso de finalización de cobro...');
+                        const btn = this;
+                        $(btn).html('Procesando...');
+
+                        // Validación de campos obligatorios
+                        const fkidCxc = $('#busquedaCxC').val();
+                        const fmonto = $('#Fmonto').val();
+                        console.log('Validando campos obligatorios:', { fkidCxc, fmonto });
+
+                        if (!fkidCxc || !fmonto) {
+                            console.warn('Validación fallida - campos obligatorios faltantes');
+                            alert('Complete los campos obligatorios');
+                            btn.disabled = false;
+                            $(btn).html('Finalizar Cobro');
+                            return;
+                        }
+
+                        console.log('Preparando datos para enviar al servidor...');
+                        // Llamar directamente a la función crearCobro
+                        await crearCobro();
+
+                        // Restaurar el botón si falla (el éxito ya redirige)
+                        btn.disabled = false;
+                        $(btn).html('Finalizar Cobro');
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error al cargar la vista de creación:', {
+                        status: status,
+                        error: error,
+                        responseText: xhr.responseText
+                    });
+                    alert('Error al cargar la vista de creación.');
+                }
+            });
+        }
+
+        function filtrarCuotasPorCxc() {
+            console.log('Configurando filtrado de cuotas por CxC...');
+
+            $('#busquedaCxC').off('change').on('change', function () {
+                const cuentaId = $(this).val();
+                console.log('Cambio en selección de CxC - ID seleccionado:', cuentaId);
+
+                if (cuentaId) {
+                    console.log('Solicitando cuotas para CxC:', cuentaId);
+
+                    $.ajax({
+                        url: '@Url.Action("GetMontoByCuenta", "TbCobros")',
+                        type: 'GET',
+                        data: { cuentaId: cuentaId },
+                        success: function (data) {
+                            console.log('Respuesta recibida para cuotas:', data);
+                            if (data.success) {
+                                console.log('Datos de cuotas válidos recibidos');
+
+                                // Destruir DataTable existente
+                                if ($.fn.DataTable.isDataTable('#tablaCobros')) {
+                                    console.log('Destruyendo DataTable existente...');
+                                    $('#tablaCobros').DataTable().clear().destroy();
+                                }
+
+                                $('#tablaCobros tbody').empty();
+                                console.log('Contenido de tabla limpiado');
+
+                                if (data.cuotas?.length > 0) {
+                                    console.log('Creando nueva DataTable con', data.cuotas.length, 'cuotas');
+
+                                    $('#tablaCobros').DataTable({
+                                        data: data.cuotas.filter(c => c.fstatus === 'N' || c.fstatus === 'V'), // Filtrar cuotas en el frontend
+                                        columns: [
+                                            {
+                                                data: null,
+                                                render: function (data, type, row) {
+                                                    const cuotaId = row.fnumeroCuota; // Usar solo fnumeroCuota
+                                                    return `<input type="checkbox" class="row-checkbox" name="cuotasSeleccionadas" value="${cuotaId}" />`;
+                                                }
+                                            },
+                                            { data: 'fnumeroCuota' },
+                                            {
+                                                data: 'fvence',
+                                                render: function (data) {
+                                                    const fecha = new Date(data);
+                                                    if (isNaN(fecha.getTime())) return '';
+                                                    return fecha.toLocaleDateString();
+                                                }
+                                            },
+                                            {
+                                                data: 'fmonto',
+                                                render: data => parseFloat(data).toFixed(2)
+                                            },
+                                            {
+                                                data: 'fsaldo',
+                                                render: data => parseFloat(data).toFixed(2)
+                                            },
+                                            {
+                                                data: 'fmora',
+                                                render: data => `${data}%`
+                                            },
+                                            {
+                                                data: 'fstatus',
+                                                render: function (data) {
+                                                    let estadoTexto = '';
+                                                    let badgeClass = '';
+                                                    let textColor = '#fff';
+                                                    let bgColor = '#6c757d';
+
+                                                    switch (data) {
+                                                        case 'V':
+                                                            estadoTexto = 'Vencido';
+                                                            badgeClass = 'badge-danger';
+                                                            bgColor = '#dc3545';
+                                                            break;
+                                                        case 'N':
+                                                            estadoTexto = 'Pendiente';
+                                                            badgeClass = 'badge-warning';
+                                                            bgColor = '#ffc107';
+                                                            textColor = '#333';
+                                                            break;
+                                                        default:
+                                                            estadoTexto = data;
+                                                            badgeClass = 'badge-secondary';
+                                                            break;
+                                                    }
+
+                                                    return `<span class="badge ${badgeClass}" style="background-color: ${bgColor}; color: ${textColor}; padding: 0.25em 0.4em; font-size: 75%; font-weight: 700; border-radius: 0.25rem;">${estadoTexto}</span>`;
+                                                }
+                                            }
+                                        ],
+                                        responsive: true,
+                                        drawCallback: function () {
+                                            console.log('DataTable dibujada - configurando checkboxes');
+                                            manejarCheckboxes();
+                                        }
+                                    });
+                                } else {
+                                    console.warn('No hay cuotas para mostrar');
+                                    $('#tablaCobros tbody').append('<tr><td colspan="7" class="text-center">No hay cuotas para esta cuenta.</td></tr>');
+                                }
+                            } else {
+                                console.warn('La respuesta no fue exitosa:', data);
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Error al obtener cuotas:', {
+                                status: status,
+                                error: error,
+                                responseText: xhr.responseText
+                            });
+                            alert('Error al obtener datos de la cuenta.');
+                        }
+                    });
+                } else {
+                    console.log('No se seleccionó ninguna CxC');
+                }
+            });
+        }
+
+
+
+        // ✅ Disparar evento change si ya hay una cuenta seleccionada
+        const cuentaSeleccionada = $('#busquedaCxC').val();
+        if (cuentaSeleccionada) {
+            $('#busquedaCxC').trigger('change');
+        }
+
+
+        function actualizarCuotasSeleccionadas() {
+            const cuotasSeleccionadas = [];
+            document.querySelectorAll(".row-checkbox:checked").forEach(function (checkbox) {
+                cuotasSeleccionadas.push(checkbox.value);
+            });
+
+            document.getElementById("selectedCuotas").value = cuotasSeleccionadas.join(",");
+        }
+
+
+        document.addEventListener("change", function (e) {
+            if (e.target.classList.contains("row-checkbox")) {
+                actualizarCuotasSeleccionadas();
+            }
+        });
+
+        function manejarCheckboxes() {
+            // Establecer el primer checkbox como habilitado y los demás deshabilitados
+            $('input.row-checkbox').each(function (index) {
+                if (index === 0) {
+                    $(this).prop('disabled', false);
+                } else {
+                    $(this).prop('disabled', true);
+                }
+            });
+
+            // Manejar el evento de cambio de los checkboxes
+            $('input.row-checkbox').on('change', function () {
+                const row = $(this).closest('tr');
+                const cuotaId = $(this).val();
+
+                // Obtener SALDO de la columna fsaldo (5ta columna, índice 4)
+                const saldo = parseFloat(
+                    row.find('td:eq(4)').text().replace(/[^0-9.]/g, '')
+                ) || 0;
+
+                // Obtener mora (eliminar porcentaje y caracteres no numéricos)
+                const mora = parseFloat(
+                    row.find('td:eq(5)').text().replace(/[^0-9.]/g, '')
+                ) || 0;
+
+                if ($(this).prop('checked')) {
+                    // Agregar inputs ocultos usando el SALDO en lugar del monto
+                    agregarInputOculto(cuotaId, saldo, mora);
+
+                    // Habilitar el siguiente checkbox si existe
+                    const nextCheckbox = $(this).closest('tr').next().find('.row-checkbox');
+                    if (nextCheckbox.length) {
+                        nextCheckbox.prop('disabled', false);
+                    }
+                } else {
+                    // Eliminar inputs ocultos cuando se deselecciona
+                    $(`#cuota_inputs_${cuotaId}`).remove();
+
+                    // Deshabilitar checkboxes siguientes
+                    $(this).closest('tr').nextAll().find('.row-checkbox').prop({
+                        disabled: true,
+                        checked: false
+                    }).each(function () {
+                        const id = $(this).val();
+                        $(`#cuota_inputs_${id}`).remove();
+                    });
+                }
+
+                // Recalcular el total usando los SALDOS de las cuotas seleccionadas
+                let totalSaldo = 0;
+                $('input.row-checkbox:checked').each(function () {
+                    const row = $(this).closest('tr');
+                    const saldo = parseFloat(row.find('td:nth-child(5)').text().replace(',', ''));
+                    if (!isNaN(saldo)) {
+                        totalSaldo += saldo;
+                    }
+                });
+
+                $('#Fmonto').val(totalSaldo.toFixed(2)).trigger('input');
+                calcularMontoTotal();
+            });
+        }
+
+        /////// Funcion para inicializar Select2 ///////
+        let cxCData = [];
+
+        function inicializarSelect2() {
+            const $select = $('#busquedaCxC');
+            const valorSeleccionado = $select.val();
+
+            // Limpiar opciones previas y destruir Select2 si ya existe
+            if ($select.hasClass('select2-hidden-accessible')) {
+                $select.select2('destroy');
+            }
+
+            // Inicializar Select2 (vacío temporalmente)
+            $select.empty().select2({
+                placeholder: "Buscar cuenta por cobrar...",
+                allowClear: true,
+                matcher: matchCustom
+            });
+
+            // Cargar opciones desde el servidor
+            $.ajax({
+                url: '/TbCobros/BuscarCxc',
+                dataType: 'json',
+                success: function (data) {
+                    cxCData = data.results.filter(item => item.tipo === "cuenta por cobrar");
+
+                    $select.append(new Option('', '', false, false)); // Opción vacía
+
+                    cxCData.forEach(item => {
+                        const option = new Option(item.text, item.id, false, false);
+                        $select.append(option);
+                    });
+
+                    // Establecer el valor previamente seleccionado
+                    if (valorSeleccionado) {
+                        $select.val(valorSeleccionado).trigger('change');
+                    }
+
+                    // Inicializar Select2 después de agregar las opciones
+                    $select.select2();
+                },
+                error: function () {
+                    alert('Error al cargar las cuentas por cobrar.');
+                }
+            });
+
+            // Enlazar el cambio al input oculto
+            $select.on('change', function () {
+                $('#FkidCxc').val($(this).val());
+            });
+        }
+
+        /////// Funcion para inicializar Match Custom CxC ///////
+        function matchCustom(params, data) {
+            if ($.trim(params.term) === '') {
+                return data;
+            }
+            if (typeof data.text === 'undefined') {
+                return null;
+            }
+            if (data.text.toLowerCase().indexOf(params.term.toLowerCase()) > -1) {
+                var modifiedData = $.extend({}, data, true);
+                modifiedData.text += ' (matched)';
+                return modifiedData;
+            }
+            return null;
+        }
+
+        /////// Funcion para inicializar Mascara Decimal ///////
+        function aplicarMascarasNumericas() {
+            $('.numeric-input').inputmask('remove');
+
+            const maskOptions = {
+                alias: "numeric",
+                groupSeparator: ",",
+                autoGroup: true,
+                digits: 2,
+                digitsOptional: false,
+                radixPoint: ".",
+                placeholder: "0.00",
+                rightAlign: false,
+                autoUnmask: true,
+                removeMaskOnSubmit: true
+            };
+
+            $('.numeric-input').inputmask(maskOptions);
+        }
+
+        /////// Funcion para inicializar Mascara Decimal ///////
+        function aplicarMascarasModal() {
+            const $campos = $('#modalMontoTotal, #efectivo,#montoRecibido, #transferencia, #tarjeta, #notaCredito, #cheque, #deposito, #debitoAutomatico');
+            console.log("Aplicando máscaras a estos campos:", $campos.length);
+            $('.decimal-input').inputmask('remove');
+            const maskOptions = {
+                alias: "decimal",
+                groupSeparator: ",",
+                autoGroup: true,
+                digits: 2,
+                digitsOptional: false,
+                radixPoint: ".",
+                placeholder: "0.00",
+                rightAlign: false,
+                autoUnmask: true,
+                removeMaskOnSubmit: true
+            };
+
+            $('.decimal-input').inputmask(maskOptions);
+        }
+
+        // Inicialización de DataTable
+        function inicializarDataTable() {
+            // Configuración de localización
+            moment.locale('es', {
+                months: 'Enero_Febrero_Marzo_Abril_Mayo_Junio_Julio_Agosto_Septiembre_Octubre_Noviembre_Diciembre'.split('_'),
+                monthsShort: 'Ene_Feb_Mar_Abr_May_Jun_Jul_Ago_Sep_Oct_Nov_Dic'.split('_'),
+                weekdays: 'Domingo_Lunes_Martes_Miércoles_Jueves_Viernes_Sábado'.split('_'),
+                weekdaysShort: 'Dom_Lun_Mar_Mié_Jue_Vie_Sáb'.split('_')
+            });
+
+            // Inicializar datepickers
+            var minDate = new DateTime($('#min'), {
+                format: 'DD/MM/YYYY',
+                i18n: {
+                    previous: 'Anterior',
+                    next: 'Siguiente',
+                    months: moment.localeData('es').months(),
+                    weekdays: moment.localeData('es').weekdaysShort()
+                }
+            });
+
+            var maxDate = new DateTime($('#max'), {
+                format: 'DD/MM/YYYY',
+                i18n: {
+                    previous: 'Anterior',
+                    next: 'Siguiente',
+                    months: moment.localeData('es').months(),
+                    weekdays: moment.localeData('es').weekdaysShort()
+                }
+            });
+
+            // Configuración de DataTable
+            var table = $('#tablaCobros').DataTable({
+                pageLength: 10,
+                lengthMenu: [5, 10, 25, 50, 100],
+                order: [[0, 'asc']],
+                responsive: true,
+                dom: '<"top"lf>rt<"bottom"ip><"clear">',
+                columnDefs: [
+                    {
+                        targets: 1, // Columna de fecha
+                        type: 'date-euro',
+                        render: function (data) {
+                            return '<span class="badge bg-light text-dark">' + data + '</span>';
+                        }
+                    },
+                    {
+                        targets: [3, 4, 5], // Columnas numéricas
+                        className: 'text-end'
+                    },
+                    {
+                        targets: 7, // Columna Origen
+                        render: function (data) {
+                            return '<span class="badge bg-primary bg-opacity-10 text-primary">' + data + '</span>';
+                        }
+                    },
+                    {
+                        targets: 8, // Acciones
+                        className: 'text-center',
+                        orderable: false,
+                        searchable: false
+                    }
+                ],
+                initComplete: function () {
+                }
+            });
+
+            // Eventos
+            $('#min, #max').on('change', function () {
+                $(this).val() ? $(this).addClass('has-value') : $(this).removeClass('has-value');
+            });
+
+            $('#btnFiltrar').click(aplicarFiltros);
+            $('#btnReset').click(resetFiltros);
+            $('#min-clear, #max-clear').click(limpiarFecha);
+
+            // Funciones
+            function aplicarFiltros() {
+                var min = $('#min').val();
+                var max = $('#max').val();
+
+                if (min || max) {
+                    $.fn.dataTable.ext.search.push(function (settings, data) {
+                        var fechaTabla = moment(data[1], 'DD/MM/YYYY');
+                        var minDate = min ? moment(min, 'DD/MM/YYYY') : null;
+                        var maxDate = max ? moment(max, 'DD/MM/YYYY') : null;
+
+                        return (!minDate || fechaTabla.isSameOrAfter(minDate)) &&
+                            (!maxDate || fechaTabla.isSameOrBefore(maxDate));
+                    });
+                }
+
+                table.draw();
+                $.fn.dataTable.ext.search.pop();
+            }
+
+            function resetFiltros() {
+                $('#min, #max').val('').removeClass('has-value');
+                table.search('').columns().search('').draw();
+            }
+
+            function limpiarFecha() {
+                $(this).closest('.input-group').find('input').val('').removeClass('has-value').change();
+            }
+
+            return table;
+        }
+
+        $(document).ready(function () {
+            $('#loadCobro').on('click', cargarTablaCobro);
+            $('#createCobro').on('click', cargarVistaCrearCobro);
+
+            aplicarMascarasNumericas();
+            inicializarDataTable();
+
+
+        });
+    </script>
+}

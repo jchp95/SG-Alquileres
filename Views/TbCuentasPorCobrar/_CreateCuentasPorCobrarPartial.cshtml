@@ -1,0 +1,85 @@
+@model Alquileres.Models.TbCxc
+
+@{
+    ViewData["Title"] = "Crear Cuenta por Cobrar";
+}
+
+<div class="mb-4">
+    <h3>Registrar Cuenta por Cobrar</h3>
+</div>
+<hr />
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div id="errorContainer" class="text-danger" style="display: none;"></div>
+            <!-- Select para Inquilino -->
+            <div class="form-group">
+                <label class="control-label">Buscar Inquilino</label>
+                <select id="busquedaInquilino" class="form-control select2" <!-- Clase necesaria -->
+                    name="busquedaInquilino"
+                    data-placeholder="Buscar inquilino..."> <!-- Placeholder en HTML -->
+                    <option></option> <!-- Opción vacía para el placeholder -->
+                </select>
+                <input type="hidden" id="FidInquilino" name="FidInquilino" />
+            </div>
+
+            <!-- Select para Inmueble -->
+            <div class="form-group">
+                <label class="control-label">Buscar Inmueble</label>
+                <select id="busquedaInmueble" class="form-control select2" <!-- Clase necesaria -->
+                    name="busquedaInmueble"
+                    data-placeholder="Buscar inmueble..."> <!-- Placeholder en HTML -->
+                    <option></option> <!-- Opción vacía para el placeholder -->
+                </select>
+                <input type="hidden" id="FkidInmueble" name="FkidInmueble" />
+            </div>
+            <div class="form-group">
+                <label class="control-label" asp-for="FfechaInicio">
+                    @Html.DisplayNameFor(model =>
+                    model.FfechaInicio)
+                </label>
+                <input asp-for="FfechaInicio" class="form-control" type="date" />
+                <span asp-validation-for="FfechaInicio" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label" asp-for="Fmonto">@Html.DisplayNameFor(model => model.Fmonto)</label>
+                <input asp-for="Fmonto" class="form-control" id="monto-input" inputmode="decimal" type="text"
+                    autocomplete="off" />
+                <span asp-validation-for="Fmonto" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label" asp-for="FdiasGracia">
+                    @Html.DisplayNameFor(model =>
+                                        model.FdiasGracia)
+                </label>
+                <input asp-for="FdiasGracia" class="form-control" type="number" />
+                <span asp-validation-for="FdiasGracia" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label" asp-for="FtasaMora">@Html.DisplayNameFor(model => model.FtasaMora)</label>
+                <input asp-for="FtasaMora" class="form-control" type="number" step="0.01" />
+                <span asp-validation-for="FtasaMora" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label" asp-for="Fnota">@Html.DisplayNameFor(model => model.Fnota)</label>
+                <textarea asp-for="Fnota" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Fnota" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label">@Html.DisplayNameFor(model => model.FidPeriodoPago)</label>
+                <select asp-for="FidPeriodoPago" class="form-control" asp-items="ViewBag.FidPeriodoPago"></select>
+                <span asp-validation-for="FidPeriodoPago" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mt-2">
+                <input type="submit" value="Crear" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary ml-2">Volver a la Lista</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

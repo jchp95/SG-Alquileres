@@ -1,0 +1,48 @@
+@model IEnumerable<TbAuditorium>
+
+<h1 class="mb-4">Historial de Auditoría</h1>
+
+<div class="table-responsive shadow-sm rounded-3 p-3 bg-white">
+    <table id="auditoriaTable" class="table table-hover">
+        <thead>
+            <tr>
+                <th>Tabla Modificada</th>
+                <th>ID Registro</th>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Tipo de Acción</th>
+                <th>Usuario</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var auditoria in Model.OrderByDescending(a => a.Ffecha))
+            {
+                <tr>
+                    <td>@auditoria.Ftabla</td>
+                    <td>@auditoria.FkidRegistro</td>
+                    <td>@auditoria.Ffecha.ToString("dd/MM/yyyy")</td>
+                    <td>@auditoria.Fhora</td>
+                    <td>@auditoria.Faccion</td>
+                    <td>@auditoria.FkidUsuario</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            var table = $('#auditoriaTable').DataTable({
+                responsive: true,
+                language: {
+                    url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
+                },
+                pageLength: 10,
+                lengthMenu: [5, 10, 25, 50],
+                order: [[2, 'desc']], // Ordenar por fecha descendente
+                autoWidth: false,
+            });
+        });
+    </script>
+}

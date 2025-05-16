@@ -1,0 +1,51 @@
+@model IEnumerable<Alquileres.Models.InmuebleViewModel>
+
+<table id="inmueblesTable" class="table table-hover">
+    <thead>
+        <tr>
+            <th>Propietario</th>
+            <th>Descripción</th>
+            <th>Dirección</th>
+            <th>Ubicación</th>
+            <th>Precio</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var inmueble in Model)
+        {
+            <tr>
+                <td>@inmueble.PropietarioNombre</td>
+                <td>@inmueble.Fdescripcion</td>
+                <td>@inmueble.Fdireccion</td>
+                <td>@inmueble.Fubicacion</td>
+                <td>@inmueble.Fprecio.ToString("N2", new System.Globalization.CultureInfo("es-DO"))</td>
+                <td>@(inmueble.Factivo ? "Activo" : "No Activo")</td>
+                <td>
+                    @if (inmueble.Factivo)
+                    {
+                        <a href="javascript:void(0);" class="btn btn-sm btn-warning me-1 editInmueble"
+                            data-id="@inmueble.FidInmueble">
+                            <i class="fa fa-edit"></i>
+                        </a>
+                    }
+                    else
+                    {
+                        <button class="btn btn-sm btn-warning me-1" title="Editar (Inactivo)" disabled>
+                            <i class="fa fa-edit"></i>
+                        </button>
+                    }
+
+                    <form asp-action="CambiarEstado" asp-route-id="@inmueble.FidInmueble" method="post"
+                        class="d-inline cambiarEstadoForm">
+                        <button type="submit" class="btn btn-sm @(inmueble.Factivo ? "btn-secondary" : "btn-success")"
+                            title="@(inmueble.Factivo ? "Anular" : "Activar")">
+                            <i class="fa @(inmueble.Factivo ? "fa-ban" : "fa-undo")"></i>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

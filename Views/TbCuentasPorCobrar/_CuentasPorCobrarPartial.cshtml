@@ -1,0 +1,189 @@
+@model IEnumerable<Alquileres.Models.CuentaPorCobrarViewModel>
+
+<div class="container-fluid px-4 py-4">
+    <!-- Header -->
+    <div
+        class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+        <div>
+            <h2 class="mb-1"><i class="fas fa-file-invoice-dollar me-2 text-primary"></i>Cuentas por Cobrar</h2>
+            <p class="text-muted mb-0">Gestión de cuentas pendientes de cobro</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-primary">
+                <i class="fas fa-file-export me-1"></i> Exportar
+            </button>
+        </div>
+    </div>
+
+    <!-- Card de Filtros -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label for="filtroInquilino" class="form-label">Inquilino</label>
+                    <input type="text" id="filtroInquilino" class="form-control" placeholder="Filtrar por inquilino">
+                </div>
+                <!-- Filtro por estado -->
+                <div class="col-md-3">
+                    <label for="filtroEstado" class="form-label small text-muted mb-1">Estado</label>
+                    <select class="form-select" id="filtroEstado">
+                        <option value="" selected>Todos</option>
+                        <option value="true">Activo</option>
+                        <option value="false">Inactivo</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="filtroPeriodo" class="form-label">Período</label>
+                    <select id="filtroPeriodo" class="form-select">
+                        <option value="">Todos los períodos</option>
+                        <option value="Mensual">Mensual</option>
+                        <option value="Quincenal">Quincenal</option>
+                        <option value="Semanal">Semanal</option>
+                        <option value="Anual">Anual</option>
+                    </select>
+                </div>
+                <!-- Filtro por fechas -->
+                <div class="col-md-6">
+                    <label for="min" class="form-label small text-muted mb-1">Fecha desde</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent">
+                            <i class="far fa-calendar text-muted"></i>
+                        </span>
+                        <input type="text" class="form-control" id="min" placeholder="DD/MM/AAAA">
+                        <button class="btn btn-outline-secondary" type="button" id="min-clear">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label for="max" class="form-label small text-muted mb-1">Fecha hasta</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent">
+                            <i class="far fa-calendar text-muted"></i>
+                        </span>
+                        <input type="text" class="form-control" id="max" placeholder="DD/MM/AAAA">
+                        <button class="btn btn-outline-secondary" type="button" id="max-clear">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-12 text-end">
+                    <button id="btnAplicarFiltros" class="btn btn-primary me-2">
+                        <i class="fas fa-filter me-1"></i> Aplicar Filtros
+                    </button>
+                    <button id="btnResetFiltros" class="btn btn-outline-secondary">
+                        <i class="fas fa-undo"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card de Resultados -->
+    <div class="card border-0 shadow-sm px-4 py-4">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table id="cuentasPorCobrarTable" class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Inquilino</th>
+                            <th class="text-end pe-3">Monto</th>
+                            <th class="text-center">Días de Gracia</th>
+                            <th class="text-center">Tasa de Mora</th>
+                            <th class="text-center">Fecha Inicio</th>
+                            <th class="text-center">Período</th>
+                            <th class="text-center">Próxima Cuota</th>
+                            <th class="text-center">Estado</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="ms-3">
+                                            <p class="fw-bold mb-0">@item.InquilinoNombre</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-end pe-3 fw-bold">
+                                    @item.Fmonto.ToString("N2", new System.Globalization.CultureInfo("es-DO"))
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary">
+                                        @item.FdiasGracia
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-warning bg-opacity-10 text-warning">
+                                        @item.FtasaMora%
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-light text-dark">
+                                        @item.FfechaInicio.ToString("dd/MM/yyyy")
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-info bg-opacity-10 text-info">
+                                        @item.NombrePeriodoPago
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    @if (item.FfechaProxCuota.HasValue)
+                                    {
+                                        <span class="badge bg-primary bg-opacity-10 text-primary">
+                                            @item.FfechaProxCuota.Value.ToString("dd/MM/yyyy")
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-light text-muted">N/A</span>
+                                    }
+                                </td>
+                                <td>
+                                    <span
+                                        class="badge @(item.Factivo ? "bg-success bg-opacity-10 text-success" : "bg-danger bg-opacity-10 text-danger")"
+                                        data-estado="@(item.Factivo ? "1" : "0")">
+                                        @(item.Factivo ? "Activo" : "Inactivo")
+                                    </span>
+                                </td>
+                                <td class="text-center pe-4">
+                                    <div class="d-flex justify-content-center gap-2">
+                                        @if (item.Factivo)
+                                        {
+                                            <a href="javascript:void(0);" class="btn btn-sm btn-outline-primary editInquilino"
+                                                data-id="@item.FidCuenta" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-sm btn-outline-primary" title="Editar (Inactivo)" disabled>
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        }
+
+                                        <form asp-action="CambiarEstado" method="post" class="d-inline cambiarEstadoForm">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@item.FidCuenta" />
+                                            <button type="submit"
+                                                class="btn btn-sm @(item.Factivo ? "btn-outline-secondary" : "btn-outline-success")"
+                                                title="@(item.Factivo ? "Desactivar" : "Activar")">
+                                                <i class="fas @(item.Factivo ? "fa-ban" : "fa-undo")"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

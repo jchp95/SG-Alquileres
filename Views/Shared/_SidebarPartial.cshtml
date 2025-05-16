@@ -1,0 +1,112 @@
+<!-- Sidebar -->
+<div class="div2 collapsed" id="sidebar">
+    <div class="d-flex flex-column bg-light">
+        <!-- Botón de alternancia -->
+        <button id="toggleSidebar" class="btn btn-primary">
+            <i class="fas fa-bars"></i> <!-- Icono para el botón -->
+        </button>
+        <!-- Enlace principal con colapso para Inquilinos -->
+        <li class="sidebar-nav-item">
+            <a class="list-group-item list-group-item-action ripple nav-link text-dark" data-toggle="tooltip"
+                data-html="true" data-placement="right" title="Gestión de Inquilinos" aria-current="true"
+                data-mdb-collapse-init href="#inquilinosSubMenu" aria-expanded="false" aria-controls="inquilinosSubMenu"
+                onclick="toggleSubMenu(event, 'inquilinosSubMenu')">
+                <i class="fas fa-users"></i><span class="sidebar-text">Inquilinos</span>
+                <i class="fas fa-chevron-down float-end" id="inquilinosArrow"></i> <!-- Icono de flecha -->
+            </a>
+        </li>
+        <!-- Contenido colapsable para Inquilinos -->
+        <ul id="inquilinosSubMenu" class="collapse list-group list-group-flush">
+            <li class="sidebar-nav-item">
+                <a class="nav-link text-dark" asp-area="" asp-controller="TbInquilinoes" asp-action="Index"
+                    data-toggle="tooltip" data-html="true" data-placement="right" title="Inquilinos">
+                    <i class="fas fa-users"></i> <span class="sidebar-text">Gestión de Inquilinos</span>
+                </a>
+            </li>
+        </ul>
+
+        <!-- Enlace principal con colapso para Propietarios -->
+        <li class="sidebar-nav-item">
+            <a class="list-group-item list-group-item-action ripple nav-link text-dark" data-toggle="tooltip"
+                data-html="true" data-placement="right" title="Gestión de Propietarios" aria-current="true"
+                data-mdb-collapse-init href="#propietariosSubMenu" aria-expanded="false"
+                aria-controls="propietariosSubMenu" onclick="toggleSubMenu(event, 'propietariosSubMenu')">
+                <i class="fas fa-user-tie"></i><span class="sidebar-text">Propietarios</span>
+                <i class="fas fa-chevron-down float-end" id="propietariosArrow"></i> <!-- Icono de flecha -->
+            </a>
+        </li>
+        <!-- Contenido colapsable para Propietarios -->
+        <ul id="propietariosSubMenu" class="collapse list-group list-group-flush">
+            <li class="sidebar-nav-item">
+                <a class="nav-link text-dark" asp-area="" asp-controller="TbPropietarios" asp-action="Index"
+                    data-toggle="tooltip" data-html="true" data-placement="right" title="Propietarios">
+                    <i class="fas fa-user-tie"></i> <span class="sidebar-text">Gestión Propietarios</span>
+                </a>
+            </li>
+        </ul>
+
+        <!-- Enlace principal con colapso para Inmuebles -->
+        <li class="sidebar-nav-item">
+            <a class="list-group-item list-group-item-action ripple nav-link text-dark" data-toggle="tooltip"
+                data-html="true" data-placement="right" title="Gestión de Inmuebles" aria-current="true"
+                data-mdb-collapse-init href="#inmueblesSubMenu" aria-expanded="false" aria-controls="inmueblesSubMenu"
+                onclick="toggleSubMenu(event, 'inmueblesSubMenu')">
+                <i class="fas fa-building"></i><span class="sidebar-text">Inmuebles</span>
+                <i class="fas fa-chevron-down float-end" id="inmueblesArrow"></i> <!-- Icono de flecha -->
+            </a>
+        </li>
+        <!-- Contenido colapsable para Inmuebles -->
+        <ul id="inmueblesSubMenu" class="collapse list-group list-group-flush">
+            <li class="sidebar-nav-item">
+                <a class="nav-link text-dark" asp-area="" asp-controller="TbInmuebles" asp-action="Index"
+                    data-toggle="tooltip" data-html="true" data-placement="right" title="Inmuebles">
+                    <i class="fas fa-building"></i> <span class="sidebar-text">Gestión Inmuebles</span>
+                </a>
+            </li>
+        </ul>
+        <!-- Enlace a Cuentas por Cobrar -->
+        <li class="sidebar-nav-item">
+            <a class="list-group-item list-group-item-action ripple nav-link text-dark" data-toggle="tooltip"
+                data-html="true" data-placement="right" title="Gestión de Cuentas por Cobrar" aria-current="true"
+                data-mdb-collapse-init href="#cuentasPorCobrarSubMenu" aria-expanded="false"
+                aria-controls="cuentasPorCobrarSubMenu" onclick="toggleSubMenu(event, 'cuentasPorCobrarSubMenu')">
+                <i class="fas fa-dollar"></i><span class="sidebar-text">Cuentas por cobrar</span>
+                <i class="fas fa-chevron-down float-end" id="cuentasPorCobrarArrow"></i> <!-- Icono de flecha -->
+            </a>
+        </li>
+        <!-- Contenido colapsable para Cuentas por Cobrar -->
+        <ul id="cuentasPorCobrarSubMenu" class="collapse list-group list-group-flush">
+            <li class="sidebar-nav-item">
+                <a class="nav-link text-dark" asp-area="" asp-controller="TbCuentasPorCobrar" asp-action="Index"
+                    data-toggle="tooltip" data-html="true" data-placement="right" title="Cuentas por Cobrar">
+                    <i class="fas fa-dollar-sign"></i> <span class="sidebar-text">Gestión de CxC</span>
+                </a>
+            </li>
+            <li class="sidebar-nav-item">
+                <a class="nav-link text-dark" asp-area="" asp-controller="TbCuotas" asp-action="Index"
+                    data-toggle="tooltip" data-html="true" data-placement="right" title="Ver Cuotas">
+                    <i class="fas fa-check-circle"></i> <span class="sidebar-text">Ver Cuotas</span>
+                </a>
+            </li>
+        </ul>
+        <!-- Enlace principal con colapso para Cobros -->
+        <li class="sidebar-nav-item">
+            <a class="list-group-item list-group-item-action ripple nav-link text-dark" data-toggle="tooltip"
+                data-html="true" data-placement="right" title="Gestión de Cobros" aria-current="true"
+                data-mdb-collapse-init href="#cobrosSubMenu" aria-expanded="false" aria-controls="cobrosSubMenu"
+                onclick="toggleSubMenu(event, 'cobrosSubMenu')">
+                <i class="fas fa-building fa-fw"></i><span class="sidebar-text">Cobros</span>
+                <i class="fas fa-chevron-down float-end" id="cobrosArrow"></i> <!-- Icono de flecha -->
+            </a>
+        </li>
+        <!-- Contenido colapsable -->
+        <ul id="cobrosSubMenu" class="collapse list-group list-group-flush"> <!-- Lista anidada para el submenú -->
+            <li class="sidebar-nav-item">
+                <a class="nav-link text-dark" asp-area="" asp-controller="TbCobros" asp-action="Index"
+                    data-toggle="tooltip" data-html="true" data-placement="right" title="Cobros">
+                    <i class="fas fa-money-bill-wave"></i> <span class="sidebar-text">Cobros</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>

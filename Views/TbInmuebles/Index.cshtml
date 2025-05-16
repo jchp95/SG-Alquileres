@@ -1,0 +1,218 @@
+﻿@model IEnumerable<dynamic>
+
+@{
+    ViewData["Title"] = "Gestión de Inmuebles";
+}
+
+<div class="text-center mb-4">
+    <h1>Gestión de Inmuebles</h1>
+</div>
+
+<div class="d-flex justify-content-center mb-4">
+    <button id="loadInmuebles" class="btn btn-secondary me-2">Cargar Inmuebles</button>
+    <a id="createInmueble" class="btn btn-primary shadow-sm">
+        <i class="fa fa-plus"></i> Crear Nuevo
+    </a>
+</div>
+
+<div id="dataTableContainer" style="display: none;">
+    <!-- Aquí se cargará la vista parcial de la tabla o el formulario -->
+</div>
+
+@section Scripts {
+
+    <script>
+        $(document).ready(function () {
+            // Función de coincidencia personalizada para Select2
+            function matchCustom(params, data) {
+                if ($.trim(params.term) === '') {
+                    return data;
+                }
+                if (typeof data.text === 'undefined') {
+                    return null;
+                }
+                if (data.text.toLowerCase().indexOf(params.term.toLowerCase()) > -1) {
+                    var modifiedData = $.extend({}, data, true);
+                    modifiedData.text += ' (matched)';
+                    return modifiedData;
+                }
+                return null;
+            }
+
+            function cargarTablaInmuebles() {
+                $.ajax({
+                    url: '@Url.Action("CargarInmuebles", "TbInmuebles")',
+                    type: 'GET',
+                    success: function (data) {
+                        $('#dataTableContainer').html(data);
+                        $('#dataTableContainer').fadeIn();
+
+                        // Destruir cualquier DataTable anterior para evitar conflictos
+                        if ($.fn.DataTable.isDataTable('#inmueblesTable')) {
+                            $('#inmueblesTable').DataTable().destroy();
+                        }
+                        $('#inmueblesTable').DataTable();
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error al cargar inmuebles: " + error);
+                    }
+                });
+            }
+
+            $('#loadInmuebles').on('click', function () {
+                console.log('Cargando inmuebles...');
+                cargarTablaInmuebles();
+            });
+
+            $('#createInmueble').on('click', function () {
+                console.log('Cargando formulario de creación...');
+
+                $.get('@Url.Action("Create", "TbInmuebles")')
+                    .done(function (data) {
+                        $('#dataTableContainer').html(data).fadeIn();
+                        inicializarSelect2();
+                        aplicarMascaraPrecio();
+                    })
+                    .fail(function (xhr) {
+                        console.error("Error al cargar formulario:", xhr.responseText);
+                    });
+            });
+
+            // Reemplaza la función aplicarMascaraPrecio con esta versión mejorada
+            function aplicarMascaraPrecio() {
+                const $precioInput = $('#precio-input');
+
+                if ($precioInput.length) {
+                    $precioInput.removeAttr('data-inputmask');
+
+                    $precioInput.inputmask({
+                        alias: "numeric",
+                        groupSeparator: ",",
+                        autoGroup: true,
+                        digits: 2,
+                        radixPoint: ".",
+                        placeholder: "0.00",
+                        numericInput: true,
+                        autoUnmask: true,
+                        removeMaskOnSubmit: true,
+                        clearIncomplete: true,
+                        rightAlign: false,  // <- Esta es la opción clave
+                        onBeforeMask: function (value) {
+                            return (value || "").toString().replace(/[^0-9.]/g, '');
+                        }
+                    });
+
+                    console.log("Máscara aplicada correctamente");
+                } else {
+                    console.warn("Input de precio no encontrado, reintentando...");
+                    setTimeout(aplicarMascaraPrecio, 100);
+                }
+            }
+
+            let propietariosData = [];
+
+
+            function inicializarSelect2() {
+                // Configurar eventos para capturar IDs
+                $('#busquedaPropietario').on('change', function () {
+                    $('#FkidPropietario').val($(this).val());
+                });
+
+                // Inicializar select2 para propietarios
+                const selectPropietario = $('#busquedaPropietario').select2({
+                    placeholder: "Buscar propietario...",
+                    allowClear: true,
+                    matcher: matchCustom
+                });
+
+                // Cargar propietarios
+                $.ajax({
+                    url: '/TbInmuebles/BuscarPropietario',
+                    dataType: 'json',
+                    success: function (data) {
+                        propietariosData = data.results.filter(item => item.tipo === "propietario");
+                        selectPropietario.empty()
+                            .append(new Option('', ''))
+                            .append(propietariosData.map(item => new Option(item.text, item.id)))
+                            .trigger('change');
+                    },
+                    error: function () {
+                        alert('Error al cargar los propietarios.');
+                    }
+                });
+            }
+
+            $(document).on('click', '.editInmueble', function () {
+                var id = $(this).data('id');
+                console.log('Editando inmueble ID:', id);
+                $.ajax({
+                    url: '@Url.Action("Edit", "TbInmuebles")/' + id,
+                    type: 'GET',
+                    success: function (data) {
+                        $('#dataTableContainer').html(data);
+                        $('#dataTableContainer').show();
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error al cargar el formulario de edición: " + error);
+                    }
+                });
+            });
+
+            // Manejar envío de formulario de creación
+            $(document).on('submit', 'form[action$="/Create"]', function (e) {
+                e.preventDefault();
+                var form = $(this);
+                $.ajax({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    data: form.serialize(),
+                    success: function (data) {
+                        console.log('Inmueble creado.');
+                        cargarTablaInmuebles(); // Recargar lista automáticamente
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error al crear inmueble: " + error);
+                    }
+                });
+            });
+
+            // Manejar envío de formulario de edición
+            $(document).on('submit', 'form[action*="/Edit"]', function (e) {
+                e.preventDefault();
+                var form = $(this);
+                $.ajax({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    data: form.serialize(),
+                    success: function (data) {
+                        console.log('Inmueble editado.');
+                        cargarTablaInmuebles(); // Recargar lista automáticamente
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error al editar inmueble: " + error);
+                    }
+                });
+            });
+
+            // Manejar cambio de estado
+            $(document).on('submit', '.cambiarEstadoForm', function (e) {
+                e.preventDefault();
+                var form = $(this);
+                $.ajax({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    data: form.serialize(),
+                    success: function (data) {
+                        console.log('Estado cambiado.');
+                        cargarTablaInmuebles(); // Recargar lista automáticamente
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error al cambiar estado: " + error);
+                    }
+                });
+            });
+
+        });
+    </script>
+
+}

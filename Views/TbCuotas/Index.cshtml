@@ -1,0 +1,49 @@
+﻿@model IEnumerable<dynamic>
+
+@{
+    ViewData["Title"] = "Gestión de Cuotas";
+}
+
+<div class="text-center mb-4">
+    <h1>Gestión de Cuotas</h1>
+</div>
+
+<div class="d-flex justify-content-center mb-4">
+    <button id="loadCuota" class="btn btn-secondary me-2">Cargar Cuotas</button>
+</div>
+
+<div id="dataTableContainer" style="display: none;">
+    <!-- Contenedor dinámico para tabla/formulario -->
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // 1. Solicitud GET para cargar la tabla
+            function cargarTablaCuotas() {
+                $.ajax({
+                    url: '@Url.Action("CargarCuota", "TbCuotas")',
+                    type: 'GET',
+                    success: function (data) {
+                        $('#dataTableContainer').html(data).fadeIn();
+                        inicializarDataTable();
+                    },
+                    error: function () {
+                        alert('Error al cargar la tabla de cuotas. Inténtalo de nuevo más tarde.');
+                    }
+                });
+            }
+            // Helpers
+            function inicializarDataTable() {
+                if ($.fn.DataTable.isDataTable('#cuotaTable')) {
+                    $('#cuotaTable').DataTable().destroy();
+                }
+                $('#cuotaTable').DataTable({
+                    stateSave: false,
+                });
+            }
+            // Eventos
+            $('#loadCuota').click(cargarTablaCuotas);
+        }); // <-- Missing closing brace added here
+    </script>
+}

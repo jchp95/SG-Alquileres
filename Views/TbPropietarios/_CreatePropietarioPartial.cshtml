@@ -1,0 +1,69 @@
+@model Alquileres.Models.TbPropietario
+
+@{
+    ViewData["Title"] = "Crear Propietario";
+}
+
+<div class="mb-4">
+    <h3>Crear Propietario</h3>
+</div>
+<hr />
+
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group">
+                <label class="control-label">Nombre</label>
+                <input asp-for="Fnombre" class="form-control" />
+                <span asp-validation-for="Fnombre" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Apellidos</label>
+                <input asp-for="Fapellidos" class="form-control" />
+                <span asp-validation-for="Fapellidos" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Cédula</label>
+                <input asp-for="Fcedula" class="form-control" />
+                <span asp-validation-for="Fcedula" class="text-danger"></span>
+                <!-- Agregar contenedor para errores dinámicos -->
+                <div class="cedula-error text-danger" style="display: none;"></div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Dirección</label>
+                <input asp-for="Fdireccion" class="form-control" />
+                <span asp-validation-for="Fdireccion" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Teléfono</label>
+                <input asp-for="Ftelefono" class="form-control" id="telefono-input"
+                       placeholder="Ej: (809) 221-1234" />
+                <span asp-validation-for="Ftelefono" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Celular</label>
+                <input asp-for="Fcelular" class="form-control" id="celular-input"
+                       placeholder="Ej: (809) 456-7890" />
+                <span asp-validation-for="Fcelular" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mt-2">
+                <input type="submit" value="Crear" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary ml-2">Volver a la Lista</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

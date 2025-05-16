@@ -1,0 +1,24 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+    bool alertCuotasVencidas = ViewData["AlertaCuotasVencidas"] != null && (bool)ViewData["AlertaCuotasVencidas"];
+    int cantidadCuotasVencidas = ViewData["CantidadCuotasVencidas"] != null ? (int)ViewData["CantidadCuotasVencidas"] : 0;
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div>
+
+@section Scripts {
+    @if (alertCuotasVencidas)
+    {
+        <script>
+            Swal.fire({
+                title: 'Atención!',
+                text: 'Existen @cantidadCuotasVencidas cuotas vencidas que requieren su revisión.',
+                icon: 'warning',
+                confirmButtonText: 'Ok'
+            });
+        </script>
+    }
+}

@@ -1,0 +1,30 @@
+﻿@model IEnumerable<Alquileres.Models.TbCxcCuotum>
+
+<table id="cuotaTable" class="table table-hover">
+    <thead>
+        <tr>
+            <th>ID CxC</th>
+            <th>Número Cuota</th>
+            <th>Fecha Vencimiento</th>
+            <th>Monto</th>
+            <th>Saldo</th>
+            <th>Mora %</th>
+            <th>Estado</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.FidCxc</td>
+                <td>@item.FNumeroCuota</td>
+                <td>@item.Fvence.ToString("dd/MM/yyyy")</td>
+                <td>@item.Fmonto.ToString("N2", new System.Globalization.CultureInfo("es-DO"))</td>
+                <td>@item.Fsaldo.ToString("N2", new System.Globalization.CultureInfo("es-DO"))</td>
+                <td>@item.Fmora %</td>
+                <td>@item.Fstatus</td>
+            </tr>
+        }
+        <!-- Cierre del bloque foreach -->
+    </tbody>
+</table>

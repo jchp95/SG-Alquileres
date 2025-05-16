@@ -1,0 +1,271 @@
+﻿@using Microsoft.AspNetCore.Antiforgery
+@inject IAntiforgery Antiforgery
+@model Alquileres.Models.TbCobro
+
+@{
+    ViewData["Title"] = "Crear Cobro";
+    var token = Antiforgery.GetAndStoreTokens(Context).RequestToken;
+}
+
+<div class="mb-4">
+    <h3>Registrar Cobro</h3>
+</div>
+<hr />
+<div class="row">
+    <div class="col-md-12">
+        <form asp-action="Create" id="cobroForm" class="needs-validation" novalidate>
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div id="errorContainer" class="text-danger" style="display: none;"></div>
+            <div class="row">
+                <!--Contenedor para los campos ocultos-->
+                <div id="inputsSeleccionados">
+
+                </div>
+                <input type="hidden" id="__RequestVerificationToken" value="@token" />
+                <!-- Columna Izquierda -->
+                <div class="col-md-6">
+                    <!-- Select para Cuentas por cobrar (Campo requerido) -->
+                    <div class="form-group">
+                        <label class="control-label">Buscar Cuenta por cobrar</label>
+                        <select id="busquedaCxC" class="form-control select2" name="FkidCxC" required
+                            data-placeholder="Buscar Cuenta por cobrar...">
+                            <option></option>
+                        </select>
+                        <div class="invalid-feedback">
+                            Por favor seleccione una cuenta por cobrar.
+                        </div>
+                    </div>
+
+                    <!-- Monto -->
+                    <div class="form-group">
+                        <label class="control-label" asp-for="Fmonto">@Html.DisplayNameFor(model =>
+                                                        model.Fmonto)</label>
+                        <input asp-for="Fmonto" id="Fmonto" name="Fmonto" placeholder="0.00"
+                            class="form-control numeric-input" inputmode="decimal" type="text" required />
+                        <span asp-validation-for="Fmonto" class="text-danger"></span>
+                    </div>
+
+                    <!-- Cargos -->
+                    <div class="form-group">
+                        <label class="control-label" asp-for="Fcargos">@Html.DisplayNameFor(model =>
+                                                        model.Fcargos)</label>
+                        <input asp-for="Fcargos" id="Fcargos" name="Fcargos" placeholder="0.00"
+                            class="form-control numeric-input" type="text" />
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <!-- Descuento $ -->
+                            <div class="form-group">
+                                <label class="control-label" asp-for="Fdescuento">@Html.DisplayNameFor(model =>
+                                                                        model.Fdescuento) $</label>
+                                <input asp-for="Fdescuento" name="Fdescuento" class="form-control numeric-input"
+                                    placeholder="0.00" inputmode="decimal" type="text" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <!-- Descuento % (No requerido) -->
+                            <div class="form-group">
+                                <label class="control-label">Descuento %</label>
+                                <input id="FdescuentoPorcentaje" name="FdescuentoPorcentaje" class="form-control"
+                                    type="number" step="0.01" value="0" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Monto Total (se mantiene readonly) -->
+                    <div class="form-group">
+                        <label class="control-label">Monto Total</label>
+                        <input id="MontoTotal" class="form-control numeric-input" placeholder="0.00" type="text"
+                            readonly />
+                    </div>
+                </div>
+
+                <!-- Columna Derecha -->
+                <div class="col-md-6">
+                    <!-- Concepto (Puede ser nulo) -->
+                    <div class="form-group">
+                        <label class="control-label" asp-for="Fconcepto">@Html.DisplayNameFor(model =>
+                                                        model.Fconcepto)</label>
+                        <input asp-for="Fconcepto" name="Fconcepto" class="form-control" rows="3" />
+                        <span asp-validation-for="Fconcepto" class="text-danger"></span>
+                    </div>
+
+                    <input type="hidden" id="selectedCuotas" name="SelectedCuotas" />
+                    <div id="cuotasError" class="text-danger" style="display:none;">Debe seleccionar al menos una cuota.
+                    </div>
+
+                    <!-- Tabla de cuotas -->
+                    <div class="form-group">
+                        <label>
+                            <h5 class="mt-2">Listado de Cuotas</h5>
+                        </label>
+                        <table class="table" id="tablaCobros">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Número de Cuota</th>
+                                    <th>Fecha de Vencimiento</th>
+                                    <th>Monto</th>
+                                    <th>Saldo</th>
+                                    <th>Tasa de Mora</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Las filas de cuotas vencidas se agregan dinámicamente aquí -->
+                            </tbody>
+                        </table>
+                        <div id="cuotasError" class="invalid-feedback" style="display: none;">
+                            Por favor seleccione al menos una cuota.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group mt-2">
+                <button type="button" class="btn btn-primary" id="continuarBtn" data-bs-toggle="modal"
+                    data-bs-target="#staticBackdrop">
+                    Continuar
+                </button>
+                <a asp-action="Index" class="btn btn-secondary ml-2">Volver a la Lista</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h1 class="modal-title fs-5" id="staticBackdropLabel">Desglose de Cobro</h1>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Sección de monto total -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label class="fw-bold">Monto Total a Pagar:</label>
+                            <input id="modalMontoTotal"
+                                class="form-control form-control-lg fw-bold text-success decimal-input" type="text"
+                                inputmode="decimal" readonly />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Campos de desglose de pagos -->
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input id="montoRecibido" name="montoRecibido" class="form-control decimal-input"
+                                type="text" inputmode="decimal" placeholder="0.00" />
+                            <label for="montoRecibido">Monto Recibido (Efectivo)</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input id="efectivo" name="efectivo" class="form-control decimal-input" type="text"
+                                inputmode="decimal" placeholder="0.00" readonly />
+                            <label for="efectivo">Cambio</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input id="transferencia" name="transferencia" class="form-control decimal-input"
+                                type="text" inputmode="decimal" placeholder="0.00" />
+                            <label for="transferencia">Transferencia</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input id="tarjeta" class="form-control decimal-input" type="text" inputmode="decimal"
+                                name="tarjeta" placeholder="0.00" />
+                            <label for="tarjeta">Tarjeta</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input id="cheque" class="form-control decimal-input" type="text" inputmode="decimal"
+                                name="cheque" placeholder="0.00" />
+                            <label for="cheque">Cheque</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input id="deposito" class="form-control decimal-input" type="text" inputmode="decimal"
+                                name="deposito" placeholder="0.00" />
+                            <label for="deposito">Depósito</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input id="notaCredito" class="form-control decimal-input" type="text" inputmode="decimal"
+                                name="notaCredito" placeholder="0.00" />
+                            <label for="notaCredito">Monto Nota de Crédito</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input id="FnoNotaCredito" class="form-control numeric-input" type="number"
+                                inputmode="numeric" name="FnoNotaCredito" min="0" step="1" pattern="\d*" />
+                            <label for="FnoNotaCredito">N° Nota de Crédito</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input id="debitoAutomatico" class="form-control decimal-input" type="text"
+                                inputmode="decimal" placeholder="0.00" />
+                            <label for="debitoAutomatico">Débito Automático</label>
+                        </div>
+                    </div>
+                    <!-- Espacio para posible nuevo campo -->
+                    <div class="col-md-6">
+                        <!-- Puedes agregar otro campo aquí si es necesario -->
+                    </div>
+                </div>
+
+                <!-- Resumen de validación -->
+                <div class="alert alert-info mt-4">
+                    <div class="d-flex justify-content-between fw-bold">
+                        <span>Total ingresado:</span>
+                        <span id="totalIngresado">0.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between fw-bold">
+                        <span>Monto pendiente:</span>
+                        <span id="montoPendiente">0.00</span>
+                    </div>
+                </div>
+
+                <div id="errorValidacion" class="alert alert-danger d-flex align-items-center d-none">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <div>El total ingresado no coincide con el monto a pagar.</div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i> Cancelar
+                </button>
+                <button class="btn btn-primary" id="finalizarCobro">
+                    <i class="bi bi-check-circle me-1"></i> Finalizar Cobro
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

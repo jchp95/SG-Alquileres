@@ -1,0 +1,431 @@
+﻿@{
+    ViewData["Title"] = "Gestión de Inquilinos";
+}
+
+<div class="text-center mb-4">
+    <h1>Gestión de Inquilinos</h1>
+</div>
+
+<div class="d-flex justify-content-center mb-4">
+    <button id="loadInquilinos" class="btn btn-secondary me-2">Cargar Inquilinos</button>
+    <a id="createInquilino" class="btn btn-primary shadow-sm">
+        <i class="fa fa-plus"></i> Crear Nuevo
+    </a>
+</div>
+
+<!-- Contenedor para toasts -->
+<div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3"></div>
+
+<!-- Spinner de carga -->
+<div id="loadingSpinner" class="spinner-border text-primary position-fixed top-50 start-50" style="display: none;">
+</div>
+
+<div id="dataTableContainer" style="display: none;">
+    <!-- Aquí se cargará la vista parcial de la tabla o el formulario -->
+</div>
+
+@section Scripts {
+    <script>
+
+        function initInquilinosDataTable() {
+            if ($.fn.DataTable.isDataTable('#tablaInquilinos')) {
+                $('#tablaInquilinos').DataTable().destroy();
+            }
+
+            const table = $('#tablaInquilinos').DataTable({
+                pageLength: 10,
+                lengthMenu: [5, 10, 25, 50, 100],
+                order: [[0, 'asc']],
+                autoWidth: false,
+                responsive: true,
+                dom: '<"top"lf>rt<"bottom"ip><"clear">',
+                columnDefs: [
+                    {
+                        targets: [3], // Columna de dirección
+                        render: function (data, type, row) {
+                            if (type === 'display') {
+                                return data;
+                            }
+                            return data;
+                        }
+                    },
+                    {
+                        targets: [6], // Columna de estado
+                        orderable: false, // Asegúrate de que no sea ordenable si no es necesario
+                        searchable: true // Si deseas que sea filtrable
+                    },
+                    {
+                        targets: [7], // Columna de acciones
+                        orderable: false,
+                        searchable: false
+                    }
+                ]
+            });
+
+            // Aplicar filtros personalizados
+            applyCustomFilters(table);
+            applyPhoneMasks();
+            return table;
+        }
+
+        function applyCustomFilters(table) {
+            console.log('Inicializando filtros personalizados...');
+
+            // Filtro por estado - Versión definitiva
+            $('#filtroEstado').on('change', function () {
+                const value = $(this).val();
+                // console.log('Filtro estado cambiado a:', value);
+
+                // Limpiamos cualquier filtro previo
+                table.search('').columns().search('').draw();
+
+                if (value !== '') {
+                    // console.log('Aplicando filtro para estado:', value);
+
+                    // Usamos una función de filtrado personalizada
+                    $.fn.dataTable.ext.search.push(
+                        function (settings, data, dataIndex) {
+                            const row = table.row(dataIndex).node();
+                            const estadoText = $(row).find('td:eq(6)').text().trim();
+                            // console.log('Texto estado encontrado:', estadoText);
+
+                            if (value === 'true') {
+                                return estadoText === 'Activo';
+                            } else {
+                                return estadoText === 'Inactivo';
+                            }
+                        }
+                    );
+
+                    table.draw();
+                    // Limpiamos el filtro después de aplicarlo
+                    $.fn.dataTable.ext.search.pop();
+                } else {
+                    // console.log('Mostrando todos los registros (sin filtro)');
+                    table.draw();
+                }
+            });
+
+            // Resto de los filtros
+            $('#filtroNombre').on('keyup', function () {
+                table.column(0).search(this.value).draw();
+            });
+
+            $('#filtroCedula').on('keyup', function () {
+                table.column(2).search(this.value).draw();
+            });
+
+            $('#btnResetInquilinos').on('click', function () {
+                $('#filtroEstado').val('').trigger('change');
+                $('#filtroNombre').val('').trigger('keyup');
+                $('#filtroCedula').val('').trigger('keyup');
+            });
+
+            //console.log('Filtros personalizados inicializados correctamente');
+        }
+
+        // Función para mostrar toasts
+        function showToast(message, type = 'error', duration = 3000) {
+            const backgroundColor = type === 'error' ? 'red' : (type === 'success' ? 'green' : 'orange');
+            const toast = $(`<div class="toast" style="background-color: ${backgroundColor}; color: white;" role="alert" aria-live="assertive" aria-atomic="true">
+                                                                                                                                                                                                                    <div class="toast-body">${message}</div>
+                                                                                                                                                                                                                </div>`);
+            $('#toastContainer').append(toast);
+            new bootstrap.Toast(toast[0], { delay: duration }).show();
+        }
+
+        // Función genérica para llamadas AJAX
+        async function ajaxRequest(config) {
+            const defaults = {
+                showLoading: true,
+                retries: 3,
+                retryDelay: 1000
+            };
+
+            const options = { ...defaults, ...config };
+            let attempts = 0;
+
+            while (attempts < options.retries) {
+                try {
+                    if (options.showLoading) {
+                        $('#loadingSpinner').show();
+                    }
+
+                    const response = await $.ajax({
+                        ...options,
+                        error: null // Deshabilitamos el manejo automático de errores
+                    });
+
+                    return response;
+                } catch (error) {
+                    attempts++;
+
+                    // Si es el último intento o error no es recuperable
+                    if (attempts === options.retries ||
+                        (error.status && [400, 401, 403, 404].includes(error.status))) {
+
+                        // Manejo específico de códigos de estado
+                        switch (error.status) {
+                            case 401:
+                                window.location.href = '/Account/Login';
+                                return;
+                            case 403:
+                                showError('No tiene permisos para realizar esta acción');
+                                return;
+                            case 404:
+                                showError('Recurso no encontrado');
+                                return;
+                            default:
+                                if (error.responseJSON && error.responseJSON.errors) {
+                                    if (options.form) {
+                                        handleValidationErrors($(options.form), error.responseJSON.errors);
+                                    } else {
+                                        showError(Object.values(error.responseJSON.errors).flat().join(' '));
+                                    }
+                                } else {
+                                    showError(options.errorMessage || error.responseText || 'Error de comunicación con el servidor');
+                                }
+                                throw error;
+                        }
+                    }
+
+                    // Esperar antes de reintentar
+                    await new Promise(resolve => setTimeout(resolve, options.retryDelay));
+                } finally {
+                    $('#loadingSpinner').hide();
+                }
+            }
+        }
+
+        // Función para aplicar máscaras a los teléfonos
+        function applyPhoneMasks() {
+            $('#telefono-input').inputmask({
+                mask: '(999) 999-9999',
+                placeholder: '',
+                showMaskOnHover: false,
+                clearIncomplete: true,
+                autoUnmask: true,
+                showMaskOnFocus: false,
+                onBeforeMask: function (value, opts) {
+                    return value.replace(/[^0-9]/g, '');
+                }
+            });
+
+            $('#celular-input').inputmask({
+                mask: '(999) 999-9999',
+                placeholder: '',
+                showMaskOnHover: false,
+                clearIncomplete: true,
+                autoUnmask: true,
+                showMaskOnFocus: false,
+                onBeforeMask: function (value, opts) {
+                    return value.replace(/[^0-9]/g, '');
+                }
+            });
+        }
+
+        // Función para cargar la tabla de inquilinos
+        async function cargarTablaInquilinos() {
+            try {
+                const data = await ajaxRequest({
+                    url: '@Url.Action("CargarInquilinos", "TbInquilinoes")',
+                    type: 'GET',
+                    errorMessage: 'Error al cargar la lista de inquilinos'
+                });
+
+                // Destruye el DataTable existente si hay uno
+                if ($.fn.DataTable.isDataTable('#tablaInquilinos')) {
+                    $('#tablaInquilinos').DataTable().destroy();
+                    $('#tablaInquilinos').empty(); // Limpiar contenido previo
+                }
+
+                $('#dataTableContainer').html(data).fadeIn();
+                initInquilinosDataTable(); // Re-inicializar el DataTable
+
+            } catch (error) {
+                console.error('Error al cargar inquilinos:', error);
+            }
+        }
+
+        // Manejador de eventos para el botón "Cargar Inquilinos"
+        $('#loadInquilinos').on('click', function () {
+            cargarTablaInquilinos();
+        });
+
+        // Manejador de eventos para el botón "Crear Nuevo"
+        $('#createInquilino').on('click', async function () {
+            try {
+                const data = await ajaxRequest({
+                    url: '@Url.Action("Create", "TbInquilinoes")',
+                    type: 'GET',
+                    errorMessage: 'Error al cargar el formulario de creación'
+                });
+
+                $('#dataTableContainer').html(data).fadeIn();
+                applyPhoneMasks();
+                initFormValidation($('#dataTableContainer').find('form'));
+            } catch (error) {
+                console.error('Error al cargar formulario de creación:', error);
+            }
+        });
+
+        // Manejador de eventos para el botón de editar
+        $(document).on('click', '.editInquilino', async function () {
+            const id = $(this).data('id');
+            try {
+                const data = await ajaxRequest({
+                    url: `@Url.Action("Edit", "TbInquilinoes", new { id = "__id__" })`.replace('__id__', id),
+                    type: 'GET',
+                    errorMessage: 'Error al cargar el formulario de edición'
+                });
+
+                $('#dataTableContainer').html(data).fadeIn();
+
+                // Aplicar máscaras después de renderizar
+                setTimeout(() => {
+                    applyPhoneMasks();
+                    initFormValidation($('#dataTableContainer').find('form'));
+
+                    // Manejar navegación de vuelta
+                    $('#btnCancelarEdicion').off('click').on('click', async () => {
+                        await cargarTablaInquilinos();
+                    });
+                }, 100);
+
+            } catch (error) {
+                console.error('Error al cargar formulario de edición:', error);
+                if (error.status === 404) {
+                    showToast('Inquilino no encontrado', 'error');
+                }
+            }
+        });
+
+        // Manejar envío de formulario de edición
+        $(document).on('submit', 'form[action*="/Edit"]', async function (e) {
+            e.preventDefault();
+            const form = $(this);
+            try {
+                const data = await ajaxRequest({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    data: form.serialize(),
+                    form: form,
+                    errorMessage: 'Error al editar los datos del inquilino'
+                });
+
+                if (data.includes('_InquilinosPartial')) {
+                    await cargarTablaInquilinos();
+                    showToast('Inquilino editado correctamente.', 'success');
+                } else if (data.includes('_EditinquilinoPartial')) {
+                    $('#dataTableContainer').html(data);
+                    applyPhoneMasks();
+                    initFormValidation($('#dataTableContainer').find('form'));
+                } else {
+                    await cargarTablaInquilinos();
+                    showToast('Inquilino editado correctamente.', 'success');
+                }
+            } catch (error) {
+                console.error('Error al editar inquilino:', error);
+            }
+        });
+
+        // Manejador de eventos para el botón "Anular/Activar"
+        $(document).on('submit', '.cambiarEstadoForm', async function (e) {
+            e.preventDefault();
+            const form = $(this);
+            try {
+                await ajaxRequest({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    data: form.serialize(),
+                    errorMessage: 'Error al cambiar el estado del inquilino'
+                });
+
+                await cargarTablaInquilinos();
+                showToast('Estado del inquilino actualizado correctamente.', 'success');
+            } catch (error) {
+                console.error('Error al cambiar estado:', error);
+            }
+        });
+
+        // Manejador de envío de formulario de creación
+        $(document).on('submit', 'form[action$="/Create"]', async function (e) {
+            e.preventDefault();
+            const form = $(this);
+            try {
+                const data = await ajaxRequest({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    data: form.serialize(),
+                    form: form,
+                    errorMessage: 'Error al crear el inquilino'
+                });
+
+                if (data.includes('_InquilinosPartial')) {
+                    await cargarTablaInquilinos();
+                    showToast('Inquilino creado correctamente.', 'success');
+                } else {
+                    $('#dataTableContainer').html(data);
+                    applyPhoneMasks();
+                    initFormValidation(form);
+                }
+            } catch (error) {
+                console.error('Error al crear inquilino:', error);
+            }
+        });
+
+
+        $(document).ready(function () {
+
+            // Función para mostrar errores
+            function showError(message, duration = 3000) {
+                showToast(message, 'error', duration);
+            }
+
+            // Función para manejar errores de validación del servidor
+            function handleValidationErrors(form, errors) {
+                form.find('.is-invalid').removeClass('is-invalid');
+                form.find('.invalid-feedback').remove();
+
+                for (const [key, value] of Object.entries(errors)) {
+                    const field = form.find(`[name="${key}"]`);
+                    field.addClass('is-invalid');
+
+                    if (value && value.length > 0) {
+                        field.after(`<div class="invalid-feedback">${value.join(' ')}</div>`);
+                    }
+                }
+            }
+
+
+            // Función para inicializar validación del lado cliente
+            function initFormValidation(form) {
+                form.validate({
+                    rules: {
+                        Fcedula: {
+                            required: true,
+                            digits: true
+                        },
+                        Ftelefono: {
+                            digits: true
+                        },
+                        Fcelular: {
+                            digits: true
+                        }
+                    },
+                    messages: {
+                        Fcedula: {
+                            required: "La cédula es obligatoria",
+                        }
+                    },
+                    errorClass: "is-invalid",
+                    validClass: "is-valid",
+                    errorPlacement: function (error, element) {
+                        error.addClass('invalid-feedback');
+                        element.after(error);
+                    }
+                });
+            }
+        });
+    </script>
+}

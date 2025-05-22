@@ -28,6 +28,7 @@ namespace Alquileres.Controllers
         }
 
         [HttpPost("create")]
+        [Authorize(Policy = "Permissions.Cobros.Crear")]
         public async Task<IActionResult> Create([FromBody] CobroRequest request)
         {
             try
@@ -205,6 +206,7 @@ namespace Alquileres.Controllers
         }
 
         [HttpPost("anular/{id}")]
+        [Authorize(Policy = "Permissions.Cobros.Anular")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AnularCobro(int id, [FromBody] AnularCobroRequest request)
         {

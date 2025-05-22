@@ -2,6 +2,7 @@
 using Alquileres.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace Alquileres
 {
@@ -14,6 +15,9 @@ namespace Alquileres
 
             var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
             await EnsureTestAdminAsync(userManager, services);
+
+            // Asegurar que los permisos estén creados para el administrador
+            await EnsurePermissionsAsync(userManager, services);
         }
 
         private static async Task EnsureRolesAsync(RoleManager<IdentityRole> roleManager)
@@ -57,11 +61,10 @@ namespace Alquileres
             {
                 var nuevoUsuario = new TbUsuario
                 {
-
                     Fnombre = "Administrador",
                     Fusuario = "admin",
                     Fnivel = 1,
-                    Fpassword = testAdmin.PasswordHash, // Puedes manejar la contraseña en otro flujo si es necesario
+                    Fpassword = testAdmin.PasswordHash,
                     Factivado = true,
                     FkidUsuario = 1,
                     FkidSucursal = 1,
@@ -72,6 +75,31 @@ namespace Alquileres
 
                 dbContext.TbUsuarios.Add(nuevoUsuario);
                 await dbContext.SaveChangesAsync();
+            }
+        }
+
+        private static async Task EnsurePermissionsAsync(UserManager<IdentityUser> userManager, IServiceProvider services)
+        {
+            var adminUser = await userManager.FindByNameAsync("admin@todo.local");
+            if (adminUser == null) return;
+
+            var dbContext = services.GetRequiredService<ApplicationDbContext>();
+            var allPermissions = Permissions.GetAllPermissions();
+
+            foreach (var permission in allPermissions)
+            {
+                // Verificar si el permiso ya existe para el usuario
+                var existingClaim = await dbContext.UserClaims
+                    .FirstOrDefaultAsync(uc =>
+                        uc.UserId == adminUser.Id &&
+                        uc.ClaimType == "Permission" &&
+                        uc.ClaimValue == permission);
+
+                if (existingClaim == null)
+                {
+                    // Si no existe, agregarlo
+                    await userManager.AddClaimAsync(adminUser, new Claim("Permission", permission));
+                }
             }
         }
     }

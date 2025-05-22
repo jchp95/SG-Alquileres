@@ -123,10 +123,6 @@
                                                 data-id="@item.FidCobro">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <a href="javascript:void(0);" class="btn btn-sm btn-outline-primary editInquilino"
-                                                data-id="@item.FidCobro" title="Editar">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
                                             <form method="post" class="d-inline anularCobroForm">
                                                 <input type="hidden" name="cobroId" value="@item.FidCobro" />
                                                 @Html.AntiForgeryToken()
@@ -140,9 +136,6 @@
                                         {
                                             <button class="btn btn-sm btn-outline-primary" title="Detalles (Anulado)" disabled>
                                                 <i class="fas fa-eye"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-primary" title="Editar (Anulado)" disabled>
-                                                <i class="fas fa-edit"></i>
                                             </button>
                                             <button class="btn btn-sm btn-outline-secondary" title="Cobro anulado" disabled>
                                                 <i class="fas fa-ban"></i>

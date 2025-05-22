@@ -1,13 +1,16 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Home";
     bool alertCuotasVencidas = ViewData["AlertaCuotasVencidas"] != null && (bool)ViewData["AlertaCuotasVencidas"];
     int cantidadCuotasVencidas = ViewData["CantidadCuotasVencidas"] != null ? (int)ViewData["CantidadCuotasVencidas"] : 0;
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div id="dashboard-container">
+    <!-- El contenido se cargará aquí dinámicamente -->
 </div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+}
 
 @section Scripts {
     @if (alertCuotasVencidas)
@@ -15,10 +18,14 @@
         <script>
             Swal.fire({
                 title: 'Atención!',
-                text: 'Existen @cantidadCuotasVencidas cuotas vencidas que requieren su revisión.',
+                html: `Existen <b>@cantidadCuotasVencidas</b> cuotas vencidas que requieren revisión. <a href="/Pagos/Pendientes" class="swal-link">Ver pendientes</a>`,
                 icon: 'warning',
-                confirmButtonText: 'Ok'
+                confirmButtonText: 'Entendido',
+                confirmButtonColor: '#4361ee',
+                showCloseButton: true
             });
         </script>
     }
+
+    <script src="~/js/home.js" asp-append-version="true"></script>
 }

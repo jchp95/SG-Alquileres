@@ -8977,23 +8977,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\MSI GAMMING\\.nuget\\packages\\": {},
+    "C:\\Users\\julio\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "E:\\ProyectosDeProgramacion\\Anthony trabajo RD\\Alquileres\\Alquileres.csproj",
+      "projectUniqueName": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\Alquileres.csproj",
       "projectName": "Alquileres",
-      "projectPath": "E:\\ProyectosDeProgramacion\\Anthony trabajo RD\\Alquileres\\Alquileres.csproj",
-      "packagesPath": "C:\\Users\\MSI GAMMING\\.nuget\\packages\\",
-      "outputPath": "E:\\ProyectosDeProgramacion\\Anthony trabajo RD\\Alquileres\\obj\\",
+      "projectPath": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\Alquileres.csproj",
+      "packagesPath": "C:\\Users\\julio\\.nuget\\packages\\",
+      "outputPath": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\MSI GAMMING\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\julio\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -9020,7 +9020,7 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "9.0.200"
+      "SdkAnalysisLevel": "9.0.100"
     },
     "frameworks": {
       "net9.0": {
@@ -9112,8 +9112,16 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.204/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.101/PortableRuntimeIdentifierGraph.json"
       }
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "NU1900",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Error al obtener los datos de vulnerabilidad del paquete: No se puede cargar el índice de servicio del origen https://api.nuget.org/v3/index.json."
+    }
+  ]
 }

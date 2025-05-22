@@ -1,4 +1,5 @@
-﻿using Alquileres.Context;
+﻿using System.Text.Json;
+using Alquileres.Context;
 using Alquileres.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -12,15 +13,20 @@ namespace Alquileres.Controllers
     public class TbCuentasPorCobrarController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly ILogger<GeneradorDeCuotasService> _logger;
         private readonly UserManager<IdentityUser> _userManager;
 
-        public TbCuentasPorCobrarController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
+        public TbCuentasPorCobrarController(ApplicationDbContext context,
+        ILogger<GeneradorDeCuotasService> logger,
+        UserManager<IdentityUser> userManager)
         {
             _context = context;
+            _logger = logger;
             _userManager = userManager; // Asignación del UserManager
         }
 
         [HttpPost]
+        [Authorize(Policy = "Permissions.CxC.Anular")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CambiarEstado(int id)
         {
@@ -46,6 +52,7 @@ namespace Alquileres.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = "Permissions.CxC.Ver")]
         public async Task<IActionResult> CargarCuentasPorCobrar()
         {
             try
@@ -129,6 +136,8 @@ namespace Alquileres.Controllers
         }
 
         // GET: Cargar formulario de creación
+        [HttpGet]
+        [Authorize(Policy = "Permissions.CxC.Crear")]
         public async Task<IActionResult> Create()
         {
             // Cargar los periodos de pago desde la base de datos
@@ -155,6 +164,7 @@ namespace Alquileres.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "Permissions.CxC.Crear")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("FidInquilino,FkidInmueble,FfechaInicio,Fmonto,FdiasGracia,FtasaMora,Fnota,FidPeriodoPago")] TbCxc tbCxc)
         {
@@ -265,67 +275,247 @@ namespace Alquileres.Controllers
             return fechaInicio.AddDays(dias);
         }
 
-
-
         [HttpGet]
-        public async Task<IActionResult> BuscarInquilinosOInmuebles(string searchTerm = null)
+        public async Task<IActionResult> BuscarInquilinos(string searchTerm = null)
         {
-            // Suponiendo que tienes un DbSet de Inquilinos y de Inmuebles en tu contexto
             var inquilinosQuery = _context.TbInquilinos.AsQueryable();
-            var inmueblesQuery = _context.TbInmuebles.AsQueryable(); // No necesitas incluir el propietario aquí
 
-            // Filtrar inquilinos si hay un término de búsqueda
             if (!string.IsNullOrEmpty(searchTerm))
             {
-                inquilinosQuery = inquilinosQuery.Where(i => i.Fnombre.Contains(searchTerm) || i.Fapellidos.Contains(searchTerm));
+                inquilinosQuery = inquilinosQuery.Where(i =>
+                    i.Fnombre.Contains(searchTerm) || i.Fapellidos.Contains(searchTerm));
             }
 
-            // Filtrar inmuebles si hay un término de búsqueda
-            if (!string.IsNullOrEmpty(searchTerm))
-            {
-                inmueblesQuery = inmueblesQuery.Where(m => m.Fdescripcion.Contains(searchTerm) || m.Fdireccion.Contains(searchTerm) || m.Fubicacion.Contains(searchTerm));
-            }
-
-            // Obtener resultados de inquilinos
-            var inquilinosResultados = await inquilinosQuery
+            var resultados = await inquilinosQuery
                 .Select(i => new
                 {
                     id = i.FidInquilino,
                     text = $"{i.Fnombre} {i.Fapellidos}",
-                    tipo = "inquilino" // Añadir un campo para identificar el tipo
+                    tipo = "inquilino"
                 })
                 .ToListAsync();
-
-            // Obtener resultados de inmuebles
-            var inmueblesResultados = await inmueblesQuery
-                .Select(m => new
-                {
-                    m.FidInmueble, // Mantener el ID del inmueble
-                    m.Fdescripcion, // Mantener la descripción
-                    m.Fdireccion, // Mantener la dirección
-                    m.Fubicacion, // Mantener la ubicación
-                    m.FkidPropietario, // Mantener el ID del propietario
-                    tipo = "inmueble" // Añadir un campo para identificar el tipo
-                })
-                .ToListAsync();
-
-            // Obtener los propietarios asociados a los inmuebles
-            var propietarios = await _context.TbPropietarios
-                .Where(p => inmueblesResultados.Select(m => m.FkidPropietario).Contains(p.FidPropietario))
-                .ToListAsync();
-
-            // Combinar resultados de inmuebles con los nombres de los propietarios
-            var inmueblesConPropietarios = inmueblesResultados.Select(m => new
-            {
-                id = m.FidInmueble,
-                text = $"{m.Fdireccion} - Ubicación: {m.Fubicacion}",
-                tipo = m.tipo
-            }).ToList();
-
-            // Combinar resultados
-            var resultados = inquilinosResultados.Concat(inmueblesConPropietarios).ToList();
 
             return Json(new { results = resultados });
         }
+
+        [HttpGet]
+        public async Task<IActionResult> BuscarInmuebles(string searchTerm = null)
+        {
+            var inmueblesQuery = _context.TbInmuebles.AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                inmueblesQuery = inmueblesQuery.Where(m =>
+                    m.Fdescripcion.Contains(searchTerm) ||
+                    m.Fdireccion.Contains(searchTerm) ||
+                    m.Fubicacion.Contains(searchTerm));
+            }
+
+            var resultados = await inmueblesQuery
+                .Select(m => new
+                {
+                    id = m.FidInmueble,
+                    text = $"{m.Fdireccion} - Ubicación: {m.Fubicacion}",
+                    tipo = "inmueble"
+                })
+                .ToListAsync();
+
+            return Json(new { results = resultados });
+        }
+
+        // GET: TbCuentasPorCobrar/Edit/{id}
+        [HttpGet]
+        [Authorize(Policy = "Permissions.CxC.Editar")]
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var tbCxc = await _context.TbCxcs.FindAsync(id);
+            if (tbCxc == null)
+            {
+                return NotFound();
+            }
+
+            // Asegurarse de que la fecha no tenga componente de hora
+            if (tbCxc.FfechaInicio != null)
+            {
+                tbCxc.FfechaInicio = tbCxc.FfechaInicio.Date;
+            }
+
+            // Obtener el nombre del Inquilino
+            var inquilino = await _context.TbInquilinos
+                .Where(p => p.FidInquilino == tbCxc.FidInquilino)
+                .Select(p => p.Fnombre)
+                .FirstOrDefaultAsync();
+
+            // Obtener información del inmueble si existe
+            string inmuebleDesc = string.Empty;
+            if (tbCxc.FkidInmueble.HasValue)
+            {
+                inmuebleDesc = await _context.TbInmuebles
+                    .Where(i => i.FidInmueble == tbCxc.FkidInmueble.Value)
+                    .Select(i => i.Fdireccion + "-" + i.Fubicacion)
+                    .FirstOrDefaultAsync() ?? string.Empty;
+            }
+
+            ViewBag.Inquilino = inquilino;
+            ViewBag.Inmueble = inmuebleDesc;
+
+            return PartialView("_EditCxcPartial", tbCxc);
+        }
+
+        [HttpPost]
+        [Authorize(Policy = "Permissions.CxC.Editar")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("FidCuenta,FidInquilino,FkidInmueble,FfechaInicio,Fmonto,FdiasGracia,FtasaMora,Fnota,FidPeriodoPago")] TbCxc tbCxc)
+        {
+            if (id != tbCxc.FidCuenta)
+            {
+                _logger.LogWarning("El ID de la cuenta por cobrar no coincide con el ID proporcionado.");
+                return NotFound();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("El modelo no es válido. Errores: {Errors}", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList());
+                return Json(new
+                {
+                    success = false,
+                    errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList()
+                });
+            }
+
+            try
+            {
+                // 1: Eliminar TbCobrosDesgloses relacionados
+                var cobrosDesgloses = await _context.TbCobrosDesgloses
+                    .Where(cd => _context.TbCobros
+                        .Where(c => c.FidCobro == cd.FkidCobro && c.FkidCxc == id)
+                        .Any())
+                    .ToListAsync();
+
+                if (cobrosDesgloses.Any())
+                {
+                    _context.TbCobrosDesgloses.RemoveRange(cobrosDesgloses);
+                    await _context.SaveChangesAsync();
+                }
+
+                // 2: Eliminar TbCobrosDetalles relacionados
+                var cobrosDetalles = await _context.TbCobrosDetalles
+                    .Where(cdt => _context.TbCobros
+                        .Where(c => c.FidCobro == cdt.FkidCobro && c.FkidCxc == id)
+                        .Any())
+                    .ToListAsync();
+
+                if (cobrosDetalles.Any())
+                {
+                    _context.TbCobrosDetalles.RemoveRange(cobrosDetalles);
+                    await _context.SaveChangesAsync();
+                }
+
+                // 3: Eliminar TbCobros relacionados
+                var cobros = await _context.TbCobros
+                    .Where(c => c.FkidCxc == id)
+                    .ToListAsync();
+
+                if (cobros.Any())
+                {
+                    _context.TbCobros.RemoveRange(cobros);
+                    await _context.SaveChangesAsync();
+                }
+
+                // 4: Eliminar la cuota relacionada
+                var cuotaExistente = await _context.TbCxcCuota
+                    .Where(c => c.FidCxc == id)
+                    .OrderByDescending(c => c.FNumeroCuota)
+                    .FirstOrDefaultAsync();
+
+                if (cuotaExistente != null)
+                {
+                    _context.TbCxcCuota.Remove(cuotaExistente);
+                    await _context.SaveChangesAsync();
+                }
+
+                // 5: Actualizar la cuenta por cobrar
+                var existingCxc = await _context.TbCxcs.FindAsync(id);
+                if (existingCxc == null)
+                {
+                    _logger.LogWarning("No se encontró la cuenta por cobrar con ID: {Id}", id);
+                    return NotFound();
+                }
+
+                existingCxc.FidInquilino = tbCxc.FidInquilino;
+                existingCxc.FkidInmueble = tbCxc.FkidInmueble;
+                existingCxc.FfechaInicio = tbCxc.FfechaInicio;
+                existingCxc.Fmonto = tbCxc.Fmonto;
+                existingCxc.FdiasGracia = tbCxc.FdiasGracia;
+                existingCxc.FtasaMora = tbCxc.FtasaMora;
+                existingCxc.Fnota = tbCxc.Fnota;
+                existingCxc.FidPeriodoPago = tbCxc.FidPeriodoPago;
+
+                _context.Update(existingCxc);
+                await _context.SaveChangesAsync();
+
+                // 6: Crear nueva cuota
+                var numeroCuotaMaxima = await _context.TbCxcCuota
+                    .Where(c => c.FidCxc == existingCxc.FidCuenta)
+                    .MaxAsync(c => (int?)c.FNumeroCuota) ?? 0;
+
+                var fechaVencimiento = CalcularFechaVencimiento(existingCxc.FfechaInicio, existingCxc.FidPeriodoPago);
+
+                var nuevaCuota = new TbCxcCuotum
+                {
+                    FidCxc = existingCxc.FidCuenta,
+                    FNumeroCuota = numeroCuotaMaxima + 1,
+                    Fvence = fechaVencimiento,
+                    Fmonto = (int)existingCxc.Fmonto,
+                    Fsaldo = existingCxc.Fmonto,
+                    Fmora = existingCxc.FtasaMora,
+                    FfechaUltCalculo = fechaVencimiento,
+                    Factivo = true,
+                    Fstatus = 'N'
+                };
+
+                _context.TbCxcCuota.Add(nuevaCuota);
+                await _context.SaveChangesAsync();
+
+                // 7: Cargar las cuentas por cobrar actualizadas
+                var cuentasPorCobrar = await _context.TbCxcs.ToListAsync();
+                var cuentasPorCobrarViewModels = cuentasPorCobrar.Select(c => new CuentaPorCobrarViewModel
+                {
+                    FidCuenta = c.FidCuenta,
+                    FidInquilino = c.FidInquilino,
+                    FidInmueble = c.FkidInmueble,
+                    Fmonto = c.Fmonto,
+                    FfechaInicio = c.FfechaInicio,
+                    FdiasGracia = c.FdiasGracia,
+                    Factivo = c.Factivo,
+                    FtasaMora = c.FtasaMora,
+                    Fnota = c.Fnota,
+                    FidPeriodoPago = c.FidPeriodoPago
+                }).ToList();
+
+                return PartialView("_CuentasPorCobrarPartial", cuentasPorCobrarViewModels);
+            }
+            catch (ArgumentException argEx)
+            {
+                _logger.LogError(argEx, "Error de argumento: {Message}", argEx.Message);
+                return BadRequest(new { success = false, message = argEx.Message });
+            }
+            catch (DbUpdateException dbEx)
+            {
+                _logger.LogError(dbEx, "Error al guardar en la base de datos: {Message}", dbEx.Message);
+                return StatusCode(500, new { success = false, message = "Error al guardar en base de datos.", detail = dbEx.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ocurrió un error inesperado: {Message}", ex.Message);
+                return StatusCode(500, new { success = false, message = "Ocurrió un error inesperado.", detail = ex.Message });
+            }
+        }
+
     }
 }

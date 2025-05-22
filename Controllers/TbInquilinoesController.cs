@@ -19,15 +19,22 @@ namespace Alquileres.Controllers
         private readonly ApplicationDbContext _context;
         private readonly ILogger<GeneradorDeCuotasService> _logger; // Agregar logger
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly IAuthorizationService _authorizationService;
 
-        public TbInquilinoesController(ApplicationDbContext context, ILogger<GeneradorDeCuotasService> logger, UserManager<IdentityUser> userManager)
+        public TbInquilinoesController(ApplicationDbContext context,
+            ILogger<GeneradorDeCuotasService> logger,
+            UserManager<IdentityUser> userManager,
+            IAuthorizationService authorizationService)
+
         {
             _context = context;
             _logger = logger;
             _userManager = userManager; // Asignación del UserManager
+            _authorizationService = authorizationService;
         }
 
         [HttpPost]
+        [Authorize(Policy = "Permissions.Inquilinos.Anular")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CambiarEstado(int id)
         {
@@ -54,30 +61,16 @@ namespace Alquileres.Controllers
         }
 
         // GET: TbInquilinoes/CargarInquilinos
+        [HttpGet]
+        [Authorize(Policy = "Permissions.Inquilinos.Ver")]
         public async Task<IActionResult> CargarInquilinos()
         {
             var inquilinos = await _context.TbInquilinos.ToListAsync();
             return PartialView("_InquilinosPartial", inquilinos); // Devuelve la vista parcial
         }
 
-        // GET: TbInquilinoes/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var tbInquilino = await _context.TbInquilinos
-                .FirstOrDefaultAsync(m => m.FidInquilino == id);
-            if (tbInquilino == null)
-            {
-                return NotFound();
-            }
-
-            return View(tbInquilino);
-        }
-
+        [HttpGet]
+        [Authorize(Policy = "Permissions.Inquilinos.Crear")]
         // GET: TbInquilinoes/Create
         public IActionResult Create()
         {
@@ -86,11 +79,17 @@ namespace Alquileres.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "Permissions.Inquilinos.Crear")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("FidInquilino,Fnombre,Fapellidos,Fcedula,Fdireccion,Ftelefono,Fcelular")] TbInquilino tbInquilino)
         {
             try
             {
+
+                // Debugging - log all permissions
+                var claims = User.Claims.Where(c => c.Type == "Permission").ToList();
+                _logger.LogInformation("User permissions: {@Permissions}", claims.Select(c => c.Value));
+
                 var identityId = _userManager.GetUserId(User);
                 if (string.IsNullOrEmpty(identityId))
                     return BadRequest("El usuario no está autenticado.");
@@ -161,8 +160,10 @@ namespace Alquileres.Controllers
             return Json(existe);
         }
 
+        // GET: TbInquilinoes/Edit/{id}
+        [HttpGet]
+        [Authorize(Policy = "Permissions.Inquilinos.Editar")]
 
-        // GET: TbInquilinoes/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -182,6 +183,7 @@ namespace Alquileres.Controllers
 
         // POST: TbInquilinoes/Edit/5
         [HttpPost]
+        [Authorize(Policy = "Permissions.Inquilinos.Editar")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id,
     [Bind("FidInquilino,Fnombre,Fapellidos,Fcedula,Fdireccion,Ftelefono,Fcelular,FkidUsuario")] TbInquilino tbInquilino)

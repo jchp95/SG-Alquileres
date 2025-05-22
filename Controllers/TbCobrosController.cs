@@ -13,10 +13,9 @@ namespace Alquileres.Controllers
     public class TbCobrosController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private readonly ILogger<GeneradorDeCuotasService> _logger; // Agregar logger
+        private readonly ILogger<TbCobrosController> _logger;
 
-
-        public TbCobrosController(ApplicationDbContext context, ILogger<GeneradorDeCuotasService> logger)
+        public TbCobrosController(ApplicationDbContext context, ILogger<TbCobrosController> logger)
         {
             _context = context;
             _logger = logger;
@@ -27,6 +26,7 @@ namespace Alquileres.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "Permissions.Cobros.Anular")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CambiarEstado(int id)
         {
@@ -45,6 +45,8 @@ namespace Alquileres.Controllers
 
 
         // GET: TbCobros/CargarCobro
+        [HttpGet]
+        [Authorize(Policy = "Permissions.Cobros.Ver")]
         public async Task<IActionResult> CargarCobro()
         {
             var cobros = await _context.TbCobros.ToListAsync();
@@ -67,7 +69,8 @@ namespace Alquileres.Controllers
             return PartialView("_CobroPartial", cobroViewModels); // Devuelve la vista parcial
         }
 
-        // GET: TbCobros/Detalles/5
+        [HttpGet]
+        [Authorize(Policy = "Permissions.Cobros.VerDetalles")]
         public async Task<IActionResult> Detalles(int? id)
         {
             if (id == null)
@@ -75,119 +78,111 @@ namespace Alquileres.Controllers
                 return NotFound();
             }
 
-            // Obtener el cobro basado en el ID
-            var cobro = await _context.TbCobros
-                .FirstOrDefaultAsync(m => m.FkidCxc == id);
-
-            if (cobro == null)
+            try
             {
-                return NotFound();
+                // Obtener el cobro basado en el ID
+                var cobro = await _context.TbCobros
+                    .FirstOrDefaultAsync(m => m.FidCobro == id);
+
+                if (cobro == null)
+                {
+                    return NotFound();
+                }
+
+                // Obtener los detalles del cobro
+                var detallesCobro = await _context.TbCobrosDetalles
+                    .Where(d => d.FkidCobro == cobro.FidCobro)
+                    .ToListAsync();
+
+                // Obtener el desglose del cobro
+                var desgloseCobro = await _context.TbCobrosDesgloses
+                    .FirstOrDefaultAsync(d => d.FkidCobro == cobro.FidCobro);
+
+                // Obtener la cuenta por cobrar
+                var cuentaPorCobrar = await _context.TbCxcs
+                    .FirstOrDefaultAsync(c => c.FidCuenta == cobro.FkidCxc);
+
+                if (cuentaPorCobrar == null)
+                {
+                    return NotFound();
+                }
+
+                // Obtener el inquilino
+                var inquilino = await _context.TbInquilinos
+                    .FirstOrDefaultAsync(i => i.FidInquilino == cuentaPorCobrar.FidInquilino);
+
+                // Obtener el inmueble
+                var inmueble = await _context.TbInmuebles
+                    .FirstOrDefaultAsync(i => i.FidInmueble == cuentaPorCobrar.FkidInmueble);
+
+                var cuotasIds = detallesCobro.Select(d => d.FnumeroCuota).ToList();
+
+                var cuotasQuery = _context.TbCxcCuota.AsQueryable();
+                foreach (var cuotaId in cuotasIds)
+                {
+                    cuotasQuery = cuotasQuery.Where(c => c.FNumeroCuota == cuotaId && c.FidCxc == cobro.FkidCxc);
+                }
+
+                var cuotas = await cuotasQuery.ToListAsync();
+
+                // Crear el ViewModel
+                var viewModel = new DetallesCobroViewModel
+                {
+                    Cobro = cobro,
+                    Detalles = detallesCobro,
+                    Desglose = desgloseCobro,
+                    Cxc = cuentaPorCobrar,
+                    Inquilino = inquilino,
+                    Inmueble = inmueble,
+                    Cuotas = cuotas
+                };
+
+                // Retornar la vista parcial con el ViewModel
+                return PartialView("_DetallesCobroPartial", viewModel);
             }
-
-            // Obtener los detalles del cobro
-            var detallesCobro = await _context.TbCobrosDetalles
-                .Where(d => d.FkidCobro == cobro.FidCobro)
-                .ToListAsync();
-
-            // Obtener el desglose del cobro
-            var desgloseCobro = await _context.TbCobrosDesgloses
-                .FirstOrDefaultAsync(d => d.FkidCobro == cobro.FidCobro);
-
-            // Obtener la cuenta por cobrar
-            var cuentaPorCobrar = await _context.TbCxcs
-                .FirstOrDefaultAsync(c => c.FidCuenta == cobro.FkidCxc);
-
-            if (cuentaPorCobrar == null)
+            catch (Exception ex)
             {
-                return NotFound();
+                // Loguear el error en el sistema de logs
+                _logger.LogError(ex, "Error al obtener los detalles del cobro con ID {Id}", id);
+
+                // Retornar un error genérico
+                return StatusCode(500, "Ocurrió un error al procesar la solicitud.");
             }
-
-            // Obtener el inquilino
-            var inquilino = await _context.TbInquilinos
-                .FirstOrDefaultAsync(i => i.FidInquilino == cuentaPorCobrar.FidInquilino);
-
-            // Obtener el inmueble
-            var inmueble = await _context.TbInmuebles
-                .FirstOrDefaultAsync(i => i.FidInmueble == cuentaPorCobrar.FkidInmueble);
-
-            // Obtener las cuotas pagadas
-            var cuotasIds = detallesCobro.Select(d => d.FnumeroCuota).ToList();
-            var cuotas = await _context.TbCxcCuota
-                .Where(c => cuotasIds.Contains(c.FNumeroCuota) && c.FidCxc == cobro.FkidCxc)
-                .ToListAsync();
-
-            // Crear el ViewModel
-            var viewModel = new DetallesCobroViewModel
-            {
-                Cobro = cobro,
-                Detalles = detallesCobro,
-                Desglose = desgloseCobro,
-                Cxc = cuentaPorCobrar,
-                Inquilino = inquilino,
-                Inmueble = inmueble,
-                Cuotas = cuotas
-            };
-
-            // Retornar la vista parcial con el ViewModel
-            return PartialView("_DetallesCobroPartial", viewModel);
         }
+
 
         // GET: TbCobros/BuscarCxc
         [HttpGet]
         public async Task<IActionResult> BuscarCxc(string? searchTerm = null)
         {
-            var cxCQuery = _context.TbCxcs.AsQueryable();
+            var query = from cxc in _context.TbCxcs
+                        join inquilino in _context.TbInquilinos on cxc.FidInquilino equals inquilino.FidInquilino
+                        select new { cxc, inquilino };
 
             if (!string.IsNullOrEmpty(searchTerm))
             {
-                cxCQuery = cxCQuery.Where(i => i.FidCuenta.ToString().Contains(searchTerm) ||
-                                                i.Fmonto.ToString().Contains(searchTerm) ||
-                                                i.FdiasGracia.ToString().Contains(searchTerm) ||
-                                                i.FtasaMora.ToString().Contains(searchTerm));
+                query = query.Where(x => x.cxc.FidCuenta.ToString().Contains(searchTerm) ||
+                                        x.cxc.Fmonto.ToString().Contains(searchTerm) ||
+                                        x.cxc.FdiasGracia.ToString().Contains(searchTerm) ||
+                                        x.cxc.FtasaMora.ToString().Contains(searchTerm));
             }
 
-            var cxCResultados = await cxCQuery
-                .Select(i => new
+            var resultados = await query
+                .Select(x => new ResultadoBusquedaCxCViewModel
                 {
-                    i.FidCuenta,
-                    i.FidInquilino,
-                    i.Fmonto,
-                    i.FdiasGracia,
-                    i.FtasaMora
-                })
-                .ToListAsync();
-
-            var inquilinos = await _context.TbInquilinos
-                .Where(p => cxCResultados.Select(m => m.FidInquilino).Contains(p.FidInquilino))
-                .Select(p => new
-                {
-                    p.FidInquilino,
-                    p.Fnombre,
-                    p.Fapellidos
-                })
-                .ToListAsync();
-
-            var resultados = cxCResultados.Select(m =>
-            {
-                var inquilino = inquilinos.FirstOrDefault(i => i.FidInquilino == m.FidInquilino);
-                var nombreInquilino = inquilino != null ? $"{inquilino.Fnombre} {inquilino.Fapellidos}" : "Inquilino desconocido";
-
-                return new ResultadoBusquedaCxCViewModel
-                {
-                    Id = m.FidCuenta,
-                    Text = $"Cuenta #{m.FidCuenta} - {nombreInquilino} - Monto: {m.Fmonto:C} - Día de Gracia: {m.FdiasGracia} días - Mora: {m.FtasaMora}%",
+                    Id = x.cxc.FidCuenta,
+                    Text = $"Cuenta #{x.cxc.FidCuenta} - {x.inquilino.Fnombre} {x.inquilino.Fapellidos} - " +
+                           $"Monto: {x.cxc.Fmonto:C} - Día de Gracia: {x.cxc.FdiasGracia} días - Mora: {x.cxc.FtasaMora}%",
                     Tipo = "cuenta por cobrar"
-                };
-            });
+                })
+                .ToListAsync();
 
-
-            var resultadosFinales = resultados.ToList();
-
-            return Json(new { results = resultadosFinales });
+            return Json(new { results = resultados });
         }
 
         // GET: TbCobros/Create
         [HttpGet]
+        [Authorize(Policy = "Permissions.Cobros.Crear")]
         public IActionResult Create()
         {
 
@@ -291,6 +286,11 @@ namespace Alquileres.Controllers
                     .OrderByDescending(c => c.FidCobro)
                     .FirstOrDefaultAsync();
 
+                var descuento = await _context.TbCobros.FirstOrDefaultAsync(c => c.Fdescuento == cobro.Fdescuento);
+                var cargo = await _context.TbCobros.FirstOrDefaultAsync(c => c.Fcargos == cobro.Fcargos);
+                var monto = await _context.TbCobros.FirstOrDefaultAsync(c => c.Fmonto == cobro.Fmonto);
+                var subTotal = (cobro?.Fmonto) + (cobro?.Fcargos ?? 0) - (cobro?.Fdescuento ?? 0);
+                var Total = subTotal + (cobro?.Fcargos ?? 0) - (cobro?.Fdescuento ?? 0);
                 var datosTicket = new
                 {
                     direccion = inmueble.Fdireccion,
@@ -299,11 +299,11 @@ namespace Alquileres.Controllers
                     cliente = $"{inquilino.Fnombre} {inquilino.Fapellidos}",
                     noCobro = cobro?.FidCobro,
                     concepto = cobro?.Fconcepto,
-                    subtotal = (cobro?.Fmonto) - (cobro?.Fcargos ?? 0) + (cobro?.Fdescuento ?? 0),
+                    subtotal = subTotal,
                     cargos = cobro?.Fcargos,
                     mora = 0,
                     descuento = cobro?.Fdescuento,
-                    total = (cobro?.Fmonto),
+                    total = Total,
                 };
 
                 Console.WriteLine("Datos del ticket preparados:"); // Debug backend 6

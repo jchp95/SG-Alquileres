@@ -1,6 +1,27 @@
 [
   {
     "ContainingType": "Alquileres.Controllers.TbCobrosApiController",
+    "Method": "AnularCobro",
+    "RelativePath": "api/TbCobrosApi/anular/{id}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "Alquileres.Controllers.TbCobrosApiController\u002BAnularCobroRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Alquileres.Controllers.TbCobrosApiController",
     "Method": "Create",
     "RelativePath": "api/TbCobrosApi/create",
     "HttpMethod": "POST",
@@ -13,43 +34,32 @@
         "IsRequired": true
       }
     ],
-    "ReturnTypes": [
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Alquileres.Controllers.TbCobrosApiController",
+    "Method": "GetUsuarioActual",
+    "RelativePath": "api/TbCobrosApi/usuario-actual",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Alquileres.Controllers.TbCobrosApiController",
+    "Method": "ValidarContrasena",
+    "RelativePath": "api/TbCobrosApi/validar-contrasena",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
       {
-        "Type": "System.Object",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      },
-      {
-        "Type": "System.Object",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 400
-      },
-      {
-        "Type": "System.Object",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 404
-      },
-      {
-        "Type": "System.Object",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 500
+        "Name": "request",
+        "Type": "Alquileres.Controllers.TbCobrosApiController\u002BValidarContrasenaRequest",
+        "IsRequired": true
       }
-    ]
+    ],
+    "ReturnTypes": []
   }
 ]

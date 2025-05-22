@@ -12,6 +12,7 @@
 <div class="row">
     <div class="col-md-6 offset-md-3">
         <form asp-action="Create">
+            @Html.AntiForgeryToken()
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="FkidUsuario" />
             <div class="form-group">
@@ -42,13 +43,13 @@
 
             <div class="form-group">
                 <label class="control-label">Teléfono</label>
-                <input asp-for="Ftelefono" class="form-control" id="telefono-input" placeholder="Ej: (809) 221-1234" />
+                <input asp-for="Ftelefono" class="form-control telefono-input" placeholder="Ej: (809) 221-1234" />
                 <span asp-validation-for="Ftelefono" class="text-danger"></span>
             </div>
 
             <div class="form-group">
                 <label class="control-label">Celular</label>
-                <input asp-for="Fcelular" class="form-control" id="celular-input" placeholder="Ej: (809) 456-7890" />
+                <input asp-for="Fcelular" class="form-control telefono-input" placeholder="Ej: (809) 456-7890" />
                 <span asp-validation-for="Fcelular" class="text-danger"></span>
             </div>
 

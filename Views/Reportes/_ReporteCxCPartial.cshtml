@@ -1,0 +1,104 @@
+@model IEnumerable<ReporteViewModel>
+
+<div class="container-fluid px-4 py-4">
+    <!-- Header -->
+    <div
+        class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+        <div>
+            <h2 class="mb-1">
+                <i class="fas fa-file-invoice-dollar me-2 text-primary"></i>Reporte de Cuentas por Cobrar
+            </h2>
+            <p class="text-muted mb-0">Consulta detallada de las cuentas pendientes de cobro</p>
+        </div>
+    </div>
+
+    <!-- Card de Filtros -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+            <!-- Título de filtros con botón -->
+            <div
+                class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3 gap-2">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-filter me-2 text-primary"></i>Filtros del Reporte
+                </h5>
+                <button id="btnResetFiltros" class="btn btn-outline-danger btn-sm" data-bs-toggle="tooltip"
+                    data-bs-placement="left" title="Limpiar todos los filtros">
+                    <i class="fas fa-broom me-2"></i> Limpiar filtros
+                </button>
+            </div>
+
+            <!-- Filtros -->
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label class="control-label">Usuarios</label>
+                        <select id="busquedaUsuario" class="form-control select2" style="width: 100%">
+                            <option></option>
+                        </select>
+                        <input type="hidden" id="NombreUsuario" name="NombreUsuario" />
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label for="fechaInicioFiltro" class="form-label small text-muted mb-1">Fecha Inicial</label>
+                    <input type="date" class="form-control" id="fechaInicioFiltro">
+                </div>
+                <div class="col-md-3">
+                    <label for="fechaFinFiltro" class="form-label small text-muted mb-1">Fecha Final</label>
+                    <input type="date" class="form-control" id="fechaFinFiltro">
+                </div>
+                <div class="col-md-3">
+                    <label for="filtroInquilino" class="form-label small text-muted mb-1">Inquilino</label>
+                    <input type="text" class="form-control" id="filtroInquilino" placeholder="Nombre o Apellido">
+                </div>
+                <div class="col-md-3">
+                    <label for="filtroInmueble" class="form-label small text-muted mb-1">Dirección del Inmueble</label>
+                    <input type="text" class="form-control" id="filtroInmueble" placeholder="Dirección o ubicación">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card de Resultados -->
+    <div class="card border-0 shadow-sm px-4 py-4">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table id="reporteCxCTable" class="table table-hover align-middle mb-0 table-striped table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="display: none;">Nombre de Usuario</th>
+                            <th class="ps-4"># Cuenta</th>
+                            <th>Inquilino</th>
+                            <th>Dirección</th>
+                            <th>Ubicación</th>
+                            <th>Fecha Actual</th>
+                            <th>Hora Actual</th>
+                            <th>Monto</th>
+                            <th>Fecha Inicio</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td style="display: none;">@item.NombreUsuario</td>
+                                <td class="ps-4 fw-semibold">@item.FidCuenta</td>
+                                <td>@item.NombreInquilino</td>
+                                <td>
+                                    <span class="d-inline-block text-truncate" style="max-width: 150px;"
+                                        data-bs-toggle="tooltip" title="@item.DireccionInmueble">
+                                        @item.DireccionInmueble
+                                    </span>
+                                </td>
+                                <td>@item.UbicacionInmueble</td>
+                                <td>@item.FechaActual</td>
+                                <td>@item.HoraActual</td>
+                                <td>RD$ @item.Fmonto.ToString("N2", new System.Globalization.CultureInfo("es-DO"))</td>
+                                <td>@item.FechaInicio</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

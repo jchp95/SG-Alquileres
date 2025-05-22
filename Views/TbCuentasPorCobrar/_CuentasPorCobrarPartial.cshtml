@@ -42,6 +42,14 @@
                         <option value="Anual">Anual</option>
                     </select>
                 </div>
+                <!-- Agrega esto cerca de tus otros controles de filtro -->
+                <div class="col-md-3">
+                    <label>Filtrar por:</label>
+                    <select id="filtroTipoFecha" class="form-control">
+                        <option value="4">Fecha Inicio</option>
+                        <option value="6">Próxima Cuota</option>
+                    </select>
+                </div>
                 <!-- Filtro por fechas -->
                 <div class="col-md-6">
                     <label for="min" class="form-label small text-muted mb-1">Fecha desde</label>
@@ -156,7 +164,7 @@
                                     <div class="d-flex justify-content-center gap-2">
                                         @if (item.Factivo)
                                         {
-                                            <a href="javascript:void(0);" class="btn btn-sm btn-outline-primary editInquilino"
+                                            <a href="javascript:void(0);" class="btn btn-sm btn-outline-primary editCxC"
                                                 data-id="@item.FidCuenta" title="Editar">
                                                 <i class="fas fa-edit"></i>
                                             </a>

@@ -32,60 +32,92 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": { }
-              },
-              "application/json": {
-                "schema": { }
-              },
-              "text/json": {
-                "schema": { }
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/TbCobrosApi/anular/{id}": {
+      "post": {
+        "tags": [
+          "TbCobrosApi"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnularCobroRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnularCobroRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnularCobroRequest"
               }
             }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "text/plain": {
-                "schema": { }
-              },
-              "application/json": {
-                "schema": { }
-              },
-              "text/json": {
-                "schema": { }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/TbCobrosApi/usuario-actual": {
+      "get": {
+        "tags": [
+          "TbCobrosApi"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/TbCobrosApi/validar-contrasena": {
+      "post": {
+        "tags": [
+          "TbCobrosApi"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValidarContrasenaRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValidarContrasenaRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValidarContrasenaRequest"
               }
             }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "text/plain": {
-                "schema": { }
-              },
-              "application/json": {
-                "schema": { }
-              },
-              "text/json": {
-                "schema": { }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "text/plain": {
-                "schema": { }
-              },
-              "application/json": {
-                "schema": { }
-              },
-              "text/json": {
-                "schema": { }
-              }
-            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -93,64 +125,28 @@
   },
   "components": {
     "schemas": {
-      "CobroRequest": {
+      "AnularCobroRequest": {
         "type": "object",
         "properties": {
-          "cobro": {
-            "$ref": "#/components/schemas/TbCobro"
-          },
-          "cuotasSeleccionadas": {
-            "type": "array",
-            "items": {
-              "type": "integer",
-              "format": "int32"
-            },
+          "motivoAnulacion": {
+            "type": "string",
             "nullable": true
           },
-          "detalles": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TbCobrosDetalle"
-            },
+          "password": {
+            "type": "string",
             "nullable": true
-          },
-          "desglose": {
-            "$ref": "#/components/schemas/TbCobrosDesglose"
           }
         },
         "additionalProperties": false
       },
-      "OrigenCobro": {
-        "enum": [
-          1,
-          2
-        ],
-        "type": "integer",
-        "format": "int32"
-      },
-      "TbCobro": {
-        "required": [
-          "fmonto"
-        ],
+      "CobroRequest": {
         "type": "object",
         "properties": {
-          "fidCobro": {
-            "type": "integer",
-            "format": "int32"
-          },
           "fkidCxc": {
             "type": "integer",
             "format": "int32"
           },
-          "ffecha": {
-            "type": "string",
-            "format": "date"
-          },
-          "fhora": {
-            "type": "string",
-            "format": "time"
-          },
-          "fmonto": {
+          "fmontoCobro": {
             "type": "number",
             "format": "double"
           },
@@ -166,43 +162,35 @@
             "type": "string",
             "nullable": true
           },
-          "fkidUsuario": {
+          "cuotasSeleccionadas": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
+          },
+          "fnumeroCuota": {
             "type": "integer",
             "format": "int32"
           },
-          "fkidOrigen": {
-            "type": "integer",
-            "format": "int32"
+          "fmontoCuota": {
+            "type": "number",
+            "format": "double"
           },
-          "origen": {
-            "$ref": "#/components/schemas/OrigenCobro"
-          },
-          "factivo": {
-            "type": "boolean"
-          }
-        },
-        "additionalProperties": false
-      },
-      "TbCobrosDesglose": {
-        "type": "object",
-        "properties": {
-          "fidDesglose": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "fkidCobro": {
-            "type": "integer",
-            "format": "int32"
+          "fmora": {
+            "type": "number",
+            "format": "double"
           },
           "fefectivo": {
             "type": "number",
             "format": "double"
           },
-          "ftransferencia": {
+          "fmontoRecibido": {
             "type": "number",
             "format": "double"
           },
-          "fmontoRecibido": {
+          "ftransferencia": {
             "type": "number",
             "format": "double"
           },
@@ -228,48 +216,33 @@
           },
           "fnoNotaCredito": {
             "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "fkidUsuario": {
-            "type": "integer",
             "format": "int32"
-          },
-          "factivo": {
-            "type": "boolean"
           }
         },
         "additionalProperties": false
       },
-      "TbCobrosDetalle": {
+      "ValidarContrasenaRequest": {
         "type": "object",
         "properties": {
-          "fid": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "fkidCobro": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "fnumeroCuota": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "fmonto": {
-            "type": "number",
-            "format": "double"
-          },
-          "fmora": {
-            "type": "number",
-            "format": "double"
-          },
-          "factivo": {
-            "type": "boolean"
+          "password": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
       }
+    },
+    "securitySchemes": {
+      "Bearer": {
+        "type": "http",
+        "description": "JWT Authorization header using the Bearer scheme",
+        "scheme": "bearer"
+      }
     }
-  }
+  },
+  "security": [
+    {
+      "Bearer": [ ]
+    }
+  ]
 }

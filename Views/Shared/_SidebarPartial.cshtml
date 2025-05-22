@@ -108,5 +108,31 @@
                 </a>
             </li>
         </ul>
+        <!-- Enlace principal con colapso para Reportes -->
+        <li class="sidebar-nav-item">
+            <a class="list-group-item list-group-item-action ripple nav-link text-dark" data-toggle="tooltip"
+                data-html="true" data-placement="right" title="Reportes" aria-current="true" data-mdb-collapse-init
+                href="#reportesSubMenu" aria-expanded="false" aria-controls="reportesSubMenu"
+                onclick="toggleSubMenu(event, 'reportesSubMenu')">
+                <i class="fas fa-chart-line fa-fw"></i><span class="sidebar-text">Reportes</span>
+                <i class="fas fa-chevron-down float-end" id="cobrosArrow"></i> <!-- Icono de flecha -->
+            </a>
+        </li>
+        <!-- Contenido colapsable -->
+        <ul id="reportesSubMenu" class="collapse list-group list-group-flush">
+            <li class="sidebar-nav-item">
+                <a class="nav-link text-dark" asp-controller="Reportes" asp-action="Index" asp-route-tipoReporte="CxC"
+                    data-toggle="tooltip" title="Reportes de cuentas por cobrar">
+                    <i class="fas fa-file-invoice-dollar"></i> <span class="sidebar-text">Reportes CxC</span>
+                </a>
+            </li>
+            <li class="sidebar-nav-item">
+                <a class="nav-link text-dark" asp-controller="Reportes" asp-action="Index"
+                    asp-route-tipoReporte="Cobros" data-toggle="tooltip" title="Reportes de cobros">
+                    <i class="fas fa-cash-register"></i> <span class="sidebar-text">Reportes Cobros</span>
+                </a>
+            </li>
+        </ul>
+
     </div>
 </div>

@@ -1,0 +1,20 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using Alquileres.Models
+@inject SignInManager<IdentityUser> signInManager
+@inject UserManager<IdentityUser > userManager
+
+@if (signInManager.IsSignedIn(User))
+{
+    var currentUser = await userManager.GetUserAsync(User);
+    var isAdmin = currentUser != null && await userManager.IsInRoleAsync(currentUser, AppConstants.AdministratorRole);
+
+    if (isAdmin)
+    {
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-controller="TbAuditorias" asp-action="Index">Auditoria</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-controller="AdministrarPermisos" asp-action="Index">Administar Permisos</a>
+        </li>
+    }
+}

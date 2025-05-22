@@ -10,16 +10,21 @@
     <!-- Estilos CSS -->
     <link href="~/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="~/lib/font-awesome/css/all.min.css" />
+
     <!-- DataTables: Usar solo una versión (min.css) -->
     <link href="~/lib/datatables.net-bs5/datatables.bootstrap5.min.css" rel="stylesheet" />
+    
     <link rel="stylesheet" href="https://cdn.datatables.net/datetime/1.5.5/css/dataTables.dateTime.min.css">
+
     <!-- Select2 CSS -->
     <link rel="stylesheet" href="~/lib/select2/css/select2.min.css" />
+
     <!-- SweetAlert2: Usar solo la versión minificada -->
     <link href="~/lib/sweetalert2/sweetalert2.min.css" rel="stylesheet" />
 
     <!-- Toasts -->
 	<link href="~/lib/toastr.js/toastr.min.css" rel="stylesheet" />
+
     <!-- Estilos personalizados -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Alquileres.styles.css" asp-append-version="true" />
@@ -29,7 +34,7 @@
 
 <body>
     <header class="div1">
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-none">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-none shadow">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
                     <img src="~/favicon_io/android-chrome-512x512.png" alt="Logo" style="height: 60px; width: auto;" />
@@ -46,13 +51,10 @@
                         </li>
                         @if (User.IsInRole("Administrator"))
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="TbAuditorias"
-                                    asp-action="Index">Auditoria</a>
-                            </li>
+                             <!-- link que solo vera el Administrador -->
+                            @await Html.PartialAsync("_AdminActionsPartial")
                         }
                     </ul>
-
                     <ul class="navbar-nav ms-auto">
                         @* Obtener la cantidad de cuotas vencidas desde ViewData *@
                         @{
@@ -123,41 +125,63 @@
             </div>
         </footer>
 
-        <!-- Scripts JS -->
+        <!-- jQuery y plugins generales -->
         <script src="~/lib/jquery/dist/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/inputmask/4.0.9/jquery.inputmask.bundle.min.js"></script>
-        <!-- Resto de scripts en ORDEN CORRECTO -->
+
+        <!-- Bootstrap y dependencias -->
         <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
-         <!-- axios -->
+        <!-- Axios -->
         <script src="~/lib/axios/axios.min.js"></script>
 
-        <!-- Select2 JS: Usar solo la versión minificada -->
+        <!-- Select2 -->
         <script src="~/lib/select2/js/select2.min.js"></script>
 
-	    <script src="~/lib/jquery-validate/jquery.validate.min.js"></script>
-	    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
-	    <script src="~/lib/jquery-validate/additional-methods.min.js"></script>
-	    <script src="~/lib/inputmask/inputmask/inputmask.min.js"></script>
-        
-        <!-- DataTables y plugins -->
+        <!-- jQuery Validation -->
+        <script src="~/lib/jquery-validate/jquery.validate.min.js"></script>
+        <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+        <script src="~/lib/jquery-validate/additional-methods.min.js"></script>
+
+        <!-- Inputmask -->
+        <script src="~/lib/inputmask/inputmask/inputmask.min.js"></script>
+
+        <!-- Moment.js (necesario para DateTime plugin de DataTables) -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.2/moment.min.js"></script>
+
+        <!-- DataTables núcleo y bootstrap -->
         <script src="~/lib/datatables.net/datatables.min.js"></script>
         <script src="~/lib/datatables.net-bs5/dataTables.bootstrap5.min.js"></script>
-        <script src="~/lib/datatables-responsive/datatables.responsive.min.js"></script>
 
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.2/moment.min.js"></script>
+        <!-- DataTables plugins -->
+        <script src="~/lib/datatables-responsive/datatables.responsive.min.js"></script>
         <script src="https://cdn.datatables.net/datetime/1.5.5/js/dataTables.dateTime.min.js"></script>
 
+        <!-- DataTables Buttons: ORDEN CORRECTO -->
+        <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script> <!-- <- FALTABA -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+        <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+        <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+
+        <!-- Plugins adicionales DataTables -->
         <script src="~/lib/datatables-plugins/buttons/button.download.min.js"></script>
         <script src="~/lib/datatables-plugins/i18n/es-es.min.js"></script>
+
         <!-- Font Awesome -->
         <script src="~/lib/font-awesome/js/all.min.js"></script>
-        <!-- SweetAlert2: Usar solo la versión minificada -->
+
+        <!-- SweetAlert2 -->
         <script src="~/lib/sweetalert2/sweetalert2.min.js"></script>
-        <!-- Toasts -->
-	    <script src="~/lib/toastr.js/toastr.min.js"></script>
+
+        <!-- Toastr -->
+        <script src="~/lib/toastr.js/toastr.min.js"></script>
+
         <!-- Scripts personalizados -->
         <script src="~/js/site.js"></script>
+
+        
 
         <!-- Audio para notificaciones -->
         <audio id="notificationSound" src="~/sounds/notificacion.mp3" preload="auto"></audio>

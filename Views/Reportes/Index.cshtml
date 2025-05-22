@@ -1,0 +1,38 @@
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+
+@{
+    var tipoReporte = ViewData["TipoReporte"]?.ToString() ?? "CxC";
+    var tituloPagina = tipoReporte == "Cobros" ? "Reportes de Cobros" : "Reportes de Cuentas por Cobrar";
+    var textoBoton = tipoReporte == "Cobros" ? "Cargar Reporte Cobros" : "Cargar Reporte CxC";
+
+    ViewData["Title"] = tituloPagina;
+}
+<!-- Elemento oculto para exponer tipoReporte a JS -->
+<div id="tipoReporte" data-tiporeporte="@tipoReporte" hidden></div>
+
+<!-- Contenedor para toasts -->
+<div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3"></div>
+
+<!-- Spinner de carga -->
+<div id="loadingSpinner" class="spinner-border text-primary position-fixed top-50 start-50" style="display: none;">
+</div>
+
+<div id="dataTableContainer" style="display: none;">
+    <!-- Aquí se cargará la vista parcial de la tabla o el formulario -->
+</div>
+
+@section Scripts {
+                    <script src="~/js/reportes.js" asp-append-version="true"></script>
+                    <script>
+                        document.addEventListener("DOMContentLoaded", function () {
+                            const tipoReporte = document.getElementById("tipoReporte")?.dataset.tiporeporte || "CxC";
+
+                            if (tipoReporte === "Cobros") {
+                                cargarReporteCobros();
+                            } else {
+                                cargarReporteCxC();
+                            }
+                        });
+                    </script>
+}

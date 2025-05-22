@@ -24,6 +24,7 @@ namespace Alquileres.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "Permissions.Propietarios.Anular")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CambiarEstado(int id)
         {
@@ -48,37 +49,24 @@ namespace Alquileres.Controllers
         }
 
         // GET: TbPropietarios/CargarPropietarios
+        [HttpGet]
+        [Authorize(Policy = "Permissions.Propietarios.Ver")]
         public async Task<IActionResult> CargarPropietarios()
         {
             var propietarios = await _context.TbPropietarios.ToListAsync();
             return PartialView("_PropietariosPartial", propietarios);
         }
 
-        // GET: TbPropietarios/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var propietario = await _context.TbPropietarios
-                .FirstOrDefaultAsync(m => m.FidPropietario == id);
-            if (propietario == null)
-            {
-                return NotFound();
-            }
-
-            return View(propietario);
-        }
-
         // GET: TbPropietarios/Create
+        [HttpGet]
+        [Authorize(Policy = "Permissions.Propietarios.Crear")]
         public IActionResult Create()
         {
             return PartialView("_CreatePropietarioPartial", new TbPropietario());
         }
 
         [HttpPost]
+        [Authorize(Policy = "Permissions.Propietarios.Crear")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("FidPropietario,Fnombre,Fapellidos,Fcedula,Fdireccion,Ftelefono,Fcelular")] TbPropietario tbPropietario)
         {
@@ -144,6 +132,8 @@ namespace Alquileres.Controllers
         }
 
         // GET: TbPropietarios/Edit/5
+        [HttpGet]
+        [Authorize(Policy = "Permissions.Propietarios.Editar")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -162,6 +152,7 @@ namespace Alquileres.Controllers
 
         // POST: TbPropietarios/Edit/5
         [HttpPost]
+        [Authorize(Policy = "Permissions.Propietarios.Editar")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("FidPropietario,Fnombre,Fapellidos,Fcedula,Fdireccion,Ftelefono,Fcelular")] TbPropietario tbPropietario)
         {

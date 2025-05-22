@@ -1,0 +1,121 @@
+﻿@using Microsoft.AspNetCore.Identity
+@model List<IdentityUser>
+@{
+	ViewData["Title"] = "Administración de Permisos";
+}
+
+@section Styles {
+	<link rel="stylesheet" href="~/css/administrar-permisos.css" asp-append-version="true" />
+}
+
+<div class="admin-container">
+	<div class="admin-header">
+		<h1 class="admin-title">
+			<i class="fas fa-user-shield"></i> @ViewData["Title"]
+		</h1>
+		<div class="admin-search">
+			<input type="text" id="userSearch" placeholder="Buscar usuarios..." class="search-input">
+			<button class="search-btn"><i class="fas fa-search"></i></button>
+		</div>
+	</div>
+
+	<div class="admin-card">
+		<div class="table-responsive">
+			<table class="table table-hover" id="usersTable">
+				<thead class="table-header">
+					<tr>
+						<th>Usuario</th>
+						<th>Email</th>
+						<th>Acciones</th>
+					</tr>
+				</thead>
+				<tbody class="table-body">
+					@foreach (var user in Model)
+					{
+						<tr>
+							<td>
+								<div class="user-info">
+									<div class="user-avatar">
+										<i class="fas fa-user-circle"></i>
+									</div>
+									<div class="user-details">
+										<span class="user-name">@user.UserName</span>
+									</div>
+								</div>
+							</td>
+							<td>@user.Email</td>
+							<td>
+								<button class="btn btn-action manage-permissions" data-user-id="@user.Id"
+									data-user-name="@user.UserName">
+									<i class="fas fa-key"></i> Gestionar
+								</button>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+
+<!-- Card de gestión de permisos (oculta inicialmente) -->
+<div class="permissions-card-container" id="permissionsCard" style="display: none;">
+	<div class="permissions-card">
+		<div class="card-header">
+			<h3 id="permissionsCardTitle">Permisos para <span id="selectedUserName"></span></h3>
+			<button type="button" class="btn-close-permissions" id="closePermissionsCard">
+				<i class="fas fa-times"></i>
+			</button>
+		</div>
+
+		<div class="card-body">
+			<!-- Pestañas -->
+			<ul class="nav nav-tabs" id="permissionsTabs" role="tablist">
+				@{
+					var categories = Alquileres.Models.Permissions.GetPermissionsByCategory();
+					int tabIndex = 0;
+					foreach (var category in categories)
+					{
+						<li class="nav-item" role="presentation">
+							<button class="nav-link @(tabIndex == 0 ? "active" : "")" id="@($"tab-{category.Key}")"
+								data-bs-toggle="tab" data-bs-target="@($"#content-{category.Key}")" type="button" role="tab">
+								@Alquileres.Models.Permissions.GetCategoryDisplayName(category.Key)
+							</button>
+						</li>
+						tabIndex++;
+					}
+				}
+			</ul>
+
+			<!-- Contenido de las pestañas -->
+			<div class="tab-content" id="permissionsTabContent">
+				@{
+					tabIndex = 0;
+					foreach (var category in categories)
+					{
+						<div class="tab-pane fade @(tabIndex == 0 ? "show active" : "")" id="@($"content-{category.Key}")"
+							role="tabpanel">
+							<div class="permission-items-container">
+								<!-- Contenido cargado via AJAX -->
+							</div>
+						</div>
+						tabIndex++;
+					}
+				}
+			</div>
+		</div>
+
+		<div class="card-footer">
+			<button type="button" class="btn btn-secondary" id="cancelPermissions">
+				<i class="fas fa-times"></i> Cancelar
+			</button>
+			<button type="button" class="btn btn-primary" id="savePermissions">
+				<i class="fas fa-save"></i> Guardar Cambios
+			</button>
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+	<script src="~/js/administrarPermisos.js" asp-append-version="true"></script>
+}

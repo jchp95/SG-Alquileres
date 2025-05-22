@@ -11,29 +11,41 @@ namespace Alquileres.Controllers
     public class TbInmueblesController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly ILogger<TbInmueblesController> _logger;
 
-        public TbInmueblesController(ApplicationDbContext context)
+        // Corrección: Usar el tipo correcto para el logger
+        public TbInmueblesController(ApplicationDbContext context, ILogger<TbInmueblesController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         [HttpPost]
+        [Authorize(Policy = "Permissions.Inmuebles.Anular")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CambiarEstado(int id)
         {
-            var inmueble = await _context.TbInmuebles.FindAsync(id);
-            if (inmueble == null)
+            try
             {
-                return NotFound();
+                var inmueble = await _context.TbInmuebles.FindAsync(id);
+                if (inmueble == null)
+                {
+                    _logger.LogWarning($"Intento de cambiar estado de inmueble no encontrado: {id}");
+                    return NotFound();
+                }
+
+                inmueble.Factivo = !inmueble.Factivo;
+                _context.Update(inmueble);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation($"Estado de inmueble {id} cambiado a: {inmueble.Factivo}");
+                return RedirectToAction(nameof(Index));
             }
-
-            // Cambiar el estado del inmueble
-            inmueble.Factivo = !inmueble.Factivo;
-
-            _context.Update(inmueble);
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction(nameof(Index));
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error al cambiar estado del inmueble {id}");
+                return StatusCode(500, "Error interno al cambiar el estado");
+            }
         }
 
         // GET: TbInmuebles
@@ -42,85 +54,16 @@ namespace Alquileres.Controllers
             return View();
         }
 
-        // GET: TbInmuebles/CargarInmuebles
+        [HttpGet]
+        [Authorize(Policy = "Permissions.Inmuebles.Ver")]
         public async Task<IActionResult> CargarInmuebles()
         {
-            var inmuebles = await _context.TbInmuebles.ToListAsync();
-            var propietarios = await _context.TbPropietarios
-                .Where(p => p.Factivo)
-                .ToDictionaryAsync(p => p.FidPropietario, p => p.Fnombre);
-
-            var inmuebleViewModels = inmuebles.Select(i => new InmuebleViewModel
+            try
             {
-                FidInmueble = i.FidInmueble,
-                Fdescripcion = i.Fdescripcion,
-                Fdireccion = i.Fdireccion,
-                Fubicacion = i.Fubicacion,
-                Fprecio = i.Fprecio,
-                Factivo = i.Factivo,
-                PropietarioNombre = propietarios.ContainsKey(i.FkidPropietario) ? propietarios[i.FkidPropietario] : "Desconocido"
-            }).ToList();
-
-            return PartialView("_InmueblesPartial", inmuebleViewModels);
-        }
-
-        // GET: TbInmuebles/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var tbInmueble = await _context.TbInmuebles.FirstOrDefaultAsync(m => m.FidInmueble == id);
-            if (tbInmueble == null)
-            {
-                return NotFound();
-            }
-
-            return View(tbInmueble);
-        }
-
-        // GET: TbInmuebles/Create
-        public async Task<IActionResult> Create()
-        {
-            var propietarios = await _context.TbPropietarios
-                .Where(p => p.Factivo)
-                .Select(p => new { p.FidPropietario, p.Fnombre })
-                .ToListAsync();
-
-            var propietarioList = new List<SelectListItem>
-            {
-                new SelectListItem { Value = "", Text = "Seleccionar propietario" }
-            };
-
-            propietarioList.AddRange(propietarios.Select(p => new SelectListItem
-            {
-                Value = p.FidPropietario.ToString(),
-                Text = p.Fnombre
-            }));
-
-            ViewBag.FkidPropietario = propietarioList;
-
-            return PartialView("_CreateInmueblePartial", new TbInmueble());
-        }
-
-        // POST: TbInmuebles/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("FidInmueble,FkidPropietario,Fdescripcion,Fdireccion,Fubicacion,Fprecio")] TbInmueble tbInmueble)
-        {
-            if (ModelState.IsValid)
-            {
-                tbInmueble.Factivo = true;
-                _context.Add(tbInmueble);
-                await _context.SaveChangesAsync();
-
-                // Cargar los inmuebles y crear la lista de InmuebleViewModel
                 var inmuebles = await _context.TbInmuebles.ToListAsync();
                 var propietarios = await _context.TbPropietarios
                     .Where(p => p.Factivo)
-                    .ToDictionaryAsync(p => p.FidPropietario, p => p.Fnombre);
+                    .ToDictionaryAsync(p => p.FidPropietario, p => $"{p.Fnombre} {p.Fapellidos}");
 
                 var inmuebleViewModels = inmuebles.Select(i => new InmuebleViewModel
                 {
@@ -130,127 +73,153 @@ namespace Alquileres.Controllers
                     Fubicacion = i.Fubicacion,
                     Fprecio = i.Fprecio,
                     Factivo = i.Factivo,
-                    PropietarioNombre = propietarios.ContainsKey(i.FkidPropietario) ? propietarios[i.FkidPropietario] : "Desconocido"
+                    PropietarioNombre = propietarios.GetValueOrDefault(i.FkidPropietario, "Desconocido")
                 }).ToList();
 
                 return PartialView("_InmueblesPartial", inmuebleViewModels);
             }
-
-            return PartialView("_CreateInmueblePartial", tbInmueble);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al cargar inmuebles");
+                return PartialView("_InmueblesPartial", new List<InmuebleViewModel>());
+            }
         }
 
+        [HttpGet]
+        [Authorize(Policy = "Permissions.Inmuebles.Crear")]
+        public async Task<IActionResult> Create()
+        {
+            try
+            {
+                var propietarios = await _context.TbPropietarios
+                    .Where(p => p.Factivo)
+                    .Select(p => new {
+                        p.FidPropietario,
+                        NombreCompleto = $"{p.Fnombre} {p.Fapellidos}"
+                    })
+                    .ToListAsync();
+
+                var propietarioList = new List<SelectListItem>
+                {
+                    new SelectListItem { Value = "", Text = "Seleccionar propietario" }
+                };
+
+                propietarioList.AddRange(propietarios.Select(p => new SelectListItem
+                {
+                    Value = p.FidPropietario.ToString(),
+                    Text = p.NombreCompleto
+                }));
+
+                ViewBag.FkidPropietario = propietarioList;
+                return PartialView("_CreateInmueblePartial", new TbInmueble());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al cargar formulario de creación");
+                return StatusCode(500);
+            }
+        }
+
+        [HttpPost]
+        [Authorize(Policy = "Permissions.Inmuebles.Crear")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("FidInmueble,FkidPropietario,Fdescripcion,Fdireccion,Fubicacion,Fprecio")] TbInmueble tbInmueble)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    tbInmueble.Factivo = true;
+                    _context.Add(tbInmueble);
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation($"Inmueble creado: {tbInmueble.FidInmueble}");
+
+                    return await CargarInmuebles();
+                }
+
+                // Si hay errores, recargar la lista de propietarios
+                var propietarios = await _context.TbPropietarios
+                    .Where(p => p.Factivo)
+                    .Select(p => new {
+                        p.FidPropietario,
+                        NombreCompleto = $"{p.Fnombre} {p.Fapellidos}"
+                    })
+                    .ToListAsync();
+
+                ViewBag.FkidPropietario = new SelectList(propietarios, "FidPropietario", "NombreCompleto");
+                return PartialView("_CreateInmueblePartial", tbInmueble);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al crear inmueble");
+                return StatusCode(500);
+            }
+        }
+
+        [HttpGet]
+        [Authorize(Policy = "Permissions.Inmuebles.Editar")] // Corregido el nombre de la política
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
+            try
             {
-                return NotFound();
-            }
+                if (id == null) return NotFound();
 
-            var tbInmueble = await _context.TbInmuebles.FindAsync(id);
-            if (tbInmueble == null)
+                var tbInmueble = await _context.TbInmuebles.FindAsync(id);
+                if (tbInmueble == null) return NotFound();
+
+                var propietario = await _context.TbPropietarios
+                    .Where(p => p.FidPropietario == tbInmueble.FkidPropietario)
+                    .Select(p => $"{p.Fnombre} {p.Fapellidos}")
+                    .FirstOrDefaultAsync();
+
+                ViewBag.PropietarioNombre = propietario ?? "Desconocido";
+                return PartialView("_EditInmueblePartial", tbInmueble);
+            }
+            catch (Exception ex)
             {
-                return NotFound();
+                _logger.LogError(ex, $"Error al cargar edición de inmueble {id}");
+                return StatusCode(500);
             }
-
-            // Obtener el nombre del propietario
-            var propietario = await _context.TbPropietarios
-                .Where(p => p.FidPropietario == tbInmueble.FkidPropietario)
-                .Select(p => p.Fnombre)
-                .FirstOrDefaultAsync();
-
-            ViewBag.PropietarioNombre = propietario; // Pasar el nombre del propietario a la vista
-
-            return PartialView("_EditInmueblePartial", tbInmueble);
         }
 
-        // POST: TbInmuebles/Edit/5
         [HttpPost]
+        [Authorize(Policy = "Permissions.Inmuebles.Editar")] // Corregido el nombre de la política
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("FidInmueble,FkidPropietario,Fdescripcion,Fdireccion,Fubicacion,Fprecio")] TbInmueble tbInmueble)
         {
-            if (id != tbInmueble.FidInmueble)
+            try
             {
-                return NotFound();
-            }
+                if (id != tbInmueble.FidInmueble) return NotFound();
 
-            if (ModelState.IsValid)
-            {
-                try
+                if (ModelState.IsValid)
                 {
                     var inmueble = await _context.TbInmuebles.FindAsync(id);
-                    if (inmueble == null)
-                    {
-                        return NotFound();
-                    }
+                    if (inmueble == null) return NotFound();
 
                     tbInmueble.Factivo = true;
                     _context.Entry(inmueble).CurrentValues.SetValues(tbInmueble);
                     await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!TbInmuebleExists(tbInmueble.FidInmueble))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    _logger.LogInformation($"Inmueble actualizado: {id}");
+
+                    return await CargarInmuebles();
                 }
 
-                var inmuebles = await _context.TbInmuebles.ToListAsync();
-                var propietarios = await _context.TbPropietarios
-                    .Where(p => p.Factivo)
-                    .ToDictionaryAsync(p => p.FidPropietario, p => p.Fnombre);
-
-                var inmuebleViewModels = inmuebles.Select(i => new InmuebleViewModel
+                return PartialView("_EditInmueblePartial", tbInmueble);
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                if (!TbInmuebleExists(tbInmueble.FidInmueble))
                 {
-                    FidInmueble = i.FidInmueble,
-                    Fdescripcion = i.Fdescripcion,
-                    Fdireccion = i.Fdireccion,
-                    Fubicacion = i.Fubicacion,
-                    Fprecio = i.Fprecio,
-                    Factivo = i.Factivo,
-                    PropietarioNombre = propietarios.ContainsKey(i.FkidPropietario) ? propietarios[i.FkidPropietario] : "Desconocido"
-                }).ToList();
-
-                return PartialView("_InmueblesPartial", inmuebleViewModels);
+                    return NotFound();
+                }
+                _logger.LogError(ex, $"Error de concurrencia al editar inmueble {id}");
+                throw;
             }
-
-            return PartialView("_EditInmueblePartial", tbInmueble);
-        }
-
-        // GET: TbInmuebles/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
+            catch (Exception ex)
             {
-                return NotFound();
+                _logger.LogError(ex, $"Error al editar inmueble {id}");
+                return StatusCode(500);
             }
-
-            var tbInmueble = await _context.TbInmuebles.FirstOrDefaultAsync(m => m.FidInmueble == id);
-            if (tbInmueble == null)
-            {
-                return NotFound();
-            }
-
-            return View(tbInmueble);
-        }
-
-        // POST: TbInmuebles/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var tbInmueble = await _context.TbInmuebles.FindAsync(id);
-            if (tbInmueble != null)
-            {
-                _context.TbInmuebles.Remove(tbInmueble);
-            }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
         }
 
         private bool TbInmuebleExists(int id)
@@ -258,34 +227,44 @@ namespace Alquileres.Controllers
             return _context.TbInmuebles.Any(e => e.FidInmueble == id);
         }
 
-        // GET: TbInmuebles/BuscarPropietario/
         [HttpGet]
         public async Task<IActionResult> BuscarPropietario(string searchTerm = null)
         {
-            //  DbSet de Propietarios en el contexto
-            var propietariosQuery = _context.TbPropietarios.AsQueryable();
-            
-
-            // Filtrar propietarios si hay un término de búsqueda
-            if (!string.IsNullOrEmpty(searchTerm))
+            try
             {
-                propietariosQuery = propietariosQuery.Where(i => i.Fnombre.Contains(searchTerm) || i.Fapellidos.Contains(searchTerm));
-            }
+                var query = _context.TbPropietarios
+                    .Where(p => p.Factivo)
+                    .AsQueryable();
 
-            // Obtener resultados de propietarios
-            var propietariosResultados = await propietariosQuery
-                .Select(i => new
+                if (!string.IsNullOrEmpty(searchTerm))
                 {
-                    id = i.FidPropietario,
-                    text = $"{i.Fnombre} {i.Fapellidos}",
-                    tipo = "propietario" // Añadir un campo para identificar el tipo
-                })
-                .ToListAsync();
+                    searchTerm = searchTerm.ToLower();
+                    query = query.Where(p =>
+                        p.Fnombre.ToLower().Contains(searchTerm) ||
+                        p.Fapellidos.ToLower().Contains(searchTerm) ||
+                        (p.Fcedula != null && p.Fcedula.Contains(searchTerm)));
+                }
 
-            // Combinar resultados
-            var resultados = propietariosResultados.ToList();
+                var resultados = await query
+                    .OrderBy(p => p.Fapellidos)
+                    .ThenBy(p => p.Fnombre)
+                    .Take(20)
+                    .Select(p => new
+                    {
+                        id = p.FidPropietario,
+                        text = $"{p.Fnombre} {p.Fapellidos}",
+                        tipo = "propietario",
+                        cedula = p.Fcedula
+                    })
+                    .ToListAsync();
 
-            return Json(new { results = resultados });
+                return Json(new { results = resultados });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error al buscar propietarios. Término: {searchTerm}");
+                return Json(new { results = new List<object>() });
+            }
         }
     }
 }

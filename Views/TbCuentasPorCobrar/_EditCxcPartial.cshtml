@@ -1,0 +1,73 @@
+@using System.Globalization
+@model Alquileres.Models.TbCxc
+
+<h3 class="mb-4">Editar Inmueble</h3>
+
+<div class="card shadow-sm rounded-4 p-4 mb-4">
+    <form asp-action="Edit">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+        <input type="hidden" asp-for="FidCuenta" />
+
+        <div class="mb-3">
+            <label class="form-label">Inquilino</label>
+            <input type="text" class="form-control rounded-3" name="InquilinoNombre" value="@ViewBag.Inquilino" />
+            <input type="hidden" asp-for="FidInquilino" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Inmueble</label>
+            <input type="text" class="form-control rounded-3" value="@ViewBag.Inmueble" />
+            <input type="hidden" asp-for="FkidInmueble" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="FfechaInicio" class="form-label">Fecha de Inicio</label>
+            <input asp-for="FfechaInicio" class="form-control rounded-3" type="date"
+                   value="@Model.FfechaInicio.ToString("yyyy-MM-dd")" />
+            <span asp-validation-for="FfechaInicio" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Fmonto" class="form-label">Monto</label>
+            <input asp-for="Fmonto" class="form-control rounded-3 numeric-input"
+                   value="@Model.Fmonto.ToString("N2", new CultureInfo("es-DO"))" />
+            <span asp-validation-for="Fmonto" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="FdiasGracia" class="form-label">Días de Gracia</label>
+            <input asp-for="FdiasGracia" class="form-control rounded-3" />
+            <span asp-validation-for="FdiasGracia" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="FtasaMora" class="form-label">Tasa Mora</label>
+            <input asp-for="FtasaMora" class="form-control rounded-3" />
+            <span asp-validation-for="FtasaMora" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Fnota" class="form-label">Notas</label>
+            <input asp-for="Fnota" class="form-control rounded-3" placeholder="Motivo de la edición" />
+            <span asp-validation-for="Fnota" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="FidPeriodoPago" class="form-label">Período de Pago</label>
+            <input asp-for="FidPeriodoPago" class="form-control rounded-3" name="FidPeriodoPago" />
+            <span asp-validation-for="FidPeriodoPago" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <input type="hidden" asp-for="FfechaProxCuota" class="form-control rounded-3" name="FfechaProxCuota" />
+        </div>
+
+        <div class="d-flex gap-2">
+            <input type="submit" value="Guardar" class="btn btn-primary px-4 shadow-sm" />
+            <a asp-action="Index" class="btn btn-outline-secondary px-4">Volver a la lista</a>
+        </div>
+    </form>
+</div>
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

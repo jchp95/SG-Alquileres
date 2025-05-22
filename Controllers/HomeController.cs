@@ -5,7 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
-using Microsoft.EntityFrameworkCore; // Para usar LINQ
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity; // Para usar LINQ
 
 namespace Alquileres.Controllers
 {
@@ -14,17 +15,52 @@ namespace Alquileres.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly ApplicationDbContext _context; // Agregar el contexto
 
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context)
+        private readonly UserManager<IdentityUser> _userManager;
+
+        public HomeController(ILogger<HomeController> logger,
+                             ApplicationDbContext context,
+                             UserManager<IdentityUser> userManager)
         {
             _logger = logger;
-            _context = context; // Inicializar el contexto
+            _context = context;
+            _userManager = userManager;
         }
 
         public IActionResult Index()
         {
+            return View();
+        }
+
+        public IActionResult LoadCreateInquilinoPartial()
+        {
+            return PartialView("~/Views/TbInquilinoes/_CreateInquilinoPartial.cshtml");
+        }
+
+        public IActionResult LoadCreatePropietarioPartial()
+        {
+            return PartialView("~/Views/TbPropietarios/_CreatePropietarioPartial.cshtml");
+        }
+
+        public IActionResult LoadCreateInmueblePartial()
+        {
+            return PartialView("~/Views/TbInmuebles/_CreateInmueblePartial.cshtml");
+        }
+
+        public IActionResult LoadCreateCxCPartial()
+        {
+            return PartialView("~/Views/TbCuentasPorCobrar/_CreateCuentasPorCobrarPartial.cshtml");
+        }
+
+        public IActionResult LoadCreateCobroPartial()
+        {
+            return PartialView("~/Views/TbCobros/_CreateCobroPartial.cshtml");
+        }
+
+        public async Task<IActionResult> LoadDashboard()
+        {
             var hoy = DateTime.Today;
             var cuotasVencidas = _context.TbCxcCuota
-                .Where(c => c.Factivo && c.Fvence <= hoy && c.Fstatus == 'V') // Solo cuotas con estado 'N'
+                .Where(c => c.Factivo && c.Fvence <= hoy && c.Fstatus == 'V')
                 .ToList();
 
             int cantidadCuotasVencidas = cuotasVencidas.Count;
@@ -33,7 +69,16 @@ namespace Alquileres.Controllers
             ViewData["CantidadCuotasVencidas"] = cantidadCuotasVencidas;
             ViewData["CuotasVencidas"] = cuotasVencidas;
 
-            return View();
+            // Obtener el usuario actual
+            var usuario = await _userManager.GetUserAsync(User);
+            var nombreMostrar = usuario?.UserName ?? "Usuario";
+
+            // Si tienes propiedades personalizadas como NombreCompleto:
+            // var nombreMostrar = usuario?.NombreCompleto ?? usuario?.UserName ?? "Usuario";
+
+            ViewData["NombreUsuario"] = nombreMostrar;
+
+            return PartialView("_DashboardPartial");
         }
 
         public IActionResult Privacy()

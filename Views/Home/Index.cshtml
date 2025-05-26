@@ -1,31 +1,230 @@
-﻿@{
-    ViewData["Title"] = "Home";
-    bool alertCuotasVencidas = ViewData["AlertaCuotasVencidas"] != null && (bool)ViewData["AlertaCuotasVencidas"];
-    int cantidadCuotasVencidas = ViewData["CantidadCuotasVencidas"] != null ? (int)ViewData["CantidadCuotasVencidas"] : 0;
+﻿@model Alquileres.Models.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Home Page";
 }
 
-<div id="dashboard-container">
-    <!-- El contenido se cargará aquí dinámicamente -->
-</div>
+@{
+    // Podemos obtener el nombre del usuario directamente en la vista.
+    var userName = User.Identity?.Name;
+}
+
+@if (User.HasClaim("Permission", "Permissions.Home.Ver"))
+{
+    <div class="dashboard-container">
+        <!-- Header con bienvenida y búsqueda -->
+        <header class="dashboard-header">
+            <div class="welcome-section">
+                <h1 class="welcome-title">Bienvenido, <span class="user-name">@(userName ?? "Usuario")</span></h1>
+                <p class="welcome-subtitle">Resumen de tu actividad de alquileres</p>
+            </div>
+        </header>
+
+        <!-- Sección de métricas clave -->
+        <section class="metrics-section">
+            <div class="metric-card">
+                <div class="metric-content">
+                    <h3 class="metric-title">Propiedades Activas</h3>
+                    <p class="metric-value">@Model.InmueblesActivosCount</p>
+                    <p class="metric-change @Model.ClaseCambioInmuebles">
+                        @Model.TextoCambioInmuebles
+                    </p>
+                </div>
+
+                <div class="metric-icon">
+                    <i class="fas fa-home"></i>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-content">
+                    <h3 class="metric-title">Ingresos Mensuales</h3>
+                    <p class="metric-value">@Model.IngresosMensuales.ToString("C")</p>
+                    <p class="metric-change @Model.ClaseCambioIngresos">@Model.TextoCambioIngresos</p>
+                </div>
+                <div class="metric-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+            </div>
+
+            <div class="metric-card alert">
+                <div class="metric-content">
+                    <h3 class="metric-title">Pagos Pendientes</h3>
+                    <p class="metric-value">@Model.CuotasVencidasCount</p>
+                    <p class="metric-change negative">
+                        @(Model.CuotasVencidasCount > 0 ? "Revisión requerida" : "Sin atrasos")
+                    </p>
+                </div>
+                <div class="metric-icon">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+            </div>
+
+
+            <div class="metric-card">
+                <div class="metric-content">
+                    <h3 class="metric-title">Ocupación</h3>
+                    <p class="metric-value">@Model.OcupacionActual.ToString("F0")%</p>
+                    <p class="metric-change @Model.ClaseCambioInmuebles">@Model.TextoCambioInmuebles</p>
+                </div>
+                <div class="metric-icon">
+                    <i class="fas fa-percentage"></i>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección de acciones rápidas -->
+        <section class="quick-actions">
+            <h2 class="section-title">Acciones Rápidas</h2>
+            <div class="actions-grid">
+                <a href="/TbInquilinoes/Index" class="action-btn">
+                    <i class="fas fa-user-friends"></i>
+                    <span>Crear Inquilino</span>
+                </a>
+                <a href="/TbPropietarios/Index" class="action-btn">
+                    <i class="fas fa-user-tie"></i>
+                    <span>Crear Propietario</span>
+                </a>
+                <a href="/TbInmuebles/Index" class="action-btn">
+                    <i class="fas fa-home"></i>
+                    <span>Crear Inmueble</span>
+                </a>
+                <a href="/TbCuentasPorCobrar/Index" class="action-btn">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <span>Crear CxC</span>
+                </a>
+                <a href="/TbCobros/Index" class="action-btn">
+                    <i class="fas fa-hand-holding-usd"></i>
+                    <span>Crear Cobro</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- Sección de últimos movimientos -->
+        <section class="recent-activity">
+            <div class="activity-header">
+                <h2 class="section-title">Actividad Reciente</h2>
+                <a href="#" class="view-all" data-bs-toggle="offcanvas" data-bs-target="#activitiesOffcanvas">Ver todo</a>
+            </div>
+            <div class="activity-list">
+                @foreach (var actividad in Model.ActividadesRecientes.Take(5))
+                {
+                    var iconClass = actividad.Tipo switch
+                    {
+                        "Inquilino" => "fas fa-user",
+                        "Propietario" => "fas fa-user-tie",
+                        "Inmueble" => "fas fa-home",
+                        "CxC" => "fas fa-file-invoice-dollar",
+                        "Cobro" => "fas fa-hand-holding-usd",
+                        _ => "fas fa-info-circle"
+                    };
+
+                    var tipoClase = actividad.Tipo switch
+                    {
+                        "Inquilino" => "info",
+                        "Propietario" => "info",
+                        "Inmueble" => "warning",
+                        "CxC" => "success",
+                        "Cobro" => "warning",
+                        _ => "neutral"
+                    };
+
+                    <div class="activity-item @(actividad.EsUrgente ? "urgent" : "")">
+                        <div class="activity-icon @tipoClase">
+                            <i class="@iconClass"></i>
+                        </div>
+                        <div class="activity-content">
+                            <p class="activity-title">@actividad.Tipo</p>
+                            <p class="activity-details">@actividad.Descripcion</p>
+                            <p class="activity-time">@actividad.Fecha.ToString("dd MMM yyyy HH:mm")</p>
+                            @if (!string.IsNullOrEmpty(actividad.DetalleAdicional))
+                            {
+                                <p class="activity-additional">@actividad.DetalleAdicional</p>
+                            }
+                            @if (actividad.EsUrgente)
+                            {
+                                <span class="badge badge-danger">¡Urgente!</span>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </section>
+
+        <!-- Offcanvas para mostrar todas las actividades -->
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="activitiesOffcanvas"
+            aria-labelledby="activitiesOffcanvasLabel">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="activitiesOffcanvasLabel">Todas las actividades</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                <div id="allActivitiesList">
+                    <!-- Las actividades se cargarán aquí via AJAX -->
+                </div>
+                <div class="text-center mt-3">
+                    <button id="loadMoreActivities" class="btn btn-primary" style="display: none;">
+                        <i class="fas fa-plus-circle me-2"></i>Ver más actividades
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+}
+else
+{
+    <div class="unauthorized-container">
+        <div class="unauthorized-content">
+            <div class="logo-container">
+                <img src="~/images/logo.jpg" alt="Logo de la empresa" class="logo-home" />
+                <div class="logo-overlay"></div>
+            </div>
+
+            <div class="welcome-message">
+                <h1 class="welcome-title">Bienvenido <span class="user-name">@(userName ?? "Usuario")</span></h1>
+                <h1>al Sistema de Gestión de Alquileres</h1>
+                <p class="lead">Actualmente no tienes acceso al dashboard principal.</p>
+                <p>Por favor, contacta al administrador del sistema si necesitas acceder a más funcionalidades.</p>
+
+                <div class="actions">
+                    <a href="mailto:soporte@empresa.com" class="btn btn-outline-secondary">
+                        <i class="fas fa-envelope me-2"></i>Contactar soporte
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
 @section Styles {
     <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
 }
 
 @section Scripts {
-    @if (alertCuotasVencidas)
-    {
-        <script>
-            Swal.fire({
-                title: 'Atención!',
-                html: `Existen <b>@cantidadCuotasVencidas</b> cuotas vencidas que requieren revisión. <a href="/Pagos/Pendientes" class="swal-link">Ver pendientes</a>`,
-                icon: 'warning',
-                confirmButtonText: 'Entendido',
-                confirmButtonColor: '#4361ee',
-                showCloseButton: true
-            });
-        </script>
-    }
-
     <script src="~/js/home.js" asp-append-version="true"></script>
+
+    <script>
+        $(document).ready(function () {
+            // Verificar si el usuario está autenticado antes de mostrar la alerta
+        @if (User.Identity.IsAuthenticated)
+        {
+            <text>
+                                                        // Solo hacer la llamada AJAX si el usuario está autenticado
+                        $.get('@Url.Action("CheckCuotasVencidas", "Home")', function (data) {
+                                                            if (data.tieneCuotasVencidas) {
+                            Swal.fire({
+                                title: '¡Cuotas Vencidas!',
+                                html: `Tienes <b>${data.cantidad}</b> cuotas vencidas que requieren atención.`,
+                                icon: 'warning',
+                                confirmButtonText: 'Entendido',
+                                confirmButtonColor: '#3085d6',
+                                footer: '<a href="/TbCuotas/Index">Ir a gestión de cuotas</a>'
+                            });
+                                                            }
+                                                        });
+            </text>
+        }
+                            });
+    </script>
 }

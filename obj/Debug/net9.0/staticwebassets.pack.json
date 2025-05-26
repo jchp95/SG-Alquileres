@@ -53,6 +53,14 @@
       "PackagePath": "staticwebassets\\favicon_io\\site.webmanifest"
     },
     {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\images\\bg-images.png",
+      "PackagePath": "staticwebassets\\images\\bg-images.png"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\images\\imagen-fondo.png",
+      "PackagePath": "staticwebassets\\images\\imagen-fondo.png"
+    },
+    {
       "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\images\\login.webp",
       "PackagePath": "staticwebassets\\images\\login.webp"
     },

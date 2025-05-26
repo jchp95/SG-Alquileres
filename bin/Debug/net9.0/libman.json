@@ -57,6 +57,10 @@
     {
       "library": "axios@1.9.0",
       "destination": "wwwroot/lib/axios/"
+    },
+    {
+      "library": "datatables.net-buttons@3.2.1",
+      "destination": "wwwroot/lib/datatables.net-buttons/"
     }
   ]
 }

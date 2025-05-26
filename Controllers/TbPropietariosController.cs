@@ -97,6 +97,7 @@ namespace Alquileres.Controllers
                     });
                 }
 
+                tbPropietario.FfechaRegistro = DateTime.Now;
                 tbPropietario.Factivo = true;
                 _context.Add(tbPropietario);
                 await _context.SaveChangesAsync();

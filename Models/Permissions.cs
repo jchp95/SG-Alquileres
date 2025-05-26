@@ -54,6 +54,10 @@ namespace Alquileres.Models
         {
             public const string Ver = "Permissions.Reportes.Ver";
         }
+        public static class Home
+        {
+            public const string Ver = "Permissions.Home.Ver";
+        }
 
         public static List<string> GetAllPermissions()
         {
@@ -69,6 +73,7 @@ namespace Alquileres.Models
         {
             return new Dictionary<string, List<string>>
             {
+                ["Home"] = new List<string> { Home.Ver },
                 ["Inquilinos"] = new List<string> { Inquilinos.Ver, Inquilinos.Crear, Inquilinos.Editar, Inquilinos.Anular },
                 ["Propietarios"] = new List<string> { Propietarios.Ver, Propietarios.Crear, Propietarios.Editar, Propietarios.Anular },
                 ["Inmuebles"] = new List<string> { Inmuebles.Ver, Inmuebles.Crear, Inmuebles.Editar, Inmuebles.Anular },

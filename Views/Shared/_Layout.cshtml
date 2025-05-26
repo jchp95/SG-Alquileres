@@ -13,7 +13,7 @@
 
     <!-- DataTables: Usar solo una versión (min.css) -->
     <link href="~/lib/datatables.net-bs5/datatables.bootstrap5.min.css" rel="stylesheet" />
-    
+
     <link rel="stylesheet" href="https://cdn.datatables.net/datetime/1.5.5/css/dataTables.dateTime.min.css">
 
     <!-- Select2 CSS -->
@@ -23,13 +23,13 @@
     <link href="~/lib/sweetalert2/sweetalert2.min.css" rel="stylesheet" />
 
     <!-- Toasts -->
-	<link href="~/lib/toastr.js/toastr.min.css" rel="stylesheet" />
+    <link href="~/lib/toastr.js/toastr.min.css" rel="stylesheet" />
 
     <!-- Estilos personalizados -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Alquileres.styles.css" asp-append-version="true" />
 
-     @await RenderSectionAsync("Styles", required: false)
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 
 <body>
@@ -51,7 +51,7 @@
                         </li>
                         @if (User.IsInRole("Administrator"))
                         {
-                             <!-- link que solo vera el Administrador -->
+                            <!-- link que solo vera el Administrador -->
                             @await Html.PartialAsync("_AdminActionsPartial")
                         }
                     </ul>
@@ -61,42 +61,27 @@
                             int cantidadCuotasVencidas = ViewData["CantidadCuotasVencidas"] != null ?
                             (int)ViewData["CantidadCuotasVencidas"] : 0;
 
-                            var cuotasVencidas = ViewData["CuotasVencidas"] as List<TbCxcCuotum>; // Asegúrate de que el tipo sea correcto
-                                                }
+                            var cuotasVencidas = ViewData["CuotasVencidas"] as List<TbCxcCuotum>;
+                        }
                         <!-- Icono de la campanita -->
                         <li class="nav-item">
-                            <a class="nav-link text-dark" href="#" id="notificationsBell" data-bs-toggle="dropdown">
-                                <i class="fas fa-bell"></i>
-                                @if (cantidadCuotasVencidas > 0)
-                                {
-                                    <span id="notificationBadge" class="badge badge-pulse bg-danger">@cantidadCuotasVencidas</span>
-                                }
-                                else
-                                {
-                                    <span id="notificationBadge" class="badge badge-pulse bg-danger d-none">0</span>
-                                }
-                            </a>
                             <div class="dropdown dropstart">
-                                <ul class="dropdown-menu" aria-labelledby="notificationsBell"
-                                    id="notificationsDropdown">
-                                    @if (cuotasVencidas != null && cuotasVencidas.Count > 0)
+                                <a class="nav-link text-dark" href="#" id="notificationsBell" role="button"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-bell"></i>
+                                    @if (cantidadCuotasVencidas > 0)
                                     {
-                                        foreach (var cuota in cuotasVencidas)
-                                        {
-                                            <li>
-                                                <a class="dropdown-item" href="#">
-                                                    Cuota #@cuota.FNumeroCuota - Monto: @cuota.Fmonto - Vencimiento:
-                                                    @cuota.Fvence.ToShortDateString()
-                                                </a>
-                                            </li>
-                                        }
+                                        <span id="notificationBadge"
+                                            class="badge badge-pulse bg-danger">@cantidadCuotasVencidas</span>
                                     }
                                     else
                                     {
-                                        <li>
-                                            <a class="dropdown-item" href="#">No hay cuotas vencidas</a>
-                                        </li>
+                                        <span id="notificationBadge" class="badge badge-pulse bg-danger d-none">0</span>
                                     }
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsBell"
+                                    id="notificationsDropdown">
+                                    <li><a class="dropdown-item" href="#">Cargando notificaciones...</a></li>
                                 </ul>
                             </div>
                         </li>
@@ -107,123 +92,183 @@
         </nav>
     </header>
 
-        <div class="parent">
-          @await Html.PartialAsync("_SidebarPartial")
+    <div class="parent">
+        @await Html.PartialAsync("_SidebarPartial")
 
-            <!-- Main Content -->
-            <div class="div4">
-                <main role="main" class="my-3">
-                    @RenderBody()
-                </main>
-            </div>
+        <!-- Main Content -->
+        <div class="div4">
+            <main role="main" class="my-3">
+                @RenderBody()
+            </main>
         </div>
+    </div>
 
-        <!-- Footer -->
-        <footer class="div3 mt-10 border-top footer text-muted">
-            <div class="container">
-                &copy; 2025 - Alquileres
-            </div>
-        </footer>
 
-        <!-- jQuery y plugins generales -->
-        <script src="~/lib/jquery/dist/jquery.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/inputmask/4.0.9/jquery.inputmask.bundle.min.js"></script>
+    <!-- Footer -->
+    <footer class="div3 mt-10 border-top footer text-muted">
+        <div class="container">
+            &copy; 2025 - Alquileres
+        </div>
+    </footer>
 
-        <!-- Bootstrap y dependencias -->
-        <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery y plugins generales -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/inputmask/4.0.9/jquery.inputmask.bundle.min.js"></script>
 
-        <!-- Axios -->
-        <script src="~/lib/axios/axios.min.js"></script>
+    <!-- Bootstrap y dependencias -->
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
-        <!-- Select2 -->
-        <script src="~/lib/select2/js/select2.min.js"></script>
+    <!-- Axios -->
+    <script src="~/lib/axios/axios.min.js"></script>
 
-        <!-- jQuery Validation -->
-        <script src="~/lib/jquery-validate/jquery.validate.min.js"></script>
-        <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
-        <script src="~/lib/jquery-validate/additional-methods.min.js"></script>
+    <!-- Select2 -->
+    <script src="~/lib/select2/js/select2.min.js"></script>
 
-        <!-- Inputmask -->
-        <script src="~/lib/inputmask/inputmask/inputmask.min.js"></script>
+    <!-- jQuery Validation -->
+    <script src="~/lib/jquery-validate/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <script src="~/lib/jquery-validate/additional-methods.min.js"></script>
 
-        <!-- Moment.js (necesario para DateTime plugin de DataTables) -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.2/moment.min.js"></script>
+    <!-- Inputmask -->
+    <script src="~/lib/inputmask/inputmask/inputmask.min.js"></script>
 
-        <!-- DataTables núcleo y bootstrap -->
-        <script src="~/lib/datatables.net/datatables.min.js"></script>
-        <script src="~/lib/datatables.net-bs5/dataTables.bootstrap5.min.js"></script>
+    <!-- Moment.js (necesario para DateTime plugin de DataTables) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.2/moment.min.js"></script>
 
-        <!-- DataTables plugins -->
-        <script src="~/lib/datatables-responsive/datatables.responsive.min.js"></script>
-        <script src="https://cdn.datatables.net/datetime/1.5.5/js/dataTables.dateTime.min.js"></script>
+    <!-- DataTables núcleo y bootstrap -->
+    <script src="~/lib/datatables.net/datatables.min.js"></script>
+    <script src="~/lib/datatables.net-bs5/dataTables.bootstrap5.min.js"></script>
 
-        <!-- DataTables Buttons: ORDEN CORRECTO -->
-        <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script> <!-- <- FALTABA -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
-        <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
-        <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+    <!-- DataTables plugins -->
+    <script src="~/lib/datatables-responsive/datatables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/datetime/1.5.5/js/dataTables.dateTime.min.js"></script>
 
-        <!-- Plugins adicionales DataTables -->
-        <script src="~/lib/datatables-plugins/buttons/button.download.min.js"></script>
-        <script src="~/lib/datatables-plugins/i18n/es-es.min.js"></script>
+    <!-- DataTables Buttons: ORDEN CORRECTO -->
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
 
-        <!-- Font Awesome -->
-        <script src="~/lib/font-awesome/js/all.min.js"></script>
+    <!-- Plugins adicionales DataTables -->
+    <script src="~/lib/datatables-plugins/buttons/button.download.min.js"></script>
+    <script src="~/lib/datatables-plugins/i18n/es-es.min.js"></script>
 
-        <!-- SweetAlert2 -->
-        <script src="~/lib/sweetalert2/sweetalert2.min.js"></script>
+    <!-- Font Awesome -->
+    <script src="~/lib/font-awesome/js/all.min.js"></script>
 
-        <!-- Toastr -->
-        <script src="~/lib/toastr.js/toastr.min.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="~/lib/sweetalert2/sweetalert2.min.js"></script>
 
-        <!-- Scripts personalizados -->
-        <script src="~/js/site.js"></script>
+    <!-- Toastr -->
+    <script src="~/lib/toastr.js/toastr.min.js"></script>
 
-        
+    <!-- Scripts personalizados -->
+    <script src="~/js/site.js"></script>
 
-        <!-- Audio para notificaciones -->
-        <audio id="notificationSound" src="~/sounds/notificacion.mp3" preload="auto"></audio>
 
-        <script>
-            // Alternar sidebar
-            document.getElementById('toggleSidebar').addEventListener('click', function (event) {
-                const sidebar = document.getElementById('sidebar');
-                sidebar.classList.toggle('collapsed');
-                event.stopPropagation();
-            });
 
-            // Cerrar sidebar al hacer clic fuera
-            document.addEventListener('click', function (event) {
-                const sidebar = document.getElementById('sidebar');
-                const toggleButton = document.getElementById('toggleSidebar');
+    <!-- Audio para notificaciones -->
+    <audio id="notificationSound" src="~/sounds/notificacion.mp3" preload="auto"></audio>
 
-                if (!sidebar.contains(event.target) && !toggleButton.contains(event.target)) {
-                    sidebar.classList.add('collapsed');
-                }
-            });
-        </script>
-        <script>
-            function toggleSubMenu(event, subMenuId) {
-                const subMenu = document.getElementById(subMenuId);
-                const arrow = event.currentTarget.querySelector('.fa-chevron-down');
+    <script>
+        // Alternar sidebar
+        document.getElementById('toggleSidebar').addEventListener('click', function (event) {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('collapsed');
+            event.stopPropagation();
+        });
 
-                // Alternar la visibilidad del submenú
-                if (subMenu.classList.contains('show')) {
-                    subMenu.classList.remove('show');
-                    arrow.classList.remove('fa-rotate-180'); // Rotar la flecha hacia abajo
-                } else {
-                    subMenu.classList.add('show');
-                    arrow.classList.add('fa-rotate-180'); // Rotar la flecha hacia arriba
-                }
+        // Cerrar sidebar al hacer clic fuera
+        document.addEventListener('click', function (event) {
+            const sidebar = document.getElementById('sidebar');
+            const toggleButton = document.getElementById('toggleSidebar');
+
+            if (!sidebar.contains(event.target) && !toggleButton.contains(event.target)) {
+                sidebar.classList.add('collapsed');
             }
-        </script>
-        <script>
-            $(function () {
-                $('[data-toggle="tooltip"]').tooltip()
-                })
-        </script>
+        });
+    </script>
+    <script>
+        function toggleSubMenu(event, subMenuId) {
+            const subMenu = document.getElementById(subMenuId);
+            const arrow = event.currentTarget.querySelector('.fa-chevron-down');
+
+            // Alternar la visibilidad del submenú
+            if (subMenu.classList.contains('show')) {
+                subMenu.classList.remove('show');
+                arrow.classList.remove('fa-rotate-180'); // Rotar la flecha hacia abajo
+            } else {
+                subMenu.classList.add('show');
+                arrow.classList.add('fa-rotate-180'); // Rotar la flecha hacia arriba
+            }
+        }
+    </script>
+    <script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+    </script>
+
+    <script>
+        // Función para cargar notificaciones
+        function cargarNotificaciones() {
+            $.get('/Home/CheckCuotasVencidas', function (data) {
+                console.log(data);
+                const dropdown = $('#notificationsDropdown');
+                const badge = $('#notificationBadge');
+
+                // Limpiar dropdown
+                dropdown.empty();
+
+                if (data.tieneCuotasVencidas) {
+                    // Actualizar el badge
+                    badge.text(data.cantidad).removeClass('d-none');
+
+                    // Agregar título
+                    dropdown.append(`<li><h6 class="dropdown-header">Tienes ${data.cantidad} cuota(s) vencida(s)</h6></li>`);
+
+                    // Agregar cada cuota vencida
+                    data.cuotas.forEach(function (cuota) {
+                        const fechaVencimiento = new Date(cuota.fvence).toLocaleDateString();
+                        dropdown.append(
+                            `<li>
+                                <a class="dropdown-item" href="#">
+                                    Cuota #${cuota.fNumeroCuota} - $${cuota.fmonto.toFixed(2)} 
+                                    <span class="text-danger">Vencido: ${fechaVencimiento}</span>
+                                </a>
+                            </li>`
+                        );
+                    });
+
+                    // Agregar enlace para ver todas
+                    dropdown.append(`<li><hr class="dropdown-divider"></li>`);
+                    dropdown.append(`<li><a class="dropdown-item text-center" href="/TbCuotas/Index">Ver todas</a></li>`);
+                } else {
+                    // No hay cuotas vencidas
+                    badge.addClass('d-none');
+                    dropdown.append(`<li><a class="dropdown-item" href="#">No tienes cuotas vencidas</a></li>`);
+                }
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.error("Error al cargar notificaciones:", textStatus, errorThrown);
+                $('#notificationsDropdown').empty().append(`<li><a class="dropdown-item text-danger" href="#">Error al cargar notificaciones</a></li>`);
+            });
+        }
+
+        // Cargar notificaciones al cargar la página
+        $(document).ready(function () {
+            cargarNotificaciones();
+
+            // Opcional: Actualizar cada 5 minutos
+            setInterval(cargarNotificaciones, 300000);
+        });
+
+        // Actualizar al hacer clic en la campana
+        $('#notificationsBell').click(function () {
+            cargarNotificaciones();
+        });
+    </script>
 
     <script>
         toastr.options = {
@@ -233,7 +278,7 @@
             "timeOut": "5000"
         };
     </script>
-        @await RenderSectionAsync("Scripts", required: false)
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 
 </html>

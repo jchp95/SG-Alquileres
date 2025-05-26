@@ -133,7 +133,7 @@ async function cargarReporteCxC() {
         const table = $('#reporteCxCTable').DataTable({
             destroy: true,
             responsive: true,
-            dom: 'Bfrtip',
+            dom: '<"top"lf>Brt<"bottom"ip>',
             buttons: [
                 {
                     extend: 'copyHtml5',
@@ -157,22 +157,159 @@ async function cargarReporteCxC() {
                     orientation: 'landscape',
                     pageSize: 'A4',
                     exportOptions: {
-                        columns: ':visible'
+                        columns: ':visible',
+                        modifier: {
+                            page: 'all'
+                        }
+                    },
+                    customize: function (doc) {
+                        // Función para formatear números al estilo RD (comas para miles, punto para decimales)
+                        function formatoRD(numero) {
+                            return numero.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+                        }
+
+                        // Obtener fecha y hora actual
+                        const now = new Date();
+                        const fechaHora = now.toLocaleDateString('es-MX', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+
+                        const table = $('#reporteCxCTable').DataTable();
+
+                        // Encontrar los índices de las columnas necesarias
+                        let montoIndex = -1;
+                        let cuentaIndex = -1;
+
+                        table.columns().every(function () {
+                            const headerText = this.header().textContent.trim();
+                            if (headerText === 'Monto') {
+                                montoIndex = this.index();
+                            } else if (headerText === '# Cuenta') {
+                                cuentaIndex = this.index();
+                            }
+                        });
+
+                        // Calcular el total de la columna Monto
+                        let totalMonto = 0;
+                        let totalRegistros = 0;
+
+                        if (montoIndex !== -1) {
+                            table.rows({ search: 'applied' }).data().each(function (row) {
+                                const montoStr = row[montoIndex].toString();
+                                const montoLimpio = montoStr.replace(/[^\d.-]/g, '');
+                                const montoNum = parseFloat(montoLimpio) || 0;
+                                totalMonto += montoNum;
+                            });
+                        }
+
+                        // Contar registros (filas visibles después de búsqueda/filtrado)
+                        totalRegistros = table.rows({ search: 'applied' }).count();
+
+                        // Formatear los totales al formato RD
+                        const totalFormateado = 'RD$ ' + formatoRD(totalMonto);
+
+                        // Ajustar márgenes y centrar contenido
+                        doc.pageMargins = [40, 80, 40, 60];
+                        doc.defaultStyle.fontSize = 8;
+                        doc.styles.tableHeader.fontSize = 9;
+                        doc.styles.tableHeader.alignment = 'center';
+                        doc.content[0].alignment = 'center';
+
+                        // Añadir información de total de registros al título
+                        doc.content.splice(1, 0, {
+                            text: `Total de registros: ${totalRegistros.toLocaleString('es-RD')}`,
+                            alignment: 'right',
+                            margin: [0, 0, 40, 10],
+                            fontSize: 9,
+                            bold: true
+                        });
+
+                        // Añadir fila de total al cuerpo de la tabla
+                        if (doc.content[2].table.body.length > 0) {
+                            const columnsCount = doc.content[2].table.body[0].length;
+                            const totalRow = new Array(columnsCount).fill('');
+
+                            // Colocar "TOTAL:" en la columna Ubicación (índice 3)
+                            totalRow[3] = { text: 'TOTAL:', bold: true, alignment: 'right' };
+
+                            // Colocar el monto total en la columna Monto (índice 4)
+                            totalRow[4] = { text: totalFormateado, bold: true, alignment: 'right' };
+
+                            doc.content[2].table.body.push(totalRow);
+                        }
+
+                        // Centrar la tabla
+                        doc.content[2].alignment = 'center';
+
+                        // Ajustar el ancho de la tabla
+                        doc.content[2].table.widths = Array(doc.content[2].table.body[0].length + 1).join('*').split('');
+
+                        // Footer con paginación y fecha
+                        doc['footer'] = function (page, pages) {
+                            return {
+                                columns: [
+                                    {
+                                        alignment: 'left',
+                                        text: `Generado: ${fechaHora}`,
+                                        fontSize: 8,
+                                        margin: [40, 10, 0, 0]
+                                    },
+                                    {
+                                        alignment: 'center',
+                                        text: [
+                                            { text: 'Página ', fontSize: 10 },
+                                            { text: page.toString(), fontSize: 10 },
+                                            { text: ' de ', fontSize: 10 },
+                                            { text: pages.toString(), fontSize: 10 }
+                                        ],
+                                        margin: [0, 10, 0, 0]
+                                    }
+                                ],
+                                margin: [40, 10, 40, 0]
+                            };
+                        };
+
+                        // Estilo de la tabla
+                        const objLayout = {};
+                        objLayout['hLineWidth'] = function (i) {
+                            // Línea más gruesa para la fila de total
+                            return (i === doc.content[2].table.body.length - 2) ? 1 : 0.5;
+                        };
+                        objLayout['vLineWidth'] = function (i) { return 0.5; };
+                        objLayout['hLineColor'] = function (i) { return '#aaa'; };
+                        objLayout['vLineColor'] = function (i) { return '#aaa'; };
+                        objLayout['paddingLeft'] = function (i) { return 4; };
+                        objLayout['paddingRight'] = function (i) { return 4; };
+                        doc.content[2].layout = objLayout;
                     }
                 },
                 {
                     extend: 'print',
                     text: '<i class="fas fa-print"></i> Imprimir',
-                    className: 'btn btn-outline-dark btn-sm'
+                    className: 'btn btn-outline-dark btn-sm',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
                 }
             ],
+            lengthMenu: [10, 25, 50, 100],
+            pageLength: 10,
             columnDefs: [
                 {
-                    targets: [0], // La columna de usuario (index 0)
-                    visible: false, // La ocultamos
+                    targets: [0],
+                    visible: false,
+                    searchable: true
+                },
+                {
+                    targets: [5, 6],
+                    visible: false,
                     searchable: true
                 }
-            ]
+            ],
         });
 
         // Filtros rápidos
@@ -274,14 +411,14 @@ async function cargarReporteCobros() {
         container.innerHTML = html;
         container.style.display = "block";
 
-        inicializarSelect2('reporteCxCTable');
+        inicializarSelect2('reporteCobrosTable');
         inicializarTooltips();
 
         // Inicializar el DataTable con los datos cargados
         const table = $('#reporteCobrosTable').DataTable({
             destroy: true,
             responsive: true,
-            dom: 'Bfrtip',
+            dom: '<"top"lf>Brt<"bottom"ip>',
             buttons: [
                 {
                     extend: 'copyHtml5',
@@ -305,7 +442,148 @@ async function cargarReporteCobros() {
                     orientation: 'landscape',
                     pageSize: 'A4',
                     exportOptions: {
-                        columns: ':visible'
+                        columns: ':visible',
+                        modifier: {
+                            page: 'all'
+                        }
+                    },
+                    customize: function (doc) {
+                        // Función para formatear números al estilo RD (comas para miles, punto para decimales)
+                        function formatoRD(numero) {
+                            // Si el número es 0, mostrar "0.00" en lugar de "NaN"
+                            if (isNaN(numero) || numero === 0) return '0.00';
+                            return numero.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+                        }
+
+                        // Obtener fecha y hora actual
+                        const now = new Date();
+                        const fechaHora = now.toLocaleDateString('es-MX', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+
+                        const table = $('#reporteCobrosTable').DataTable();
+
+                        // Encontrar el índice de la columna Monto
+                        let montoIndex = -1;
+                        table.columns().every(function () {
+                            const headerText = this.header().textContent.trim();
+                            if (headerText === 'Monto') {
+                                montoIndex = this.index();
+                                return false; // Salir del bucle una vez encontrado
+                            }
+                        });
+
+                        // Calcular el total de la columna Monto
+                        let totalMonto = 0;
+                        let totalRegistros = 0;
+
+                        if (montoIndex !== -1) {
+                            table.rows({ search: 'applied' }).data().each(function (row) {
+                                const montoStr = row[montoIndex].toString();
+                                // Eliminar RD$, comas y cualquier otro carácter no numérico excepto punto y negativo
+                                const montoLimpio = montoStr.replace(/[^\d.-]/g, '');
+                                const montoNum = parseFloat(montoLimpio) || 0;
+                                totalMonto += montoNum;
+                            });
+                        }
+
+                        // Contar registros (filas visibles después de búsqueda/filtrado)
+                        totalRegistros = table.rows({ search: 'applied' }).count();
+
+                        // Formatear los totales al formato RD
+                        const totalFormateado = 'RD$ ' + formatoRD(totalMonto);
+
+                        // Ajustar márgenes y centrar contenido
+                        doc.pageMargins = [40, 80, 40, 60];
+                        doc.defaultStyle.fontSize = 8;
+                        doc.styles.tableHeader.fontSize = 9;
+                        doc.styles.tableHeader.alignment = 'center';
+                        doc.content[0].alignment = 'center';
+
+                        // Añadir información de total de registros al título
+                        doc.content.splice(1, 0, {
+                            text: `Total de cobros: ${totalRegistros.toLocaleString('es-RD')}`,
+                            alignment: 'right',
+                            margin: [0, 0, 40, 10],
+                            fontSize: 9,
+                            bold: true
+                        });
+
+                        // Añadir fila de total al cuerpo de la tabla
+                        if (doc.content[2].table.body.length > 0) {
+                            const columnsCount = doc.content[2].table.body[0].length;
+                            const totalRow = new Array(columnsCount).fill('');
+
+                            // Asumiendo la estructura: [Usuario, #Cobro, Inquilino, Monto, Concepto, Fecha]
+                            // La columna Monto sería la 4ta columna (índice 3)
+                            const montoColPosition = 3;
+
+                            // Colocar "TOTAL:" en la columna anterior al Monto (Inquilino)
+                            totalRow[montoColPosition - 1] = {
+                                text: 'TOTAL:',
+                                bold: true,
+                                alignment: 'right',
+                                margin: [0, 5, 0, 5]
+                            };
+
+                            // Colocar el monto total en la columna Monto
+                            totalRow[montoColPosition] = {
+                                text: totalFormateado,
+                                bold: true,
+                                alignment: 'right',
+                                margin: [0, 5, 0, 5]
+                            };
+
+                            doc.content[2].table.body.push(totalRow);
+                        }
+
+                        // Centrar la tabla
+                        doc.content[2].alignment = 'center';
+
+                        // Ajustar el ancho de la tabla automáticamente
+                        doc.content[2].table.widths = Array(doc.content[2].table.body[0].length).fill('*');
+
+                        // Footer con paginación y fecha
+                        doc['footer'] = function (page, pages) {
+                            return {
+                                columns: [
+                                    {
+                                        alignment: 'left',
+                                        text: `Generado: ${fechaHora}`,
+                                        fontSize: 8,
+                                        margin: [40, 10, 0, 0]
+                                    },
+                                    {
+                                        alignment: 'center',
+                                        text: [
+                                            { text: 'Página ', fontSize: 10 },
+                                            { text: page.toString(), fontSize: 10 },
+                                            { text: ' de ', fontSize: 10 },
+                                            { text: pages.toString(), fontSize: 10 }
+                                        ],
+                                        margin: [0, 10, 0, 0]
+                                    }
+                                ],
+                                margin: [40, 10, 40, 0]
+                            };
+                        };
+
+                        // Estilo de la tabla
+                        const objLayout = {};
+                        objLayout['hLineWidth'] = function (i) {
+                            // Línea más gruesa para la fila de total
+                            return (i === doc.content[2].table.body.length - 2) ? 1 : 0.5;
+                        };
+                        objLayout['vLineWidth'] = function (i) { return 0.5; };
+                        objLayout['hLineColor'] = function (i) { return '#aaa'; };
+                        objLayout['vLineColor'] = function (i) { return '#aaa'; };
+                        objLayout['paddingLeft'] = function (i) { return 4; };
+                        objLayout['paddingRight'] = function (i) { return 4; };
+                        doc.content[2].layout = objLayout;
                     }
                 },
                 {
@@ -317,7 +595,12 @@ async function cargarReporteCobros() {
             columnDefs: [
                 {
                     targets: [0], // La columna de usuario (index 0)
-                    visible: true, // La ocultamos
+                    visible: true,
+                    searchable: true
+                },
+                {
+                    targets: [3, 4],
+                    visible: false, // La ocultamos
                     searchable: true
                 }
             ]
@@ -432,8 +715,9 @@ function inicializarSelect2(nombreTabla) {
     $select.on('change', function () {
         const usuarioSeleccionado = $(this).val();
         $('#NombreUsuario').val(usuarioSeleccionado);
-
+        console.log("Usuario seleccionado:", $(this).val());
         const table = $(`#${nombreTabla}`).DataTable();
+        console.log("Datos de la columna 0:", table.column(0).data());
         table.column(0).search(usuarioSeleccionado).draw();
     });
 }

@@ -113,6 +113,7 @@ namespace Alquileres.Controllers
 
                 if (!ModelState.IsValid)
                 {
+
                     var errors = ModelState.ToDictionary(
                         kvp => kvp.Key,
                         kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).FirstOrDefault()
@@ -125,6 +126,7 @@ namespace Alquileres.Controllers
                     });
                 }
 
+                tbInquilino.FfechaRegistro = DateTime.Now;
                 tbInquilino.Factivo = true;
                 _context.Add(tbInquilino);
                 await _context.SaveChangesAsync();

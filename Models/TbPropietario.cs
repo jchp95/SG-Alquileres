@@ -26,5 +26,6 @@ public partial class TbPropietario
 
     public bool Factivo { get; set; }
 
+    public DateTime FfechaRegistro { get; set; }
 
 }

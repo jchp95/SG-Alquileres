@@ -49,7 +49,11 @@ namespace Alquileres.Models
             set => FkidOrigen = (int)value;
         }
 
+        [NotMapped] // Indica que no es una columna de la base de datos
+        public DateTime FechaCompleta => Ffecha.ToDateTime(Fhora);
+
         [DisplayName("Activo")]
         public bool Factivo { get; set; }
+
     }
 }

@@ -37,9 +37,9 @@
             <div class="form-group">
                 <label class="control-label" asp-for="FfechaInicio">
                     @Html.DisplayNameFor(model =>
-                    model.FfechaInicio)
+                             model.FfechaInicio)
                 </label>
-                <input asp-for="FfechaInicio" class="form-control" type="date" />
+                <input asp-for="FfechaInicio" class="form-control" type="datetime-local" />
                 <span asp-validation-for="FfechaInicio" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -51,7 +51,7 @@
             <div class="form-group">
                 <label class="control-label" asp-for="FdiasGracia">
                     @Html.DisplayNameFor(model =>
-                                        model.FdiasGracia)
+                             model.FdiasGracia)
                 </label>
                 <input asp-for="FdiasGracia" class="form-control" type="number" />
                 <span asp-validation-for="FdiasGracia" class="text-danger"></span>

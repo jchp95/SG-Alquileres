@@ -108,30 +108,19 @@ namespace Alquileres.Controllers
         }
 
         // Método para calcular la fecha de la próxima cuota
-        private DateTime? CalcularFechaProxCuota(DateTime fechaVencimiento, int? periodoPagoId)
+        // Modifica el método CalcularFechaProxCuota para que devuelva DateTime en lugar de DateTime?
+        private DateTime CalcularFechaProxCuota(DateTime fechaVencimiento, int periodoPagoId)
         {
-            if (!periodoPagoId.HasValue)
-                return null;
-
             int dias = 0;
 
-            // Determinar el número de días según el periodo de pago
-            switch (periodoPagoId.Value)
+            switch (periodoPagoId)
             {
-                case 1: // Semanal
-                    dias = 7;
-                    break;
-                case 2: // Quincenal
-                    dias = 15;
-                    break;
-                case 3: // Mensual
-                    dias = 30;
-                    break;
-                default:
-                    throw new ArgumentException("Periodo de pago no válido");
+                case 1: dias = 7; break;
+                case 2: dias = 15; break;
+                case 3: dias = 30; break;
+                default: throw new ArgumentException("Periodo de pago no válido");
             }
 
-            // Calcular y devolver la fecha de la próxima cuota
             return fechaVencimiento.AddDays(dias);
         }
 
@@ -187,22 +176,30 @@ namespace Alquileres.Controllers
                 if (usuario == null)
                     return BadRequest($"No se encontró un usuario con el IdentityId: {identityId}");
 
+                // Asignar valores básicos
+                tbCxc.FfechaInicio = tbCxc.FfechaInicio.Date.Add(DateTime.Now.TimeOfDay);
                 tbCxc.FkidUsuario = usuario.FidUsuario;
                 tbCxc.Factivo = true;
 
+                // Guardar primero la cuenta por cobrar para obtener el ID
                 _context.Add(tbCxc);
                 await _context.SaveChangesAsync();
 
-                var numeroCuotaMaxima = await _context.TbCxcCuota
-                    .Where(c => c.FidCxc == tbCxc.FidCuenta)
-                    .MaxAsync(c => (int?)c.FNumeroCuota) ?? 0;
-
+                // Calcular fecha de vencimiento de la primera cuota
                 var fechaVencimiento = CalcularFechaVencimiento(tbCxc.FfechaInicio, tbCxc.FidPeriodoPago);
 
+                // Calcular fecha de próxima cuota (después de la primera cuota)
+                tbCxc.FfechaProxCuota = CalcularFechaProxCuota(fechaVencimiento, tbCxc.FidPeriodoPago);
+
+                // Actualizar la cuenta con la fecha de próxima cuota
+                _context.Update(tbCxc);
+                await _context.SaveChangesAsync();
+
+                // Crear la primera cuota
                 var cuota = new TbCxcCuotum
                 {
                     FidCxc = tbCxc.FidCuenta,
-                    FNumeroCuota = numeroCuotaMaxima + 1,
+                    FNumeroCuota = 1, // Siempre será la primera cuota
                     Fvence = fechaVencimiento,
                     Fmonto = (int)tbCxc.Fmonto,
                     Fsaldo = tbCxc.Fmonto,
@@ -215,6 +212,7 @@ namespace Alquileres.Controllers
                 _context.TbCxcCuota.Add(cuota);
                 await _context.SaveChangesAsync();
 
+                // Cargar las cuentas actualizadas para devolver a la vista
                 var cuentasPorCobrar = await _context.TbCxcs.ToListAsync();
                 var cuentasPorCobrarViewModels = cuentasPorCobrar.Select(c => new CuentaPorCobrarViewModel
                 {
@@ -227,24 +225,16 @@ namespace Alquileres.Controllers
                     Factivo = c.Factivo,
                     FtasaMora = c.FtasaMora,
                     Fnota = c.Fnota,
-                    FidPeriodoPago = c.FidPeriodoPago
+                    FidPeriodoPago = c.FidPeriodoPago,
+                    FfechaProxCuota = c.FfechaProxCuota // Incluir la fecha de próxima cuota
                 }).ToList();
 
                 return PartialView("_CuentasPorCobrarPartial", cuentasPorCobrarViewModels);
             }
-            catch (ArgumentException argEx)
-            {
-                return BadRequest(new { success = false, message = argEx.Message });
-            }
-            catch (DbUpdateException dbEx)
-            {
-                // Logear si tienes sistema de logs
-                return StatusCode(500, new { success = false, message = "Error al guardar en base de datos.", detail = dbEx.Message });
-            }
             catch (Exception ex)
             {
-                // Logear también aquí
-                return StatusCode(500, new { success = false, message = "Ocurrió un error inesperado.", detail = ex.Message });
+                // Manejo de errores
+                return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
 

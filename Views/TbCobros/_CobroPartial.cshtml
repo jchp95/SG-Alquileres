@@ -65,7 +65,7 @@
     <div class="card border-0 shadow-sm px-4 py-4">
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table id="tablaCobros" class="table table-hover align-middle mb-0">
+                <table id="tablaCobros" class="table table-hover align-middle mb-0 table-responsive">
                     <thead class="table-light">
                         <tr>
                             <th class="ps-4">ID</th>
@@ -92,32 +92,32 @@
                                 </td>
                                 <td>@item.Fhora.ToString("hh:mm:ss")</td>
                                 <td class="text-end pe-3 fw-bold">@item.Fmonto.ToString("N2", new
-                                                                    System.Globalization.CultureInfo("es-DO"))</td>
-                            <td class="text-end pe-3 text-danger">@item.Fdescuento.ToString("N2", new
-                                                                System.Globalization.CultureInfo("es-DO"))</td>
-                            <td class="text-end pe-3 text-success">@item.Fcargos.ToString("N2", new
-                                                                System.Globalization.CultureInfo("es-DO"))</td>
-                            <td>
-                                <span class="d-inline-block text-truncate" style="max-width: 150px;"
-                                    title="@item.Fconcepto">
-                                    @item.Fconcepto
-                                </span>
-                            </td>
-                            <td>
-                                <span class="badge bg-primary bg-opacity-10 text-primary">
-                                    @item.NombreOrigen
-                                </span>
-                            </td>
-                            <td>
-                                <span
-                                    class="badge @(item.Factivo ? "bg-success bg-opacity-10 text-success" : "bg-danger bg-opacity-10 text-danger")">
-                                    @(item.Factivo ? "Activo" : "Anulado")
-                                </span>
-                            </td>
-                            <td class="text-center pe-4">
-                                <div class="d-flex justify-content-center gap-2">
+                                System.Globalization.CultureInfo("es-DO"))</td>
+                                <td class="text-end pe-3 text-danger">@item.Fdescuento.ToString("N2", new
+                                System.Globalization.CultureInfo("es-DO"))</td>
+                                <td class="text-end pe-3 text-success">@item.Fcargos.ToString("N2", new
+                                System.Globalization.CultureInfo("es-DO"))</td>
+                                <td>
+                                    <span class="d-inline-block text-truncate" style="max-width: 150px;"
+                                        title="@item.Fconcepto">
+                                        @item.Fconcepto
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary bg-opacity-10 text-primary">
+                                        @item.NombreOrigen
+                                    </span>
+                                </td>
+                                <td>
+                                    <span
+                                        class="badge @(item.Factivo ? "bg-success bg-opacity-10 text-success" : "bg-danger bg-opacity-10 text-danger")">
+                                        @(item.Factivo ? "Activo" : "Anulado")
+                                    </span>
+                                </td>
+                                <td class="text-center pe-4">
+                                    <div class="d-flex justify-content-center gap-2">
 
-                                    @if (item.Factivo)
+                                        @if (item.Factivo)
                                         {
                                             <a href="#" title="Ver detalles" class="btn btn-sm btn-outline-primary btn-detalles"
                                                 data-id="@item.FidCobro">

@@ -10,7 +10,6 @@
 }
 
 .dashboard-container {
-    max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -202,6 +201,7 @@
     cursor: pointer;
     transition: all 0.3s;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    text-decoration: none;
 }
 
 .action-btn i {
@@ -260,24 +260,30 @@
 
 .activity-item {
     display: flex;
-    gap: 15px;
-    padding: 15px;
-    border-radius: 8px;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    background-color: #f8f9fa;
     transition: background-color 0.3s;
 }
 
 .activity-item:hover {
-    background-color: #f8f9fa;
+    background-color: #f1f3f5;
 }
 
 .activity-icon {
     width: 40px;
     height: 40px;
+    min-width: 40px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 18px;
+    color: white;
+    flex-shrink: 0;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
 }
 
 .activity-icon.success {
@@ -295,8 +301,15 @@
     color: var(--primary-color);
 }
 
+.activity-item.urgent {
+    background-color: #fff5f5;
+    border-left: 4px solid #dc3545;
+}
+
 .activity-content {
-    flex: 1;
+    display: inline-block;
+    vertical-align: middle;
+    width: calc(100% - 60px);
 }
 
 .activity-title {
@@ -316,4 +329,190 @@
     margin: 0;
     font-size: 12px;
     color: var(--gray-color);
+}
+
+.activity-additional {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-top: 5px;
+    font-style: italic;
+}
+
+
+/*///////////////////////////////////// Vista de Usuario sin permiso ///////////////////////////////////////////////*/
+
+.unauthorized-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 150px);
+    padding: 2rem;
+}
+
+.unauthorized-content {
+    max-width: 800px;
+    width: 100%;
+    text-align: center;
+    background: white;
+    border-radius: 12px;
+    padding: 2.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.logo-container {
+    position: relative;
+    margin: 0 auto 2rem;
+    max-width: 250px;
+}
+
+.logo-home {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    display: block;
+}
+
+.logo-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 8px;
+}
+
+.welcome-message h1 {
+    color: #2b2d42;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    font-size: 2rem;
+}
+
+.welcome-message p {
+    color: #6c757d;
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+}
+
+.welcome-message .lead {
+    color: #4361ee;
+    font-weight: 500;
+}
+
+.actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 0.6rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: #4361ee;
+    border-color: #4361ee;
+}
+
+.btn-primary:hover {
+    background-color: #3a56d4;
+    border-color: #3a56d4;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(67, 97, 238, 0.2);
+}
+
+.btn-outline-secondary {
+    border-color: #dee2e6;
+    color: #495057;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #f8f9fa;
+    border-color: #ced4da;
+    color: #212529;
+    transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+    .unauthorized-content {
+        padding: 1.5rem;
+    }
+
+    .welcome-message h1 {
+        font-size: 1.5rem;
+    }
+
+    .actions {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .btn {
+        width: 100%;
+    }
+}
+
+/* Transición suave para el offcanvas */
+.offcanvas {
+    transition: transform 0.4s ease-in-out;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+    border-left: 1px solid #e0e0e0;
+    width: 480px;
+    max-width: 90vw;
+}
+
+/* Mejora de desplazamiento interno */
+.offcanvas-body {
+    padding: 1.25rem;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+}
+
+/* Activity items in offcanvas */
+#allActivitiesList .activity-item {
+    padding: 0.75rem;
+    border-radius: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+
+#allActivitiesList .activity-item.urgent {
+    background-color: #fff5f5;
+    border-left: 3px solid #dc3545;
+}
+
+#allActivitiesList .activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+#allActivitiesList .activity-icon.inquilino,
+#allActivitiesList .activity-icon.propietario {
+    background-color: #17a2b8;
+}
+
+#allActivitiesList .activity-icon.inmueble {
+    background-color: #ffc107;
+}
+
+#allActivitiesList .activity-icon.cxc {
+    background-color: #28a745;
+}
+
+#allActivitiesList .activity-icon.cobro {
+    background-color: #fd7e14;
+}
+
+/* Load more button */
+#loadMoreActivities {
+    transition: all 0.3s;
 }

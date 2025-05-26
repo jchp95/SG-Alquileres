@@ -1587,10 +1587,17 @@ E:\ProyectosDeProgramacion\Anthony trabajo RD\Alquileres\obj\Debug\net9.0\compre
 E:\ProyectosDeProgramacion\Anthony trabajo RD\Alquileres\obj\Debug\net9.0\compressed\2xvr3uohip-wysrhix2w9.gz
 E:\ProyectosDeProgramacion\Anthony trabajo RD\Alquileres\obj\Debug\net9.0\compressed\rcar969y6e-7trsppy8db.gz
 E:\ProyectosDeProgramacion\Anthony trabajo RD\Alquileres\obj\Debug\net9.0\compressed\ccqc8ostc3-sd6b0a165w.gz
+D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\Microsoft.CodeAnalysis.CSharp.dll
+D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\Microsoft.CodeAnalysis.Features.dll
+D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\Microsoft.CodeAnalysis.Workspaces.dll
+D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\Microsoft.EntityFrameworkCore.dll
+D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\Microsoft.VisualStudio.Web.CodeGenerators.Mvc.dll
+D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\NuGet.Packaging.dll
+D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\ko\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\appsettings.Development.json
+D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\appsettings.json
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\bundleconfig.json
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\libman.json
-D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\appsettings.json
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\Alquileres.staticwebassets.runtime.json
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\Alquileres.staticwebassets.endpoints.json
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\Alquileres.exe
@@ -1903,20 +1910,16 @@ D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debu
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\Microsoft.Build.Locator.dll
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\Microsoft.CodeAnalysis.AnalyzerUtilities.dll
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\Microsoft.CodeAnalysis.dll
-D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\Microsoft.CodeAnalysis.CSharp.dll
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\Microsoft.CodeAnalysis.CSharp.Features.dll
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\Microsoft.CodeAnalysis.CSharp.Workspaces.dll
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\Microsoft.CodeAnalysis.Elfie.dll
-D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\Microsoft.CodeAnalysis.Features.dll
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\Microsoft.CodeAnalysis.Razor.dll
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\Microsoft.CodeAnalysis.Scripting.dll
-D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\Microsoft.CodeAnalysis.Workspaces.dll
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.dll
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\Microsoft.CodeAnalysis.Workspaces.MSBuild.dll
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\Microsoft.Data.SqlClient.dll
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\Microsoft.DiaSymReader.dll
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\Microsoft.DotNet.Scaffolding.Shared.dll
-D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\Microsoft.EntityFrameworkCore.dll
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\Microsoft.EntityFrameworkCore.Abstractions.dll
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\Microsoft.EntityFrameworkCore.Design.dll
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\Microsoft.EntityFrameworkCore.Relational.dll
@@ -1953,7 +1956,6 @@ D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debu
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\Microsoft.VisualStudio.Web.CodeGeneration.EntityFrameworkCore.dll
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\Microsoft.VisualStudio.Web.CodeGeneration.Templating.dll
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\Microsoft.VisualStudio.Web.CodeGeneration.Utils.dll
-D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\Microsoft.VisualStudio.Web.CodeGenerators.Mvc.dll
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\Mono.TextTemplating.dll
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\Newtonsoft.Json.dll
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\NuGet.Common.dll
@@ -1961,7 +1963,6 @@ D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debu
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\NuGet.DependencyResolver.Core.dll
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\NuGet.Frameworks.dll
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\NuGet.LibraryModel.dll
-D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\NuGet.Packaging.dll
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\NuGet.ProjectModel.dll
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\NuGet.Protocol.dll
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\NuGet.Versioning.dll
@@ -2076,7 +2077,6 @@ D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debu
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\fr\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\it\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\ja\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
-D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\ko\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\pl\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\pt-BR\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\bin\Debug\net9.0\ru\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
@@ -2220,13 +2220,16 @@ D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\obj\Debu
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\obj\Debug\net9.0\compressed\yfc7ypekbg-mlv21k5csn.gz
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\obj\Debug\net9.0\compressed\dsouzidmip-639a4pmg6z.gz
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\obj\Debug\net9.0\compressed\6get2f437y-v5ioju0x2i.gz
-D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\obj\Debug\net9.0\compressed\3jkva53u1r-4ydet2uugi.gz
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\obj\Debug\net9.0\compressed\qhyja0hyq9-uo3jy4ej30.gz
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\obj\Debug\net9.0\compressed\7ie43pdm66-6sx6pifph3.gz
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\obj\Debug\net9.0\compressed\xdvlskwf14-yd5ua58qzv.gz
+D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\obj\Debug\net9.0\compressed\2xvr3uohip-ue22omy3xs.gz
+D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\obj\Debug\net9.0\compressed\ccqc8ostc3-pfblowv24r.gz
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\obj\Debug\net9.0\compressed\rcar969y6e-7trsppy8db.gz
+D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\obj\Debug\net9.0\compressed\urhng1defe-cnsw5ynjnx.gz
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\obj\Debug\net9.0\compressed\78yl00k1ch-58ysvr57cu.gz
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\obj\Debug\net9.0\compressed\brqn0ufijy-9g12k9m4qc.gz
+D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\obj\Debug\net9.0\compressed\f9udsehlla-4ys1ttbprx.gz
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\obj\Debug\net9.0\compressed\kyhbmsi2jq-ly6smechpa.gz
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\obj\Debug\net9.0\compressed\4bneowk298-j3pkcosesg.gz
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\obj\Debug\net9.0\compressed\diubqpg797-a11541cw62.gz
@@ -3152,9 +3155,6 @@ D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\obj\Debu
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\obj\Debug\net9.0\Alquileres.pdb
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\obj\Debug\net9.0\Alquileres.genruntimeconfig.cache
 D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\obj\Debug\net9.0\ref\Alquileres.dll
-D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\obj\Debug\net9.0\compressed\2xvr3uohip-ue22omy3xs.gz
-D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\obj\Debug\net9.0\compressed\urhng1defe-cnsw5ynjnx.gz
-D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\obj\Debug\net9.0\compressed\ccqc8ostc3-pfblowv24r.gz
-D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\obj\Debug\net9.0\compressed\f9udsehlla-67mrnl3qga.gz
-D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\obj\Debug\net9.0\compressed\3itidbs253-7fsbqyx5vj.gz
-D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\obj\Debug\net9.0\compressed\13sqrqk7vm-5wcsud5ozd.gz
+D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\obj\Debug\net9.0\compressed\13sqrqk7vm-4eoqj8l9xo.gz
+D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\obj\Debug\net9.0\compressed\3itidbs253-wcyty380i3.gz
+D:\Programacion\Proyectos de programacion\Anthony trabajo RD\Alquileres\obj\Debug\net9.0\compressed\3jkva53u1r-enco74qzji.gz

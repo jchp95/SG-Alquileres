@@ -297,27 +297,44 @@ namespace Alquileres.Context
                 entity.HasIndex(e => e.FkidPropietario, "IX_tb_inmueble_fkid_propietario");
 
                 entity.Property(e => e.FidInmueble).HasColumnName("fid_inmueble");
-                entity.Property(e => e.Factivo).HasColumnName("factivo");
+                entity.Property(e => e.Factivo)
+                    .HasColumnName("factivo")
+                    .HasDefaultValue(true);
+
                 entity.Property(e => e.Fdescripcion)
+                    .IsRequired()
                     .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("fdescripcion");
+
                 entity.Property(e => e.Fdireccion)
+                    .IsRequired()
                     .HasMaxLength(400)
                     .IsUnicode(false)
                     .HasColumnName("fdireccion");
-                entity.Property(e => e.FkidPropietario).HasColumnName("fkid_propietario");
+
+                entity.Property(e => e.FkidPropietario)
+                    .HasColumnName("fkid_propietario"); // Corregí el nombre
+
                 entity.Property(e => e.Fprecio)
                     .HasColumnType("decimal(18, 2)")
                     .HasColumnName("fprecio");
+
                 entity.Property(e => e.Fubicacion)
+                    .IsRequired()
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnName("fubicacion");
 
+                entity.Property(e => e.FfechaRegistro)
+                    .IsRequired()
+                    .IsUnicode(false)
+                    .HasColumnName("ffechaRegistro");
+
                 entity.HasOne<TbPropietario>()
                     .WithMany()
-                    .HasForeignKey(e => e.FkidPropietario);
+                    .HasForeignKey(e => e.FkidPropietario)
+                    .OnDelete(DeleteBehavior.Restrict); // Añade comportamiento de borrado
             });
 
             modelBuilder.Entity<TbInquilino>(entity =>

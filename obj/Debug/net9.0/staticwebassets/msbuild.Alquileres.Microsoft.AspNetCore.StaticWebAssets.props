@@ -66,8 +66,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>7fsbqyx5vj</Fingerprint>
-      <Integrity>o9Y//0YsUJwP04HUGFVImphUAzFFjewrZfSYHUf9vMU=</Integrity>
+      <Fingerprint>wcyty380i3</Fingerprint>
+      <Integrity>MCFzavF8fQEHWNlbCEWPvim9pjN4OU2gXEXCWKV0xiI=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\home.css'))</OriginalItemSpec>
@@ -84,8 +84,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>4ydet2uugi</Fingerprint>
-      <Integrity>HCPeut+BwKR/UrS+Zrp/BH3/lpNhiBwabb6O+WhbXhs=</Integrity>
+      <Fingerprint>enco74qzji</Fingerprint>
+      <Integrity>Cq10dBeFDjt1/itNh/I6osblPc90JNmbxT+2fMNXWNw=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\site.css'))</OriginalItemSpec>
@@ -234,6 +234,42 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\favicon_io\site.webmanifest'))</OriginalItemSpec>
     </StaticWebAsset>
+    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\bg-images.png'))">
+      <SourceType>Package</SourceType>
+      <SourceId>Alquileres</SourceId>
+      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
+      <BasePath>_content/Alquileres</BasePath>
+      <RelativePath>images/bg-images.png</RelativePath>
+      <AssetKind>All</AssetKind>
+      <AssetMode>All</AssetMode>
+      <AssetRole>Primary</AssetRole>
+      <RelatedAsset></RelatedAsset>
+      <AssetTraitName></AssetTraitName>
+      <AssetTraitValue></AssetTraitValue>
+      <Fingerprint>zgcfm5nfwv</Fingerprint>
+      <Integrity>4yYgVSY1emxSsk1u3gDssjTvvc/Kx5UYOuFEN41caj8=</Integrity>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\bg-images.png'))</OriginalItemSpec>
+    </StaticWebAsset>
+    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\imagen-fondo.png'))">
+      <SourceType>Package</SourceType>
+      <SourceId>Alquileres</SourceId>
+      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
+      <BasePath>_content/Alquileres</BasePath>
+      <RelativePath>images/imagen-fondo.png</RelativePath>
+      <AssetKind>All</AssetKind>
+      <AssetMode>All</AssetMode>
+      <AssetRole>Primary</AssetRole>
+      <RelatedAsset></RelatedAsset>
+      <AssetTraitName></AssetTraitName>
+      <AssetTraitValue></AssetTraitValue>
+      <Fingerprint>przcpies8g</Fingerprint>
+      <Integrity>654cRLiGDtqP0jJvdZpXcEd6u/C39MRwrPZ2/jfFS4g=</Integrity>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\imagen-fondo.png'))</OriginalItemSpec>
+    </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\login.webp'))">
       <SourceType>Package</SourceType>
       <SourceId>Alquileres</SourceId>
@@ -354,8 +390,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>5wcsud5ozd</Fingerprint>
-      <Integrity>RbIHlyJNn4cggVjeUOX/YD9joY8eD5X9W08I08TIJxc=</Integrity>
+      <Fingerprint>4eoqj8l9xo</Fingerprint>
+      <Integrity>/KAsvrToPgVq+x/Mbm9xK/lDjM3HKcnKS4fGfMyzPcE=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\home.js'))</OriginalItemSpec>
@@ -426,8 +462,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>67mrnl3qga</Fingerprint>
-      <Integrity>3ruHKQ+PlQTdskUR44CDsBWJ+TKW0DGEWX3aLTkdSmM=</Integrity>
+      <Fingerprint>4ys1ttbprx</Fingerprint>
+      <Integrity>zAn2ozTvzQ8OrOeSXnQq2udh6wPmWs9KGry5chR0LsM=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\reportes.js'))</OriginalItemSpec>

@@ -1,0 +1,41 @@
+@model List<ActividadReciente>
+
+@foreach (var actividad in Model)
+{
+    <div class="activity-item @(actividad.EsUrgente ? "urgent" : "") mb-3">
+        <div class="d-flex">
+            <div class="activity-icon @(actividad.Tipo.ToLower()) me-3">
+                <i class="@GetIconClass(actividad.Tipo)"></i>
+            </div>
+            <div>
+                <div class="fw-bold">@actividad.Tipo</div>
+                <div>@actividad.Descripcion</div>
+                <small class="text-muted">@actividad.Fecha.ToString("dd MMM yyyy HH:mm")</small>
+                @if (!string.IsNullOrEmpty(actividad.DetalleAdicional))
+                {
+                    <div class="text-muted small">@actividad.DetalleAdicional</div>
+                }
+                @if (actividad.EsUrgente)
+                {
+                    <span class="badge bg-danger">¡Urgente!</span>
+                }
+            </div>
+        </div>
+        <hr class="my-2" />
+    </div>
+}
+
+@functions {
+    string GetIconClass(string tipo)
+    {
+        return tipo switch
+        {
+            "Inquilino" => "fas fa-user",
+            "Propietario" => "fas fa-user-tie",
+            "Inmueble" => "fas fa-home",
+            "CxC" => "fas fa-file-invoice-dollar",
+            "Cobro" => "fas fa-hand-holding-usd",
+            _ => "fas fa-info-circle"
+        };
+    }
+}

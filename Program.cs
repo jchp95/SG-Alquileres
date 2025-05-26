@@ -8,6 +8,8 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using Microsoft.OpenApi.Models;
 using Alquileres.Models;
 using Microsoft.AspNetCore.Authorization;
+using Alquileres.Services;
+using NoOpEmailSender = Alquileres.Services.NoOpEmailSender;
 
 var builder = WebApplication.CreateBuilder(args);
 

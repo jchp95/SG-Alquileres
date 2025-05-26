@@ -16,13 +16,28 @@
     </div>
 
     <!-- Card de Filtros -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="row g-3">
-                <div class="col-md-3">
-                    <label for="filtroInquilino" class="form-label">Inquilino</label>
-                    <input type="text" id="filtroInquilino" class="form-control" placeholder="Filtrar por inquilino">
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+            <div
+                class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-3 mb-3">
+                <h5 class="card-title mb-0"><i class="fas fa-filter me-2 text-primary"></i>Filtros Avanzados</h5>
+                <div class="d-flex gap-2 w-100 w-lg-auto">
+                    <button id="btnAplicarFiltros" class="btn btn-primary flex-grow-1 flex-lg-grow-0">
+                        <i class="fas fa-filter me-1"></i> Filtrar
+                    </button>
+                    <button id="btnResetFiltros" class="btn btn-outline-secondary">
+                        <i class="fas fa-undo"></i>
+                    </button>
                 </div>
+            </div>
+
+            <div class="row g-3">
+                <!-- Filtro por inquilino -->
+                <div class="col-md-3">
+                    <label for="filtroInquilino" class="form-label small text-muted mb-1">Inquilino</label>
+                    <input type="text" id="filtroInquilino" class="form-control" placeholder="Buscar por inquilino">
+                </div>
+
                 <!-- Filtro por estado -->
                 <div class="col-md-3">
                     <label for="filtroEstado" class="form-label small text-muted mb-1">Estado</label>
@@ -32,25 +47,29 @@
                         <option value="false">Inactivo</option>
                     </select>
                 </div>
+
+                <!-- Filtro por período -->
                 <div class="col-md-3">
-                    <label for="filtroPeriodo" class="form-label">Período</label>
+                    <label for="filtroPeriodo" class="form-label small text-muted mb-1">Período</label>
                     <select id="filtroPeriodo" class="form-select">
-                        <option value="">Todos los períodos</option>
+                        <option value="">Todos</option>
                         <option value="Mensual">Mensual</option>
                         <option value="Quincenal">Quincenal</option>
                         <option value="Semanal">Semanal</option>
                         <option value="Anual">Anual</option>
                     </select>
                 </div>
-                <!-- Agrega esto cerca de tus otros controles de filtro -->
+
+                <!-- Filtro por tipo de fecha -->
                 <div class="col-md-3">
-                    <label>Filtrar por:</label>
-                    <select id="filtroTipoFecha" class="form-control">
+                    <label for="filtroTipoFecha" class="form-label small text-muted mb-1">Tipo de Fecha</label>
+                    <select id="filtroTipoFecha" class="form-select">
                         <option value="4">Fecha Inicio</option>
                         <option value="6">Próxima Cuota</option>
                     </select>
                 </div>
-                <!-- Filtro por fechas -->
+
+                <!-- Filtro por fecha desde -->
                 <div class="col-md-6">
                     <label for="min" class="form-label small text-muted mb-1">Fecha desde</label>
                     <div class="input-group">
@@ -63,6 +82,8 @@
                         </button>
                     </div>
                 </div>
+
+                <!-- Filtro por fecha hasta -->
                 <div class="col-md-6">
                     <label for="max" class="form-label small text-muted mb-1">Fecha hasta</label>
                     <div class="input-group">
@@ -76,16 +97,6 @@
                     </div>
                 </div>
             </div>
-            <div class="row mt-3">
-                <div class="col-md-12 text-end">
-                    <button id="btnAplicarFiltros" class="btn btn-primary me-2">
-                        <i class="fas fa-filter me-1"></i> Aplicar Filtros
-                    </button>
-                    <button id="btnResetFiltros" class="btn btn-outline-secondary">
-                        <i class="fas fa-undo"></i>
-                    </button>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -93,7 +104,7 @@
     <div class="card border-0 shadow-sm px-4 py-4">
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table id="cuentasPorCobrarTable" class="table table-hover align-middle mb-0">
+                <table id="cuentasPorCobrarTable" class="table table-hover align-middle mb-0 table-responsive">
                     <thead class="table-light">
                         <tr>
                             <th class="ps-4">Inquilino</th>

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Alquileres.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250519193034_InitialMigrations")]
-    partial class InitialMigrations
+    [Migration("20250525172455_updateModelInquilinosPropietarios")]
+    partial class updateModelInquilinosPropietarios
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -369,7 +369,9 @@ namespace Alquileres.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FidInmueble"));
 
                     b.Property<bool>("Factivo")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
+                        .HasDefaultValue(true)
                         .HasColumnName("factivo");
 
                     b.Property<string>("Fdescripcion")
@@ -385,6 +387,11 @@ namespace Alquileres.Migrations
                         .IsUnicode(false)
                         .HasColumnType("varchar(400)")
                         .HasColumnName("fdireccion");
+
+                    b.Property<DateTime>("FfechaRegistro")
+                        .IsUnicode(false)
+                        .HasColumnType("datetime2")
+                        .HasColumnName("ffechaRegistro");
 
                     b.Property<int>("FkidPropietario")
                         .HasColumnType("int")
@@ -448,6 +455,9 @@ namespace Alquileres.Migrations
                         .IsUnicode(false)
                         .HasColumnType("varchar(400)")
                         .HasColumnName("fdireccion");
+
+                    b.Property<DateTime>("FfechaRegistro")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("FkidUsuario")
                         .HasColumnType("int");
@@ -576,6 +586,9 @@ namespace Alquileres.Migrations
                         .IsUnicode(false)
                         .HasColumnType("varchar(400)")
                         .HasColumnName("fdireccion");
+
+                    b.Property<DateTime>("FfechaRegistro")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Fnombre")
                         .IsRequired()
@@ -939,7 +952,7 @@ namespace Alquileres.Migrations
                     b.HasOne("Alquileres.Models.TbPropietario", null)
                         .WithMany()
                         .HasForeignKey("FkidPropietario")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 

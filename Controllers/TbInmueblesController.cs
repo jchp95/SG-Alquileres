@@ -93,7 +93,8 @@ namespace Alquileres.Controllers
             {
                 var propietarios = await _context.TbPropietarios
                     .Where(p => p.Factivo)
-                    .Select(p => new {
+                    .Select(p => new
+                    {
                         p.FidPropietario,
                         NombreCompleto = $"{p.Fnombre} {p.Fapellidos}"
                     })
@@ -129,10 +130,11 @@ namespace Alquileres.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    tbInmueble.Factivo = true;
+                    tbInmueble.FfechaRegistro = DateTime.Now; // ✅ Asignar fecha actual
+                    tbInmueble.Factivo = true; // (opcional) marcar como activo por defecto
+
                     _context.Add(tbInmueble);
                     await _context.SaveChangesAsync();
-                    _logger.LogInformation($"Inmueble creado: {tbInmueble.FidInmueble}");
 
                     return await CargarInmuebles();
                 }
@@ -140,7 +142,8 @@ namespace Alquileres.Controllers
                 // Si hay errores, recargar la lista de propietarios
                 var propietarios = await _context.TbPropietarios
                     .Where(p => p.Factivo)
-                    .Select(p => new {
+                    .Select(p => new
+                    {
                         p.FidPropietario,
                         NombreCompleto = $"{p.Fnombre} {p.Fapellidos}"
                     })
@@ -155,6 +158,7 @@ namespace Alquileres.Controllers
                 return StatusCode(500);
             }
         }
+
 
         [HttpGet]
         [Authorize(Policy = "Permissions.Inmuebles.Editar")] // Corregido el nombre de la política

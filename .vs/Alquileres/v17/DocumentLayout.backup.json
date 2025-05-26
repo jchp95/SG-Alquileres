@@ -1,22 +1,14 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "E:\\ProyectosDeProgramacion\\Anthony trabajo RD\\Alquileres\\",
+  "WorkspaceRootPath": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{CA916D70-AD5B-4C55-9AB7-02FAF349273B}|Alquileres.csproj|e:\\proyectosdeprogramacion\\anthony trabajo rd\\alquileres\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{CA916D70-AD5B-4C55-9AB7-02FAF349273B}|Alquileres.csproj|solutionrelative:views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{CA916D70-AD5B-4C55-9AB7-02FAF349273B}|Alquileres.csproj|d:\\programacion\\proyectos de programacion\\anthony trabajo rd\\alquileres\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CA916D70-AD5B-4C55-9AB7-02FAF349273B}|Alquileres.csproj|solutionrelative:controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CA916D70-AD5B-4C55-9AB7-02FAF349273B}|Alquileres.csproj|e:\\proyectosdeprogramacion\\anthony trabajo rd\\alquileres\\views\\tbcobros\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{CA916D70-AD5B-4C55-9AB7-02FAF349273B}|Alquileres.csproj|solutionrelative:views\\tbcobros\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CA916D70-AD5B-4C55-9AB7-02FAF349273B}|Alquileres.csproj|e:\\proyectosdeprogramacion\\anthony trabajo rd\\alquileres\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CA916D70-AD5B-4C55-9AB7-02FAF349273B}|Alquileres.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CA916D70-AD5B-4C55-9AB7-02FAF349273B}|Alquileres.csproj|e:\\proyectosdeprogramacion\\anthony trabajo rd\\alquileres\\views\\tbcobros\\_createcobropartial.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{CA916D70-AD5B-4C55-9AB7-02FAF349273B}|Alquileres.csproj|solutionrelative:views\\tbcobros\\_createcobropartial.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{CA916D70-AD5B-4C55-9AB7-02FAF349273B}|Alquileres.csproj|d:\\programacion\\proyectos de programacion\\anthony trabajo rd\\alquileres\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{CA916D70-AD5B-4C55-9AB7-02FAF349273B}|Alquileres.csproj|solutionrelative:views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     }
   ],
   "DocumentGroupContainers": [
@@ -31,51 +23,28 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "_Layout.cshtml",
-              "DocumentMoniker": "E:\\ProyectosDeProgramacion\\Anthony trabajo RD\\Alquileres\\Views\\Shared\\_Layout.cshtml",
-              "RelativeDocumentMoniker": "Views\\Shared\\_Layout.cshtml",
-              "ToolTip": "E:\\ProyectosDeProgramacion\\Anthony trabajo RD\\Alquileres\\Views\\Shared\\_Layout.cshtml",
-              "RelativeToolTip": "Views\\Shared\\_Layout.cshtml",
-              "ViewState": "AgIAAHQAAAAAAAAAAAAAwIUAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-05-08T14:45:45.296Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "Program.cs",
-              "DocumentMoniker": "E:\\ProyectosDeProgramacion\\Anthony trabajo RD\\Alquileres\\Program.cs",
-              "RelativeDocumentMoniker": "Program.cs",
-              "ToolTip": "E:\\ProyectosDeProgramacion\\Anthony trabajo RD\\Alquileres\\Program.cs",
-              "RelativeToolTip": "Program.cs",
-              "ViewState": "AgIAAEIAAAAAAAAAAAAswFYAAAAAAAAAAAAAAA==",
+              "Title": "HomeController.cs",
+              "DocumentMoniker": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\Controllers\\HomeController.cs",
+              "RelativeDocumentMoniker": "Controllers\\HomeController.cs",
+              "ToolTip": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\Controllers\\HomeController.cs",
+              "RelativeToolTip": "Controllers\\HomeController.cs",
+              "ViewState": "AgIAABUAAAAAAAAAAAAmwCkAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-08T14:00:04.533Z"
+              "WhenOpened": "2025-06-24T22:02:50.498Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
               "Title": "Index.cshtml",
-              "DocumentMoniker": "E:\\ProyectosDeProgramacion\\Anthony trabajo RD\\Alquileres\\Views\\TbCobros\\Index.cshtml",
-              "RelativeDocumentMoniker": "Views\\TbCobros\\Index.cshtml",
-              "ToolTip": "E:\\ProyectosDeProgramacion\\Anthony trabajo RD\\Alquileres\\Views\\TbCobros\\Index.cshtml",
-              "RelativeToolTip": "Views\\TbCobros\\Index.cshtml",
-              "ViewState": "AgIAAGQAAAAAAAAAAAAswHIAAAAmAAAAAAAAAA==",
+              "DocumentMoniker": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\Views\\Home\\Index.cshtml",
+              "RelativeDocumentMoniker": "Views\\Home\\Index.cshtml",
+              "ToolTip": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\Views\\Home\\Index.cshtml",
+              "RelativeToolTip": "Views\\Home\\Index.cshtml",
+              "ViewState": "AgIAAJ4AAAAAAAAAAAAowKsAAAAYAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-06-05T21:44:53.277Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "_CreateCobroPartial.cshtml",
-              "DocumentMoniker": "E:\\ProyectosDeProgramacion\\Anthony trabajo RD\\Alquileres\\Views\\TbCobros\\_CreateCobroPartial.cshtml",
-              "RelativeDocumentMoniker": "Views\\TbCobros\\_CreateCobroPartial.cshtml",
-              "ToolTip": "E:\\ProyectosDeProgramacion\\Anthony trabajo RD\\Alquileres\\Views\\TbCobros\\_CreateCobroPartial.cshtml",
-              "RelativeToolTip": "Views\\TbCobros\\_CreateCobroPartial.cshtml",
-              "ViewState": "AgIAAGAAAAAAAAAAAIBJwIgAAAAGAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-06-05T18:44:37.311Z"
+              "WhenOpened": "2025-05-24T21:13:36.204Z",
+              "EditorCaption": ""
             }
           ]
         }

@@ -22,11 +22,17 @@
     --shadow-hard: 0 8px 24px rgba(0, 0, 0, 0.12);
     --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-medium: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --sidebar-transition-time: 0.3s;
+        --sidebar-transition-easing: cubic-bezier(0.4, 0, 0.2, 1);
+        --header-height: 60px;
+        --footer-height: 60px;
     --border-radius-sm: 0.375rem;
     --border-radius: 0.5rem;
     --border-radius-lg: 0.75rem;
     --sidebar-width: 280px;
     --sidebar-collapsed-width: 70px;
+
+
 }
 
 /* Base styles */
@@ -84,7 +90,7 @@ h4 {
 /* Layout system */
 .parent {
     display: grid;
-    grid-template-columns: var(--sidebar-width) 1fr;
+    grid-template-columns: auto 1fr;
     grid-template-rows: auto 1fr auto;
     min-height: 100vh;
 }
@@ -93,8 +99,10 @@ h4 {
 .div1 {
     grid-column: 1 / -1;
     grid-row: 1;
-    background-color: var(--color-white);
+    position: sticky;
+    top: 0;
     z-index: 1030;
+    box-shadow: var(--shadow-soft);
 }
 
 .navbar {
@@ -151,32 +159,63 @@ h4 {
     position: absolute;
     top: -0.25rem;
     right: 0.25rem;
-    font-size: 0.65rem;
-    padding: 0.25rem 0.4rem;
+    font-size: 0.6rem;
 }
 
 /* Sidebar (div2) */
 .div2 {
     grid-column: 1;
     grid-row: 2;
-    background-color: #f8f9fa;
-    padding: 10px;
-    transition: max-width 0.3s ease;
-    box-shadow: 2px 0px 10px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    max-width: 250px;
+    background-color: var(--color-white);
+    border-right: 1px solid var(--color-border);
+    height: calc(100vh - var(--header-height));
+    position: sticky;
+    top: var(--header-height);
+    overflow-y: auto;
+    overflow-x: hidden;
+    transition: all var(--sidebar-transition-time) var(--sidebar-transition-easing);
+    width: var(--sidebar-width);
+    will-change: transform, width;
 }
 
 .div2.collapsed {
-    max-width: 70px;
+    width: var(--sidebar-collapsed-width);
 }
 
 .div2.expanded {
     max-width: 250px;
 }
 
+.sidebar-content {
+    width: var(--sidebar-width);
+    padding: 1rem;
+    transition: opacity var(--sidebar-transition-time) ease;
+}
+
+.div2.collapsed .sidebar-content {
+    width: var(--sidebar-collapsed-width);
+}
+
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1039;
+    opacity: 0;
+    visibility: hidden;
+    transition: all var(--sidebar-transition-time) ease;
+}
+
+.sidebar-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
 /* Estilos para los enlaces en la barra lateral */
-.div2 .sidebar-nav-item {
+ .sidebar-nav-item {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -258,6 +297,8 @@ h4 {
     /* Peso de la fuente diferente para los submenús */
 }
 
+
+
 /* Asegúrate de que los iconos de los submenús también tengan un estilo diferente si es necesario */
 .div2 .collapse .sidebar-nav-item i {
     color: #6c757d;
@@ -288,6 +329,13 @@ h4 {
     grid-row: 2;
     padding: 1.5rem;
     overflow-y: auto;
+    background-color: var(--color-light);
+    min-height: calc(100vh - var(--header-height) - var(--footer-height));
+
+    background-image: linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)), url('/images/imagen-fondo.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .content-header {
@@ -816,6 +864,7 @@ table.dataTable tbody tr:hover td {
     text-align: center;
     color: var(--color-text-muted);
     font-size: 0.875rem;
+    height: var(--footer-height);
 }
 
 /* Animations */
@@ -898,41 +947,192 @@ table.dataTable tbody tr:hover td {
     box-shadow: var(--shadow-hard);
 }
 
-/* Responsive adjustments */
-@media (max-width: 992px) {
-    .parent {
-        grid-template-columns: 1fr;
+/* ============================================= */
+/* ORIENTACIÓN HORIZONTAL EN TABLETS            */
+/* ============================================= */
+@media (min-width: 768px) and (orientation: landscape) {
+
+    /* Ajustar el tamaño de fuente */
+    html {
+        font-size: 15px;
     }
 
+    /* Mostrar sidebar si hay suficiente espacio */
+    .div2 {
+        transform: translateX(0);
+    }
+
+    /* Ajustar el padding del contenido */
+    .div4 {
+        padding: 1.5rem;
+    }
+}
+
+/* ============================================= */
+/* LAPTOPS Y ESCRITORIOS (992px en adelante)    */
+/* ============================================= */
+@media (min-width: 992px) {
+
+    /* Ajustes generales */
+    html {
+        font-size: 16px;
+    }
+
+    /* Layout */
+    .parent {
+        grid-template-columns: auto 1fr;
+    }
+
+    /* Sidebar - Visible por defecto */
+    .div2 {
+        position: sticky;
+        transform: translateX(0);
+        height: calc(100vh - var(--header-height));
+    }
+
+    /* Contenido principal */
+    .div4 {
+        padding: 1.5rem;
+    }
+
+    /* Sidebar items - comportamiento normal */
+    .div2 .sidebar-nav-item {
+        justify-content: flex-start;
+        padding: 10px 15px;
+    }
+
+    .div2.collapsed .sidebar-nav-item {
+        justify-content: center;
+    }
+
+    /* Mostrar/ocultar texto según estado de la sidebar */
+    .div2.collapsed .sidebar-text {
+        display: none;
+    }
+
+    .div2.expanded .sidebar-text {
+        display: inline;
+    }
+}
+
+/* ============================================= */
+/* DISPOSITIVOS MÓVILES (0 - 767px)             */
+/* ============================================= */
+@media (max-width: 767px) {
+
+    /* Ajustes generales */
+    html {
+        font-size: 13px;
+    }
+
+    /* Layout */
+    .parent {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+        .content-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+    
+        .dataTables_wrapper {
+            padding: 1rem;
+        }
+    
+        table.dataTable thead th,
+        table.dataTable tbody td {
+            padding: 0.75rem;
+        }
+
+    /* Navbar */
+    .navbar {
+        padding: 0.5rem 1rem;
+    }
+
+    .navbar-brand {
+        font-size: 1.1rem;
+    }
+
+    /* Sidebar - Oculto por defecto en móviles */
     .div2 {
         position: fixed;
-        z-index: 1040;
+        width: var(--sidebar-width);
         height: 100vh;
+        z-index: 1040;
         transform: translateX(-100%);
+        transition: transform var(--sidebar-transition-time) var(--sidebar-transition-easing);
     }
 
     .div2.expanded {
         transform: translateX(0);
     }
 
-    .div4 {
-        grid-column: 1;
+    .div2.collapsed {
+        width: var(--sidebar-collapsed-width);
     }
-}
 
-@media (max-width: 768px) {
+    /* Contenido principal */
+    .div4 {
+        padding: 1rem;
+        min-height: calc(100vh - var(--header-height) - var(--footer-height));
+    }
+
+    /* Encabezado del contenido */
     .content-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 1rem;
+        margin-bottom: 1rem;
     }
 
+    /* Cards */
+    .card {
+        margin-bottom: 1rem;
+    }
+
+    .card-header,
+    .card-body {
+        padding: 0.75rem;
+    }
+
+    /* Formularios */
+    .form-control,
+    .form-select,
+    .form-textarea {
+        padding: 0.65rem 0.9rem;
+        font-size: 0.925rem;
+    }
+
+    /* DataTables */
     .dataTables_wrapper {
-        padding: 1rem;
+        padding: 0.75rem;
     }
 
     table.dataTable thead th,
     table.dataTable tbody td {
-        padding: 0.75rem;
+        padding: 0.5rem;
+    }
+
+    /* Footer */
+    .div3 {
+        padding: 0.75rem 1rem;
+    }
+
+    /* Sidebar items */
+    .div2 .sidebar-nav-item {
+        padding: 8px;
+        justify-content: flex-start;
+    }
+
+    .div2.collapsed .sidebar-nav-item {
+        justify-content: center;
+    }
+
+    /* Ocultar texto en sidebar colapsada */
+    .div2.collapsed .sidebar-text {
+        display: none;
     }
 }

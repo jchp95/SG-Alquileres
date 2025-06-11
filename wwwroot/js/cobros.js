@@ -35,19 +35,21 @@ function calcularTotalIngresado() {
     let total = 0;
     const montoTotal = parseFloat($('#modalMontoTotal').val()) || 0;
     const montoRecibido = parseFloat($('#montoRecibido').val()) || 0;
+    const efectivo = parseFloat($('#efectivo').val()) || 0;
 
-    // Siempre sumar el monto recibido al total, independientemente del cambio
-    total += montoRecibido;
-
-    // Calcular el cambio si montoRecibido es mayor que montoTotal
-    if (montoRecibido > montoTotal) {
-        const cambio = montoRecibido - montoTotal;
-        $('#efectivo').val(cambio.toFixed(2));
+    // Lógica modificada:
+    if (montoRecibido > 0) {
+        // Si hay monto recibido, lo sumamos y calculamos cambio
+        total += montoRecibido;
+        const cambio = Math.max(0, montoRecibido - efectivo);
+        $('#cambio').val(cambio.toFixed(2));
     } else {
-        $('#efectivo').val('0.00');
+        // Si no hay monto recibido, sumamos el efectivo normal
+        total += efectivo;
+        $('#cambio').val('0.00');
     }
 
-    // Sumar los otros medios de pago
+    // Sumar los otros métodos de pago
     total += parseFloat($('#transferencia').val()) || 0;
     total += parseFloat($('#tarjeta').val()) || 0;
     total += parseFloat($('#notaCredito').val()) || 0;
@@ -55,22 +57,31 @@ function calcularTotalIngresado() {
     total += parseFloat($('#deposito').val()) || 0;
     total += parseFloat($('#debitoAutomatico').val()) || 0;
 
-    const pendiente = montoTotal - total;
+    // Calcular pendiente (nunca debe ser negativo)
+    const pendiente = Math.max(0, montoTotal - total);
 
-    $('#totalIngresado').text(total.toFixed(2));
-    $('#montoPendiente').text(pendiente.toFixed(2));
+    // Formatear el total y el pendiente
+    $('#totalIngresado').text(total.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }));
+    $('#montoPendiente').text(pendiente.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }));
 
-    // Siempre habilitar el botón sin importar el monto
+    // Habilitar el botón siempre
     $('#finalizarCobro').prop('disabled', false);
 
-    // Opcional: mantener el mensaje de validación visible si hay diferencia
-    if (Math.abs(pendiente) > 0.01) {
+    // Mostrar mensaje de validación solo si hay pendiente por pagar
+    if (pendiente > 0.01) {
         $('#errorValidacion').removeClass('d-none');
     } else {
         $('#errorValidacion').addClass('d-none');
     }
 }
 
+// Función ajaxRequest - MODIFICADA
 async function ajaxRequest(config) {
     const defaults = {
         showLoading: true,
@@ -90,7 +101,7 @@ async function ajaxRequest(config) {
 
             const response = await $.ajax({
                 ...options,
-                error: null // Deshabilitamos el manejo automático de errores
+                error: null
             });
 
             return response;
@@ -106,26 +117,29 @@ async function ajaxRequest(config) {
                         return;
                     case 403:
                         const errorMessage = error.responseJSON?.error || 'No tiene permisos para realizar esta acción';
-                        showPermissionAlert(errorMessage);
 
-                        // Suprimir toast si está configurado
+                        // Solo mostrar alerta si suppressPermissionToasts es true
                         if (options.suppressPermissionToasts) {
-                            throw new Error('Permiso denegado'); // Lanzar excepción para detener el flujo
+                            throw { ...error, message: 'Permiso denegado' }; // Lanzar error especial
                         }
+
+                        // Si no se suprime, mostrar ambos
+                        showPermissionAlert(errorMessage);
                         showToast('Por favor contacte al administrador', 'error');
                         throw error;
                     case 404:
-                        showToast('Recurso no encontrado');
-                        return;
+                        showToast('Recurso no encontrado', 'error');
+                        throw error;
                     default:
-                        if (error.responseJSON && error.responseJSON.errors) {
+                        if (error.responseJSON?.errors) {
                             if (options.form) {
                                 handleValidationErrors($(options.form), error.responseJSON.errors);
                             } else {
-                                showToast(Object.values(error.responseJSON.errors).flat().join(' '));
+                                showToast(Object.values(error.responseJSON.errors).flat().join(' '), 'error');
                             }
                         } else {
-                            showToast(options.errorMessage || error.responseText || 'Error de comunicación con el servidor');
+                            const userMessage = options.errorMessage || 'Error de comunicación con el servidor';
+                            showToast(userMessage, 'error');
                         }
                         throw error;
                 }
@@ -149,18 +163,31 @@ function showToast(message, type = 'error', duration = 3000) {
 }
 
 /////// Funcion para cargar vista tabla Cobro ///////
-function cargarTablaCobro() {
-    $.ajax({
-        url: '/TbCobros/CargarCobro',
-        type: 'GET',
-        success: function (html) {
-            $('#dataTableContainer').html(html).fadeIn();
-            inicializarDataTable();
-        },
-        error: function () {
-            alert('Error al cargar la tabla de cobros.');
+async function cargarTablaCobro() {
+    try {
+        const data = await ajaxRequest({
+            url: '/TbCobros/CargarCobro',
+            type: 'GET',
+            errorMessage: 'Error al cargar la lista de cobros',
+            suppressPermissionToasts: true // Suprimimos toasts para manejar el 403 manualmente
+        })
+
+        $('#dataTableContainer').html(data).fadeIn();
+        inicializarDataTable();
+
+    } catch (error) {
+        console.error('Error al cargar cobros:', error);
+
+        // Manejo específico para error de permisos (403)
+        if (error.status === 403 || error.message === 'Permiso denegado') {
+            const errorMsg = error.responseJSON?.error || 'No tiene permisos para ver la lista de cobros';
+            showPermissionAlert(errorMsg);
         }
-    });
+        // Manejo de otros tipos de errores
+        else {
+            showToast('Error al cargar la lista de cobros', 'error');
+        }
+    }
 }
 
 // Función para manejar errores de validación (la misma que en inmuebles)
@@ -296,41 +323,83 @@ $(document).on('click', '#confirmAnularBtn', async function () {
 
 
 
-function mostrarDetallesCobro(idCobro) {
+async function mostrarDetallesCobro(idCobro) {
     console.log(`Requesting details for ID: ${idCobro}`);
     const url = `/TbCobros/Detalles/${idCobro}`;
 
-    $.ajax({
-        url: url,
-        type: 'GET',
-        success: function (html) {
-            $('#dataTableContainer').html(html).fadeIn();
-            $('html, body').animate({
-                scrollTop: $('#dataTableContainer').offset().top - 20
-            }, 500);
-        },
-        error: function (xhr, status, error) {
-            console.error(`Error: ${status} - ${error}`);
-            console.log('Response:', xhr.responseText);
+    try {
+        const html = await ajaxRequest({
+            url: url,
+            type: 'GET',
+            errorMessage: 'Error al cargar los detalles del cobro',
+            suppressPermissionToasts: true // Suprimir toasts para manejar el 403 manualmente
+        });
 
-            // Manejo específico para error 403 (Forbidden)
-            if (xhr.status === 403) {
-                const mensaje = xhr.responseJSON?.error || 'No tiene permisos para ver los detalles del cobro.';
-                showPermissionAlert(mensaje);
-                return;
+        $('#dataTableContainer').html(html).fadeIn();
+
+        // Inicializar datatable
+        const table = $('#reciboTable').DataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            ordering: false,
+            responsive: true,
+            scrollX: false,
+            scrollCollapse: true,
+            dom: '<"top"lf>Brt<"bottom"ip>',
+            columnDefs: [
+                {
+                    targets: '_all',
+                    orderable: false,
+                    defaultContent: ""
+                }
+            ],
+            buttons: [
+                {
+                    extend: 'pdfHtml5',
+                    text: '<i class="fas fa-file-pdf"></i> PDF',
+                    className: 'btn btn-outline-danger btn-sm mb-4 mt-4',
+                    orientation: 'portrait',
+                    pageSize: 'LETTER',
+                    exportOptions: {
+                        columns: ':visible',
+                        modifier: {
+                            page: 'all'
+                        }
+                    },
+                    customize: function (doc) {
+                        // ... (keep all your existing PDF customization code)
+                    }
+                }
+            ],
+            initComplete: function () {
+                $('.dataTables_length, .dataTables_filter').hide();
+                this.api().columns.adjust();
+            },
+            createdRow: function (row, data, index) {
+                if ($('td', row).length === 1) {
+                    $('td', row).attr('colspan', '2');
+                }
             }
+        });
 
-            // Manejo general de errores
-            if (xhr.status === 500) {
-                console.error('Internal Server Error: ', xhr.responseText);
-            } else {
-                console.error('Unexpected error: ', xhr.status, error);
-            }
+        $('#reciboTable').removeClass('dataTable');
 
-            showToast('Error al cargar los detalles del cobro. Por favor, inténtalo más tarde.', 'error');
+    } catch (error) {
+        console.error('Error al cargar los detalles del cobro:', error);
+
+        // Manejo específico para error de permisos (403)
+        if (error.status === 403 || error.message === 'Permiso denegado') {
+            const errorMsg = error.responseJSON?.error || 'No tiene permisos para ver los detalles del cobro';
+            showPermissionAlert(errorMsg);
         }
-    });
+        // Manejo de otros tipos de errores
+        else {
+            showToast('Error al cargar los detalles del cobro', 'error');
+        }
+    }
 }
+
 
 
 // Modificar el evento click de los botones de detalles
@@ -438,15 +507,18 @@ async function crearCobro() {
         });
         console.log("Success:", response.data);
         if (response.data.success) {
+            $('#FkidCobro').val(response.data.cobroId);
             alert('Cobro registrado exitosamente');
 
             $('#staticBackdrop').modal('hide');
+
 
             // Generar el ticket
             generarTicket(); // Asegúrate de que el servidor devuelva los datos del cobro
             // Mostrar el modal del ticket
             $('#ticketModal').modal('show');
-
+            limpiarDatosTicket();
+            cargarVistaCrearCobro();
             return true;
         } else {
             alert('Error: ' + response.data.message);
@@ -462,76 +534,171 @@ async function crearCobro() {
     }
 }
 
-function generarTicket() {
+
+// Función modificada para evitar la redeclaración de variables
+function generarTicket(cuentaIdParam, cobroIdParam) {
     // Obtener la fecha y hora actual
     const ahora = new Date();
     const fecha = ahora.toLocaleDateString();
     const hora = ahora.toLocaleTimeString();
 
-    // Obtener el ID de la cuenta por cobrar
-    const cuentaId = $('#busquedaCxC').val();
-    console.log('ID de cuenta obtenido del input:', cuentaId); // Debug 1
+    // Usar los parámetros recibidos o obtener los valores de los campos
+    const cuentaId = cuentaIdParam || $('#busquedaCxC').val();
+    const cobroId = cobroIdParam || $('#FkidCobro').val();
 
     // Obtener el concepto ingresado por el usuario (si lo hay)
     const conceptoUsuario = $('#Fconcepto').val();
-
-    // Obtener otros datos del formulario que puedan ser necesarios
-    const efectivoRecibido = $('#montoRecibido').val();
-    const cambio = $('#efectivo').val();
 
     // Hacer la llamada AJAX para obtener los datos del ticket
     $.ajax({
         url: '/TbCobros/GetDatosTicket',
         type: 'GET',
-        data: { cuentaId: cuentaId },
+        data: {
+            cuentaId: cuentaId,
+            idCobro: cobroId,
+            esReimpresion: true
+        },
         success: function (response) {
-            console.log('Respuesta completa del backend:', response); // Debug 2
-
             if (response.success) {
                 const datos = response.datos;
-                console.log('Datos recibidos del backend:', datos); // Debug 3
-                console.log('Nombre del cliente recibido:', datos.cliente); // Debug 4
 
-                // Actualizar el contenido del ticket en el modal
-                $('#ticketContent .header .title').text("LOGO");
+                // Obtener información de la empresa
+                $.get('/Empresa/GetEmpresaInfo', function (data) {
+                    // Logo
+                    var $titleElement = $('#ticketContent .header .title');
+                    var logoUrl = '/Empresa/Logo?' + new Date().getTime();
+
+                    if (data.tieneLogo) {
+                        $titleElement.html('<img src="' + logoUrl + '" alt="Logo" style="max-height: 100px; max-width: 100%;" onerror="this.onerror=null;this.src=\'/images/login.jpg\';" />');
+                    } else {
+                        $titleElement.text(data.nombre);
+                    }
+
+                    // Datos de la empresa
+                    $('#ticketContent .header .rnc').text(data.rnc || "RNC no configurado");
+                    $('#ticketContent .header .direccion').text(data.dir || "Dirección no configurada");
+
+                    // Teléfono
+                    const telefono = data.tel || "Teléfonos no configurados";
+                    $('#ticketContent .header .telefono').text(telefono);
+
+                }).fail(function () {
+                    $('#ticketContent .header .title').text("Nombre de Empresa");
+                    $('#ticketContent .header .rnc').text("RNC no configurado");
+                    $('#ticketContent .header .direccion').text("Dirección no configurada");
+                    $('#ticketContent .header .telefono').text("Teléfonos no configurados");
+                });
+
+                // Datos del ticket desde el backend
+                $('#ticketContent .fecha-hora').text(`${fecha} ${hora}`);
+                $('#ticketContent .cliente').text(datos.cliente);
+                $('#ticketContent .noCobro').text(datos.noCobro);
+                $('#ticketContent .concepto').text(conceptoUsuario || datos.concepto);
                 $('#ticketContent .direccion').text(datos.direccion);
                 $('#ticketContent .ubicacion').text(datos.ubicacion);
                 $('#ticketContent .telefono').text(datos.telefono);
-                $('#ticketContent .fecha-hora').text(`${fecha} ${hora}`);
 
-                // Debug para el elemento cliente
-                const clienteElement = $('#ticketContent .cliente');
-                console.log('Elemento HTML del cliente:', clienteElement); // Debug 5
-                clienteElement.text(datos.cliente);
+                // Datos numéricos formateados
+                const formatOptions = { minimumFractionDigits: 2, maximumFractionDigits: 2 };
+                $('#ticketContent .subtotal').text(datos.subtotal.toLocaleString('en-US', formatOptions));
+                $('#ticketContent .cargos').text('+' + datos.cargos.toLocaleString('en-US', formatOptions));
+                $('#ticketContent .mora').text('+' + datos.mora.toLocaleString('en-US', formatOptions));
+                $('#ticketContent .descuento').text('-' + datos.descuento.toLocaleString('en-US', formatOptions));
+                $('#ticketContent .total').text(datos.total.toLocaleString('en-US', formatOptions));
 
-                $('#ticketContent .noCobro').text(datos.noCobro);
+                // Métodos de pago (mostrar solo los que tienen valor > 0)
+                const mostrarMetodoPago = (selector, valor) => {
+                    const element = $(`#ticketContent .${selector}`);
+                    if (valor > 0) {
+                        element.text(valor.toLocaleString('en-US', formatOptions));
+                        element.closest('.item-content').show();
+                    } else {
+                        element.closest('.item-content').hide();
+                    }
+                };
 
-                // Usar el concepto del usuario si lo ingresó, sino el de la base de datos
-                $('#ticketContent .concepto').text(conceptoUsuario || datos.concepto);
+                mostrarMetodoPago('efectivo', datos.efectivo);
+                mostrarMetodoPago('transferencia', datos.transferencia);
+                mostrarMetodoPago('tarjeta', datos.tarjeta);
+                mostrarMetodoPago('cheque', datos.cheque);
+                mostrarMetodoPago('deposito', datos.deposito);
+                mostrarMetodoPago('montoNotaCredito', datos.montoNotaCredito);
+                mostrarMetodoPago('debitoAutomatico', datos.debitoAutomatico);
 
-                // Datos numéricos
-                $('#ticketContent .subtotal').text(datos.subtotal.toFixed(2));
-                $('#ticketContent .cargos').text('+' + datos.cargos.toFixed(2));
-                $('#ticketContent .mora').text('+' + datos.mora.toFixed(2));
-                $('#ticketContent .descuento').text('-' + datos.descuento.toFixed(2));
-                $('#ticketContent .total').text(datos.total.toFixed(2));
-                $('#ticketContent .efectivo-recibido').text(efectivoRecibido);
-                $('#ticketContent .cambio').text(cambio);
+                // Mostrar número de nota crédito si aplica
+                if (datos.noNotaCredito > 0) {
+                    $('#ticketContent .noNotaCredito').text(datos.noNotaCredito);
+                    $('#ticketContent .noNotaCredito').closest('.item-content').show();
+                } else {
+                    $('#ticketContent .noNotaCredito').closest('.item-content').hide();
+                }
+
+                // Efectivo recibido y cambio
+                $('#ticketContent .efectivo-recibido').text(datos.efectivoRecibido.toLocaleString('en-US', formatOptions));
+                $('#ticketContent .cambio').text(datos.cambio.toLocaleString('en-US', formatOptions));
                 $('#ticketContent .resto').text("0.00");
-                $('#ticketContent .qr').text("Imagen QR");
+
+                // QR Web - Modificado para evitar el error 404
+                $.get('/Empresa/HasQrWeb', function (hasQr) {
+                    if (hasQr) {
+                        var qrUrl = '/Empresa/QrWeb?' + new Date().getTime();
+                        $('#ticketContent .qr').html('<img src="' + qrUrl + '" alt="QR Web" style="max-height: 60px; max-width: 100%;" onerror="$(this).parent().text(\'CODIGO QR\')" />');
+                    } else {
+                        $('#ticketContent .qr').text('CODIGO QR');
+                    }
+                }).fail(function () {
+                    $('#ticketContent .qr').text('CODIGO QR');
+                });
 
                 // Mostrar el modal del ticket
                 $('#ticketModal').modal('show');
+
             } else {
-                console.error('Error del backend:', response.message); // Debug 6
+                console.error('Error del backend:', response.message);
                 alert('Error al cargar los datos del ticket: ' + response.message);
             }
         },
         error: function (xhr, status, error) {
-            console.error('Error en la llamada AJAX:', status, error); // Debug 7
+            console.error('Error en la llamada AJAX:', status, error);
             alert('Error al comunicarse con el servidor');
         }
     });
+}
+
+// Manejar clic en botón de reimprimir ticket
+$(document).on('click', '.btn-reimprimir', function () {
+    const cobroId = $(this).data('id');
+    const cuentaId = $(this).data('cuenta');
+
+    // Llamar a la función generarTicket con los IDs
+    generarTicket(cuentaId, cobroId);
+});
+
+function limpiarDatosTicket() {
+    $('#ticketContent .direccion').text('');
+    $('#ticketContent .ubicacion').text('');
+    $('#ticketContent .telefono').text('');
+    $('#ticketContent .fecha-hora').text('');
+    $('#ticketContent .cliente').text('');
+    $('#ticketContent .noCobro').text('');
+    $('#ticketContent .concepto').text('');
+    $('#ticketContent .subtotal').text('');
+    $('#ticketContent .cargos').text('');
+    $('#ticketContent .mora').text('');
+    $('#ticketContent .descuento').text('');
+    $('#ticketContent .total').text('');
+    $('#ticketContent .efectivo').text('');
+    $('#ticketContent .transferencia').text('');
+    $('#ticketContent .tarjeta').text('');
+    $('#ticketContent .cheque').text('');
+    $('#ticketContent .deposito').text('');
+    $('#ticketContent .montoNotaCredito').text('');
+    $('#ticketContent .noNotaCredito').text('');
+    $('#ticketContent .debitoAutomatico').text('');
+    $('#ticketContent .efectivo-recibido').text('');
+    $('#ticketContent .cambio').text('');
+    $('#ticketContent .resto').text('');
+    $('#ticketContent .qr').text('');
 }
 
 
@@ -601,6 +768,7 @@ async function cargarVistaCrearCobro() {
             }
         });
 
+
         // Modal de confirmación
         $('[data-bs-target="#staticBackdrop"]').on('click', function (e) {
             e.preventDefault();
@@ -613,6 +781,7 @@ async function cargarVistaCrearCobro() {
             aplicarMascarasModal();
 
             const montoTotal = $('#MontoTotal').val();
+
             $('#modalMontoTotal').val(montoTotal);
             $('#montoPendiente').text(montoTotal);
 
@@ -647,12 +816,16 @@ async function cargarVistaCrearCobro() {
         });
 
     } catch (error) {
-        // Manejo específico para error 403
-        if (error.status === 403) {
-            showPermissionAlert(error.responseJSON?.error || 'No tiene permisos para esta acción');
-        } else {
-            console.error('Error al cargar la vista de creación:', error);
-            showToast('Ocurrió un error al cargar el formulario', 'error');
+        console.error('Error al cargar los cobros:', error);
+
+        // Manejo específico para error de permisos (403)
+        if (error.status === 403 || error.message === 'Permiso denegado') {
+            const errorMsg = error.responseJSON?.error || 'No tiene permisos para ver la lista de inquilinos';
+            showPermissionAlert(errorMsg);
+        }
+        // Manejo de otros tipos de errores
+        else {
+            showToast('Error al cargar la lista de cobros', 'error');
         }
     }
 }
@@ -691,6 +864,7 @@ function filtrarCuotasPorCxc() {
 
                             $('#tablaCobros').DataTable({
                                 data: data.cuotas.filter(c => c.fstatus === 'N' || c.fstatus === 'V'), // Filtrar cuotas en el frontend
+                                lengthMenu: [12, 25, 50, 100],
                                 columns: [
                                     {
                                         data: null,
@@ -704,17 +878,22 @@ function filtrarCuotasPorCxc() {
                                         data: 'fvence',
                                         render: function (data) {
                                             const fecha = new Date(data);
-                                            if (isNaN(fecha.getTime())) return '';
-                                            return fecha.toLocaleDateString();
+                                            if (isNaN(fecha.getTime())) return '*';
+                                            const dia = String(fecha.getDate()).padStart(2, '0');
+                                            const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+                                            const anio = fecha.getFullYear();
+                                            return `${dia}/${mes}/${anio}`; //Formato dd/mm/yyyy
                                         }
                                     },
                                     {
                                         data: 'fmonto',
-                                        render: data => parseFloat(data).toFixed(2)
+                                        render: data => parseFloat(data).toFixed(2),
+                                        class: 'numeric-input'
                                     },
                                     {
                                         data: 'fsaldo',
-                                        render: data => parseFloat(data).toFixed(2)
+                                        render: data => parseFloat(data).toFixed(2),
+                                        class: 'numeric-input'
                                     },
                                     {
                                         data: 'fmora',
@@ -756,6 +935,8 @@ function filtrarCuotasPorCxc() {
                                     manejarCheckboxes();
                                 }
                             });
+
+                            aplicarMascarasNumericas();
                         } else {
                             console.warn('No hay cuotas para mostrar');
                             $('#tablaCobros tbody').append('<tr><td colspan="7" class="text-center">No hay cuotas para esta cuenta.</td></tr>');
@@ -937,8 +1118,10 @@ function matchCustom(params, data) {
 
 /////// Funcion para inicializar Mascara Decimal ///////
 function aplicarMascarasNumericas() {
-    $('.numeric-input').inputmask('remove');
+    // Eliminar máscaras previas
+    $('.numeric-input, .numeric-display').inputmask('remove');
 
+    // Máscara para inputs editables
     const maskOptions = {
         alias: "numeric",
         groupSeparator: ",",
@@ -951,8 +1134,30 @@ function aplicarMascarasNumericas() {
         autoUnmask: true,
         removeMaskOnSubmit: true
     };
-
     $('.numeric-input').inputmask(maskOptions);
+
+    // Máscara para elementos de solo lectura (display)
+    const displayMaskOptions = {
+        alias: "numeric",
+        groupSeparator: ",",
+        autoGroup: true,
+        digits: 2,
+        digitsOptional: false,
+        radixPoint: ".",
+        placeholder: "",
+        rightAlign: false,
+        static: true,  // Máscara estática para elementos de solo lectura
+        suffix: '',    // Puedes agregar "RD$ " como prefijo si necesitas
+        autoUnmask: false
+    };
+    $('.numeric-display').inputmask(displayMaskOptions);
+
+    // Máscara para teléfonos (la que ya tenías)
+    $('.telefono-display').inputmask({
+        mask: '(999) 999-9999',
+        static: true,
+        placeholder: ''
+    });
 }
 
 /////// Funcion para inicializar Mascara Decimal ///////
@@ -1011,10 +1216,160 @@ function inicializarDataTable() {
     var table = $('#tablaCobros').DataTable({
         pageLength: 10,
         lengthMenu: [5, 10, 25, 50, 100],
-        order: [[0, 'asc']],
+        order: [[0, 'desc']],
         responsive: true,
-        dom: '<"top"lf>rt<"bottom"ip><"clear">',
+        dom: '<"top"lf>Brt<"bottom"ip>',
+        buttons: [
+            {
+                extend: 'pdfHtml5',
+                text: '<i class="fas fa-file-pdf"></i> PDF',
+                className: 'btn btn-outline-danger',
+                titleAttr: 'Exportar a PDF',
+                orientation: 'landscape',
+                pageSize: 'A4',
+                exportOptions: {
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+                    modifier: {
+                        page: 'all'
+                    }
+                },
+                customize: function (doc) {
+                    // Función para formatear números al estilo RD (comas para miles, punto para decimales)
+                    function formatoRD(numero) {
+                        return numero.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+                    }
+
+                    // Obtener fecha y hora actual
+                    const now = new Date();
+                    const fechaHora = now.toLocaleDateString('es-RD', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+
+                    const table = $('#tablaCobros').DataTable();
+
+                    // Encontrar los índices de las columnas necesarias
+                    let montoIndex = -1;
+
+                    table.columns().every(function () {
+                        const headerText = this.header().textContent.trim();
+                        if (headerText === 'Monto') {
+                            montoIndex = this.index();
+                        }
+                    });
+
+                    // Calcular el total de la columna Monto
+                    let totalMonto = 0;
+                    let totalRegistros = 0;
+
+                    if (montoIndex !== -1) {
+                        table.rows({ search: 'applied' }).data().each(function (row) {
+                            const montoStr = row[montoIndex].toString();
+                            const montoLimpio = montoStr.replace(/[^\d.-]/g, '');
+                            const montoNum = parseFloat(montoLimpio) || 0;
+                            totalMonto += montoNum;
+                        });
+                    }
+
+                    // Contar registros (filas visibles después de búsqueda/filtrado)
+                    totalRegistros = table.rows({ search: 'applied' }).count();
+
+                    // Formatear los totales al formato RD
+                    const totalFormateado = 'RD$ ' + formatoRD(totalMonto);
+
+                    // Ajustar márgenes y centrar contenido
+                    doc.pageMargins = [40, 80, 40, 60];
+                    doc.defaultStyle.fontSize = 8;
+                    doc.styles.tableHeader.fontSize = 9;
+                    doc.styles.tableHeader.alignment = 'center';
+                    doc.content[0].alignment = 'center';
+
+                    // Añadir información de total de registros al título
+                    doc.content.splice(1, 0, {
+                        text: `Total de registros: ${totalRegistros.toLocaleString('es-RD')}`,
+                        alignment: 'right',
+                        margin: [0, 0, 40, 10],
+                        fontSize: 9,
+                        bold: true
+                    });
+
+                    // Añadir fila de total al cuerpo de la tabla
+                    if (doc.content[2].table.body.length > 0) {
+                        const columnsCount = doc.content[2].table.body[0].length;
+                        const totalRow = new Array(columnsCount).fill('');
+
+                        // Colocar "TOTAL:" en la columna correspondiente (índice 2)
+                        totalRow[2] = { text: 'TOTAL:', bold: true, alignment: 'right' };
+
+                        // Colocar el monto total en la columna Monto (índice 3)
+                        totalRow[3] = { text: totalFormateado, bold: true, alignment: 'right' };
+
+                        doc.content[2].table.body.push(totalRow);
+                    }
+
+                    // Centrar la tabla
+                    doc.content[2].alignment = 'center';
+
+                    // Ajustar el ancho de la tabla
+                    doc.content[2].table.widths = Array(doc.content[2].table.body[0].length + 1).join('*').split('');
+
+                    // Footer con paginación y fecha
+                    doc['footer'] = function (page, pages) {
+                        return {
+                            columns: [
+                                {
+                                    alignment: 'left',
+                                    text: `Generado: ${fechaHora}`,
+                                    fontSize: 8,
+                                    margin: [40, 10, 0, 0]
+                                },
+                                {
+                                    alignment: 'center',
+                                    text: [
+                                        { text: 'Página ', fontSize: 10 },
+                                        { text: page.toString(), fontSize: 10 },
+                                        { text: ' de ', fontSize: 10 },
+                                        { text: pages.toString(), fontSize: 10 }
+                                    ],
+                                    margin: [0, 10, 0, 0]
+                                }
+                            ],
+                            margin: [40, 10, 40, 0]
+                        };
+                    };
+
+                    // Estilo de la tabla
+                    const objLayout = {};
+                    objLayout['hLineWidth'] = function (i) {
+                        // Línea más gruesa para la fila de total
+                        return (i === doc.content[2].table.body.length - 2) ? 1 : 0.5;
+                    };
+                    objLayout['vLineWidth'] = function (i) { return 0.5; };
+                    objLayout['hLineColor'] = function (i) { return '#aaa'; };
+                    objLayout['vLineColor'] = function (i) { return '#aaa'; };
+                    objLayout['paddingLeft'] = function (i) { return 4; };
+                    objLayout['paddingRight'] = function (i) { return 4; };
+                    doc.content[2].layout = objLayout;
+                }
+            },
+            {
+                extend: 'excelHtml5',
+                text: '<i class="fas fa-file-excel"></i> Excel',
+                titleAttr: 'Exportar a Excel',
+                className: 'btn btn-outline-success',
+                exportOptions: {
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8], // Exportar solo columnas visibles
+                }
+            }
+        ],
         columnDefs: [
+            {
+                type: 'num',  // Forzar a que la columna se trate como número
+                targets: 0    // Aplicar a la primera columna (ID)
+            },
             {
                 targets: 1, // Columna de fecha
                 type: 'date-euro',

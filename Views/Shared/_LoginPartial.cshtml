@@ -14,8 +14,9 @@
             </a>
         </li>
         <li class="nav-item">
-            <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-                <button type="submit" title="Logout" class="nav-link">
+            <form asp-area="Identity" asp-page="/Account/Logout"
+                asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                <button type="submit" title="Salir" class="nav-link">
                     <i class="fas fa-sign-out-alt"></i>
                 </button>
             </form>
@@ -25,12 +26,12 @@
     {
         <li class="nav-item">
             <a class="nav-link" id="register" asp-area="Identity" asp-page="/Account/Register">
-                <i class="fas fa-user-plus"></i> Register
+                <i class="fas fa-user-plus"></i> Registrar
             </a>
         </li>
         <li class="nav-item">
             <a class="nav-link" id="login" asp-area="Identity" asp-page="/Account/Login">
-                <i class="fas fa-sign-in-alt"></i> Login
+                <i class="fas fa-sign-in-alt"></i> Acceder
             </a>
         </li>
     }

@@ -20,7 +20,7 @@ namespace Alquileres.Context
             _logger = logger; // Inicializa el logger
             _context = this; // Inicializa el contexto
         }
-
+        public DbSet<Empresa> Empresas { get; set; }
 
         public virtual DbSet<TbPeriodoPago> PeriodosPagos { get; set; }
         public virtual DbSet<TbAuditorium> TbAuditoria { get; set; }
@@ -39,11 +39,87 @@ namespace Alquileres.Context
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<UserTutorialStatus>(entity =>
+            {
+                entity.HasNoKey();
+                entity.ToView("vw_UserTutorialStatus");
+            });
+
             modelBuilder.Entity<TbPeriodoPago>().HasData(
                 new TbPeriodoPago { Id = 1, Nombre = "Semanal", Dias = 6 },
                 new TbPeriodoPago { Id = 2, Nombre = "Quincenal", Dias = 15 },
                 new TbPeriodoPago { Id = 3, Nombre = "Mensual", Dias = 30 }
             );
+
+            // Dentro del método OnModelCreating, antes de OnModelCreatingPartial
+            modelBuilder.Entity<Empresa>(entity =>
+            {
+                entity.ToTable("tb_empresa");
+
+                entity.HasKey(e => e.IdEmpresa)
+                    .HasName("PK_tb_empresa");
+
+                entity.Property(e => e.IdEmpresa)
+                    .HasColumnName("fid_empresa")
+                    .ValueGeneratedNever(); // O ValueGeneratedOnAdd() si es autoincremental
+
+                entity.Property(e => e.Rnc)
+                    .HasColumnName("frnc")
+                    .HasMaxLength(18)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Nombre)
+                    .HasColumnName("fnombre")
+                    .HasMaxLength(250)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Direccion)
+                    .HasColumnName("fdireccion")
+                    .HasMaxLength(250)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Telefonos)
+                    .HasColumnName("ftelefonos")
+                    .HasMaxLength(14)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Slogan)
+                    .HasColumnName("festlogan")
+                    .HasMaxLength(250)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Mensaje)
+                    .HasColumnName("fmensaje")
+                    .HasMaxLength(250)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Logo)
+                    .HasColumnName("flogo")
+                    .HasColumnType("varbinary(max)");
+
+                entity.Property(e => e.Fondo)
+                    .HasColumnName("ffondo")
+                    .HasColumnType("varbinary(max)");
+
+                entity.Property(e => e.CodigoQrWeb)
+                    .HasColumnName("fcodigoqr_web")
+                    .HasColumnType("varbinary(max)");
+
+                entity.Property(e => e.CodigoQrRedes)
+                    .HasColumnName("fcodigoqr_redes")
+                    .HasColumnType("varbinary(max)");
+
+                entity.Property(e => e.Email)
+                    .HasColumnName("femail")
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Contrasena)
+                    .HasColumnName("fcontraseña")
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+            });
 
 
             modelBuilder.Entity<TbPeriodoPago>(entity =>
@@ -94,8 +170,9 @@ namespace Alquileres.Context
                     .HasColumnType("decimal(18, 2)")
                     .HasColumnName("fcargos");
                 entity.Property(e => e.Fconcepto)
-                    .HasMaxLength(255)
-                    .IsFixedLength()
+                    .HasColumnType("nvarchar(max)")
+                    .IsUnicode(true)
+                    .IsFixedLength(false)
                     .HasColumnName("fconcepto");
                 entity.Property(e => e.Fdescuento)
                     .HasColumnType("decimal(18, 2)")
@@ -220,6 +297,10 @@ namespace Alquileres.Context
                 entity.Property(e => e.FtasaMora)
                     .HasColumnType("decimal(18, 2)")
                     .HasColumnName("ftasa_mora");
+                entity.Property(e => e.Fstatus)
+                .HasMaxLength(1)
+                .HasColumnType("char")
+                .HasColumnName("fstatus");
 
                 entity.HasOne<TbInquilino>()
                     .WithMany()
@@ -334,7 +415,10 @@ namespace Alquileres.Context
                 entity.HasOne<TbPropietario>()
                     .WithMany()
                     .HasForeignKey(e => e.FkidPropietario)
-                    .OnDelete(DeleteBehavior.Restrict); // Añade comportamiento de borrado
+                    .OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne<TbUsuario>()
+                    .WithMany()
+                    .HasForeignKey(e => e.FkidUsuario);
             });
 
             modelBuilder.Entity<TbInquilino>(entity =>
@@ -475,7 +559,11 @@ namespace Alquileres.Context
                 entity.Property(u => u.IdentityId)
                     .HasMaxLength(450)
                     .HasColumnType("nvarchar(450)")
-                    .HasColumnName("identity_id"); ;
+                    .HasColumnName("identity_id");
+                entity.Property(u => u.FTutorialVisto)
+                    .HasMaxLength(450)
+                    .HasColumnType("bit")
+                    .HasColumnName("tutorial_visto");
             });
 
             OnModelCreatingPartial(modelBuilder);
@@ -484,7 +572,7 @@ namespace Alquileres.Context
         public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
         {
             var auditorias = new List<TbAuditorium>();
-            var usuarioIdActual = await ObtenerUsuarioIdActual(); // Asegúrate de usar await aquí
+            var usuarioIdActual = await ObtenerUsuarioActual(); // Asegúrate de usar await aquí
 
             foreach (var entrada in ChangeTracker.Entries()
                 .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified || e.State == EntityState.Deleted))
@@ -495,7 +583,7 @@ namespace Alquileres.Context
                     Faccion = entrada.State.ToString(),
                     Ffecha = DateTime.UtcNow.Date, // Usar UTC para consistencia
                     Fhora = DateTime.UtcNow.ToString("HH:mm:ss"),
-                    FkidUsuario = usuarioIdActual ?? 0, // Si no hay usuario, usar 0
+                    FkidUsuario = usuarioIdActual.usuarioId ?? 0, // Si no hay usuario, usar 0
                     FkidRegistro = ObtenerIdRegistro(entrada)
                 };
                 auditorias.Add(auditoria);
@@ -513,54 +601,83 @@ namespace Alquileres.Context
             return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
         }
 
-        private async Task<int?> ObtenerUsuarioIdActual()
+        private async Task<(int? usuarioId, string usuarioNombre)> ObtenerUsuarioActual()
         {
             var httpContext = _httpContextAccessor.HttpContext;
-            if (httpContext == null) return null;
+            if (httpContext == null) return (null, null);
 
-            // Verificar si ya tenemos el ID almacenado en el contexto para esta solicitud
-            if (httpContext.Items.TryGetValue("CurrentUserId", out var cachedId))
+            // Verificar si ya tenemos los datos almacenados en el contexto para esta solicitud
+            if (httpContext.Items.TryGetValue("CurrentUserData", out var cachedData))
             {
-                return (int?)cachedId;
+                return ((int? usuarioId, string usuarioNombre))cachedData;
             }
 
             // Obtener Identity ID del usuario autenticado
             var identityId = httpContext.User?.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(identityId)) return null;
+            if (string.IsNullOrEmpty(identityId)) return (null, null);
 
             try
             {
                 // Buscar el usuario en TbUsuarios usando el IdentityId
-                var usuarioId = await _context.Set<TbUsuario>()
+                var usuario = await _context.Set<TbUsuario>()
                     .Where(u => u.IdentityId == identityId)
-                    .Select(u => (int?)u.FidUsuario)
+                    .Select(u => new { u.FidUsuario, u.Fusuario })
                     .FirstOrDefaultAsync();
 
-                // Cachear el resultado para esta solicitud
-                httpContext.Items["CurrentUserId"] = usuarioId;
+                if (usuario == null) return (null, null);
 
-                return usuarioId;
+                // Cachear el resultado para esta solicitud
+                var result = ((int?)usuario.FidUsuario, usuario.Fusuario); // Explicitly cast to int?
+                httpContext.Items["CurrentUserData"] = result;
+
+                return result;
             }
             catch (Exception ex)
             {
                 // Loggear error sin interrumpir el flujo
-                _logger.LogError(ex, "Error obteniendo ID de usuario");
-                return null;
+                _logger.LogError(ex, "Error obteniendo datos de usuario");
+                return (null, null);
             }
         }
 
         private int ObtenerIdRegistro(EntityEntry entrada)
         {
-            var clave = entrada.Properties.First(p => p.Metadata.IsPrimaryKey()).CurrentValue;
-
-            return clave switch
+            try
             {
-                int id => id,
-                string s when int.TryParse(s, out var idParsed) => idParsed,
-                _ => 0 // o lanza una excepción si prefieres no permitirlo
-            };
-        }
+                // 1. Primero intentamos obtener el ID real (para entidades existentes)
+                if (entrada.State != EntityState.Added)
+                {
+                    var propClave = entrada.Properties.FirstOrDefault(p => p.Metadata.IsPrimaryKey());
+                    if (propClave?.CurrentValue != null)
+                    {
+                        return Convert.ToInt32(propClave.CurrentValue);
+                    }
+                }
 
+                // 2. Para entidades nuevas, generamos un ID secuencial temporal
+                if (entrada.State == EntityState.Added)
+                {
+                    // Usamos un contador estático para IDs temporales (por solicitud)
+                    if (!_httpContextAccessor.HttpContext.Items.ContainsKey("TempIdCounter"))
+                    {
+                        _httpContextAccessor.HttpContext.Items["TempIdCounter"] = -1;
+                    }
+
+                    var counter = (int)_httpContextAccessor.HttpContext.Items["TempIdCounter"]!;
+                    counter--;
+                    _httpContextAccessor.HttpContext.Items["TempIdCounter"] = counter;
+
+                    return counter;
+                }
+
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener ID de registro para auditoría");
+                return 0;
+            }
+        }
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
 }

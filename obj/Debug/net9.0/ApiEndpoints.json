@@ -61,5 +61,55 @@
       }
     ],
     "ReturnTypes": []
+  },
+  {
+    "ContainingType": "EmpresaController",
+    "Method": "GetFondo",
+    "RelativePath": "Empresa/Fondo",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "EmpresaController",
+    "Method": "GetEmpresaInfo",
+    "RelativePath": "Empresa/GetEmpresaInfo",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "EmpresaController",
+    "Method": "GetLogo",
+    "RelativePath": "Empresa/Logo",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "EmpresaController",
+    "Method": "GetQrRedes",
+    "RelativePath": "Empresa/QrRedes",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "EmpresaController",
+    "Method": "GetQrWeb",
+    "RelativePath": "Empresa/QrWeb",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
   }
 ]

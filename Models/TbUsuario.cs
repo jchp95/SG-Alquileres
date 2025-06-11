@@ -28,6 +28,7 @@ public partial class TbUsuario
 
     [MaxLength(450)]
     public string? IdentityId { get; set; }
+    public bool FTutorialVisto { get; set; }
 
 
 }

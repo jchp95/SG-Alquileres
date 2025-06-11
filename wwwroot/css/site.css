@@ -6,10 +6,12 @@
     --color-primary: #4361ee;
     /* More vibrant blue */
     --color-primary-dark: #3a56d4;
+    --color-danger-dark: #870000;
     --color-accent: #f72585;
     /* Modern pink accent */
     --color-secondary: #7209b7;
     --color-success: #4cc9f0;
+    --color-danger: #c30000;
     --color-white: #ffffff;
     --color-light: #f8f9fa;
     --color-muted: #e9ecef;
@@ -85,6 +87,49 @@ h3 {
 
 h4 {
     font-size: 1.5rem;
+}
+
+/* Empresa */
+.img-thumbnail {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 5px;
+    background-color: white;
+}
+
+.form-control-file {
+    display: block;
+    width: 100%;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    margin: 20px;
+    /* Ajuste de margen */
+}
+
+.form-group-image {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* Cambiado a columna para mejor alineación */
+    padding: 10px;
+}
+
+.preview-image {
+    width: 100px;
+    /* Ancho fijo */
+    height: 100px;
+    /* Alto fijo */
+    object-fit: cover;
+    /* Mantiene la proporción y recorta si es necesario */
+    display: block;
+    /* Asegura que la imagen se muestre como bloque */
 }
 
 /* Layout system */
@@ -332,7 +377,7 @@ h4 {
     background-color: var(--color-light);
     min-height: calc(100vh - var(--header-height) - var(--footer-height));
 
-    background-image: linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)), url('/images/imagen-fondo.png');
+    /* Esto se reemplazará dinámicamente */
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -418,6 +463,17 @@ h4 {
     background-color: var(--color-primary-dark);
 }
 
+.btn-danger {
+    background-color: var(--color-danger);
+    justify-content: center;
+    display: flex;
+    margin-bottom: 5px;
+}
+
+.btn-danger:hover {
+    background-color: var(--color-danger-dark);
+}
+
 .btn-outline-primary {
     border: 1px solid var(--color-primary);
     color: var(--color-primary);
@@ -425,6 +481,26 @@ h4 {
 
 .btn-outline-primary:hover {
     background-color: var(--color-primary);
+    color: var(--color-white);
+}
+
+.btn-outline-danger {
+    border: 1px solid var(--color-danger);
+    color: var(--color-danger);
+}
+
+.btn-outline-danger:hover {
+    background-color: var(--color-danger);
+    color: var(--color-white);
+}
+
+.btn-outline-success {
+    border: 1px solid var(--color-success);
+    color: var(--color-success);
+}
+
+.btn-outline-success:hover {
+    background-color: var(--color-success);
     color: var(--color-white);
 }
 
@@ -1135,4 +1211,65 @@ table.dataTable tbody tr:hover td {
     .div2.collapsed .sidebar-text {
         display: none;
     }
+}
+
+.map-container {
+    height: 400px;
+    width: 100%;
+}
+
+label {
+    font-weight: 600;
+    color: #333;
+}
+
+@media print {
+    body * {
+        visibility: hidden;
+    }
+
+    .card-detail,
+    .card-detail * {
+        visibility: visible;
+    }
+
+    .card-detail {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+
+    /* Ocultar botones y elementos no deseados */
+    .no-print,
+    .btn {
+        display: none !important;
+    }
+}
+
+/* Estilo para filas canceladas */
+tr.cancelado {
+    background-color: #ff0000;
+}
+
+/* Estilo para filas desactivadas temporalmente */
+tr.desactivado {
+    background-color: #c4c4c4;
+}
+
+/* Estilo durante procesamiento */
+tr.processing {
+    opacity: 0.6;
+    position: relative;
+}
+
+tr.processing::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.7);
+    z-index: 1;
 }

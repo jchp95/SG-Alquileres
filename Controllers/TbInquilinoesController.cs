@@ -60,13 +60,14 @@ namespace Alquileres.Controllers
             return View(); // Devuelve la vista principal
         }
 
-        // GET: TbInquilinoes/CargarInquilinos
         [HttpGet]
         [Authorize(Policy = "Permissions.Inquilinos.Ver")]
         public async Task<IActionResult> CargarInquilinos()
         {
-            var inquilinos = await _context.TbInquilinos.ToListAsync();
-            return PartialView("_InquilinosPartial", inquilinos); // Devuelve la vista parcial
+            var inquilinos = await _context.TbInquilinos
+                                          .OrderBy(i => i.FidInquilino)
+                                          .ToListAsync();
+            return PartialView("_InquilinosPartial", inquilinos);
         }
 
         [HttpGet]
@@ -85,18 +86,17 @@ namespace Alquileres.Controllers
         {
             try
             {
-
                 // Debugging - log all permissions
                 var claims = User.Claims.Where(c => c.Type == "Permission").ToList();
-                _logger.LogInformation("User permissions: {@Permissions}", claims.Select(c => c.Value));
+                _logger.LogInformation("User  permissions: {@Permissions}", claims.Select(c => c.Value));
 
                 var identityId = _userManager.GetUserId(User);
                 if (string.IsNullOrEmpty(identityId))
-                    return BadRequest("El usuario no está autenticado.");
+                    return BadRequest(new { success = false, message = "El usuario no está autenticado." });
 
                 var usuario = await _context.TbUsuarios.FirstOrDefaultAsync(u => u.IdentityId == identityId);
                 if (usuario == null)
-                    return BadRequest($"No se encontró un usuario con el IdentityId: {identityId}");
+                    return BadRequest(new { success = false, message = $"No se encontró un usuario con el IdentityId: {identityId}" });
 
                 tbInquilino.FkidUsuario = usuario.FidUsuario;
 
@@ -113,10 +113,9 @@ namespace Alquileres.Controllers
 
                 if (!ModelState.IsValid)
                 {
-
                     var errors = ModelState.ToDictionary(
                         kvp => kvp.Key,
-                        kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).FirstOrDefault()
+                        kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray() // Asegúrate de que sea un array
                     );
 
                     return BadRequest(new
@@ -188,7 +187,7 @@ namespace Alquileres.Controllers
         [Authorize(Policy = "Permissions.Inquilinos.Editar")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id,
-    [Bind("FidInquilino,Fnombre,Fapellidos,Fcedula,Fdireccion,Ftelefono,Fcelular,FkidUsuario")] TbInquilino tbInquilino)
+        [Bind("FidInquilino,Fnombre,Fapellidos,Fcedula,Fdireccion,Ftelefono,Fcelular")] TbInquilino tbInquilino)
         {
             if (id != tbInquilino.FidInquilino)
             {
@@ -204,6 +203,18 @@ namespace Alquileres.Controllers
             {
                 tbInquilino.Factivo = originalInquilino.Factivo;
                 tbInquilino.FkidUsuario = originalInquilino.FkidUsuario; // Asegurar la FK
+            }
+
+            // Verificar si la cédula ya existe, excluyendo el inquilino actual
+            if (!string.IsNullOrWhiteSpace(tbInquilino.Fcedula))
+            {
+                bool cedulaExiste = await _context.TbInquilinos
+                    .AnyAsync(i => i.Fcedula.ToUpper() == tbInquilino.Fcedula.ToUpper() && i.FidInquilino != id);
+
+                if (cedulaExiste)
+                {
+                    ModelState.AddModelError("Fcedula", "Esta cédula ya está registrada");
+                }
             }
 
             if (ModelState.IsValid)
@@ -227,7 +238,18 @@ namespace Alquileres.Controllers
                     throw;
                 }
             }
-            return PartialView("_EditInquilinoPartial", tbInquilino);
+
+            // Si hay errores de validación, devolver el formulario con errores
+            var errors = ModelState.ToDictionary(
+                kvp => kvp.Key,
+                kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
+            );
+
+            return BadRequest(new
+            {
+                success = false,
+                errors = errors
+            });
         }
 
         private bool TbInquilinoExists(int id)

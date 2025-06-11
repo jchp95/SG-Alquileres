@@ -1,10 +1,10 @@
-// Función genérica para llamadas AJAX
+// Función ajaxRequest - MODIFICADA
 async function ajaxRequest(config) {
     const defaults = {
         showLoading: true,
         retries: 3,
         retryDelay: 1000,
-        suppressPermissionToasts: true // Nueva opción para suprimir toasts de permisos
+        suppressPermissionToasts: true
     };
 
     const options = { ...defaults, ...config };
@@ -18,54 +18,50 @@ async function ajaxRequest(config) {
 
             const response = await $.ajax({
                 ...options,
-                error: null // Deshabilitamos el manejo automático de errores
+                error: null
             });
 
             return response;
         } catch (error) {
             attempts++;
 
-            // Si es el último intento o error no es recuperable
             if (attempts === options.retries ||
                 (error.status && [400, 401, 403, 404].includes(error.status))) {
 
-                // Manejo específico de códigos de estado
                 switch (error.status) {
                     case 401:
                         window.location.href = '/Account/Login';
                         return;
                     case 403:
                         const errorMessage = error.responseJSON?.error || 'No tiene permisos para realizar esta acción';
-                        showPermissionAlert(errorMessage);
-                        
-                        // Suprimir toast si está configurado
+
+                        // Solo mostrar alerta si suppressPermissionToasts es true
                         if (options.suppressPermissionToasts) {
-                            throw new Error('Permiso denegado'); // Lanzar excepción para detener el flujo
+                            throw { ...error, message: 'Permiso denegado' }; // Lanzar error especial
                         }
+
+                        // Si no se suprime, mostrar ambos
+                        showPermissionAlert(errorMessage);
                         showToast('Por favor contacte al administrador', 'error');
-                        throw error; // Asegurarse de que el error se propague
+                        throw error;
                     case 404:
-                        showToast('Recurso no encontrado');
-                        return;
+                        showToast('Recurso no encontrado', 'error');
+                        throw error;
                     default:
-                        if (error.responseJSON && error.responseJSON.errors) {
+                        if (error.responseJSON?.errors) {
                             if (options.form) {
                                 handleValidationErrors($(options.form), error.responseJSON.errors);
                             } else {
-                                showToast(Object.values(error.responseJSON.errors).flat().join(' '));
+                                showToast(Object.values(error.responseJSON.errors).flat().join(' '), 'error');
                             }
                         } else {
-                            // Modificado para mostrar mensaje genérico en lugar del error técnico
-                            const userMessage = error.status === 403 ? 
-                                'Por favor contacte al administrador' : 
-                                (options.errorMessage || 'Error de comunicación con el servidor');
-                            showToast(userMessage);
+                            const userMessage = options.errorMessage || 'Error de comunicación con el servidor';
+                            showToast(userMessage, 'error');
                         }
                         throw error;
                 }
             }
 
-            // Esperar antes de reintentar
             await new Promise(resolve => setTimeout(resolve, options.retryDelay));
         } finally {
             $('#loadingSpinner').hide();
@@ -106,13 +102,116 @@ function initInquilinosDataTable() {
     const table = $('#tablaInquilinos').DataTable({
         pageLength: 10,
         lengthMenu: [5, 10, 25, 50, 100],
-        order: [[0, 'asc']],
+        order: [[0, 'desc']],
         autoWidth: false,
         responsive: true,
-        dom: '<"top"lf>rt<"bottom"ip><"clear">',
+        dom: '<"top"lf>Brt<"bottom"ip>',
+        buttons: [
+            {
+                extend: 'pdfHtml5',
+                text: '<i class="fas fa-file-pdf"></i> PDF',
+                titleAttr: 'Exportar a PDF',
+                className: 'btn btn-outline-danger',
+                orientation: 'landscape',
+                pageSize: 'LETTER',
+                exportOptions: {
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7], // Selecciona las columnas a exportar
+                    modifier: {
+                        page: 'all'
+                    }
+                },
+                customize: function (doc) {
+                    // Obtener fecha y hora actual
+                    const now = new Date();
+                    const fechaHora = now.toLocaleDateString('es-RD', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+
+                    // Contar registros (filas visibles después de búsqueda/filtrado)
+                    totalRegistros = table.rows({ search: 'applied' }).count();
+
+                    // Ajustar márgenes y centrar contenido
+                    doc.pageMargins = [40, 80, 40, 60];
+                    doc.defaultStyle.fontSize = 8;
+                    doc.styles.tableHeader.fontSize = 9;
+                    doc.styles.tableHeader.alignment = 'center';
+                    doc.content[0].alignment = 'center';
+
+                    // Añadir información de total de registros al título
+                    doc.content.splice(1, 0, {
+                        text: `Total de registros: ${totalRegistros.toLocaleString('es-RD')}`,
+                        alignment: 'right',
+                        margin: [0, 0, 40, 10],
+                        fontSize: 9,
+                        bold: true
+                    });
+
+                    // Centrar la tabla
+                    doc.content[2].alignment = 'center';
+
+                    // Ajustar el ancho de la tabla
+                    doc.content[2].table.widths = Array(doc.content[2].table.body[0].length + 1).join('*').split('');
+
+                    // Footer con paginación y fecha
+                    doc['footer'] = function (page, pages) {
+                        return {
+                            columns: [
+                                {
+                                    alignment: 'left',
+                                    text: `Generado: ${fechaHora}`,
+                                    fontSize: 8,
+                                    margin: [40, 10, 0, 0]
+                                },
+                                {
+                                    alignment: 'center',
+                                    text: [
+                                        { text: 'Página ', fontSize: 10 },
+                                        { text: page.toString(), fontSize: 10 },
+                                        { text: ' de ', fontSize: 10 },
+                                        { text: pages.toString(), fontSize: 10 }
+                                    ],
+                                    margin: [0, 10, 0, 0]
+                                }
+                            ],
+                            margin: [40, 10, 40, 0]
+                        };
+                    };
+
+                    // Estilo de la tabla
+                    const objLayout = {};
+                    objLayout['hLineWidth'] = function (i) {
+                        // Línea más gruesa para la fila de total
+                        return (i === doc.content[2].table.body.length - 2) ? 1 : 0.5;
+                    };
+                    objLayout['vLineWidth'] = function (i) { return 0.5; };
+                    objLayout['hLineColor'] = function (i) { return '#aaa'; };
+                    objLayout['vLineColor'] = function (i) { return '#aaa'; };
+                    objLayout['paddingLeft'] = function (i) { return 4; };
+                    objLayout['paddingRight'] = function (i) { return 4; };
+                    doc.content[2].layout = objLayout;
+                }
+            },
+            {
+                extend: 'excelHtml5',
+                text: '<i class="fas fa-file-excel"></i> Excel',
+                titleAttr: 'Exportar a Excel',
+                className: 'btn btn-outline-success',
+                exportOptions: {
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7], // Exportar solo columnas visibles
+                }
+            }
+        ],
         columnDefs: [
             {
-                targets: [3], // Columna de dirección
+                targets: 0,
+                visible: false
+            },
+            {
+                targets: [4], // Columna de dirección
                 render: function (data, type, row) {
                     if (type === 'display') {
                         return data;
@@ -121,12 +220,12 @@ function initInquilinosDataTable() {
                 }
             },
             {
-                targets: [6], // Columna de estado
-                orderable: false, // Asegúrate de que no sea ordenable si no es necesario
-                searchable: true // Si deseas que sea filtrable
+                targets: [7], // Columna de estado
+                orderable: false,
+                searchable: true
             },
             {
-                targets: [7], // Columna de acciones
+                targets: [8], // Columna de acciones
                 orderable: false,
                 searchable: false
             }
@@ -135,9 +234,11 @@ function initInquilinosDataTable() {
 
     // Aplicar filtros personalizados
     applyCustomFilters(table);
+    applyCedulaMask();
     applyPhoneMasks();
     return table;
 }
+
 
 function applyCustomFilters(table) {
     console.log('Inicializando filtros personalizados...');
@@ -179,11 +280,11 @@ function applyCustomFilters(table) {
 
     // Resto de los filtros
     $('#filtroNombre').on('keyup', function () {
-        table.column(0).search(this.value).draw();
+        table.column(1).search(this.value).draw();
     });
 
     $('#filtroCedula').on('keyup', function () {
-        table.column(2).search(this.value).draw();
+        table.column(3).search(this.value).draw();
     });
 
     $('#btnResetInquilinos').on('click', function () {
@@ -193,6 +294,29 @@ function applyCustomFilters(table) {
     });
 
     //console.log('Filtros personalizados inicializados correctamente');
+}
+
+$(document).ready(function () {
+    $('#cedulaInput').inputmask({
+        mask: '999-9999999-9',
+        placeholder: '___-_______-_',
+        clearIncomplete: true
+    });
+});
+
+function applyCedulaMask() {
+    $('#cedulaInput').inputmask({
+        mask: [
+            '9{3}-9{7}-9{1}', // Formato de cédula: 950-9193088-9
+            'A-9{6}'          // Formato de pasaporte: P-493687
+        ],
+        placeholder: '',
+        clearIncomplete: true,
+        definitions: {
+            'A': { validator: '[A-Za-z]', cardinality: 1 }, // Define 'A' como una letra
+            '9': { validator: '[0-9]', cardinality: 1 }      // Define '9' como un número
+        }
+    });
 }
 
 // Función para aplicar máscaras a los teléfonos
@@ -210,19 +334,31 @@ function applyPhoneMasks() {
     });
 }
 
-// Función para cargar la tabla de inquilinos
+// Función para cargar la tabla de inquilinos con manejo de errores
 async function cargarTablaInquilinos() {
     try {
         const data = await ajaxRequest({
             url: '/TbInquilinoes/CargarInquilinos',
             type: 'GET',
-            errorMessage: 'Error al cargar la lista de inquilinos'
+            errorMessage: 'Error al cargar la lista de inquilinos',
+            suppressPermissionToasts: true // Suprimimos toasts para manejar el 403 manualmente
         });
 
         $('#dataTableContainer').html(data).fadeIn();
         initInquilinosDataTable(); // Re-inicializar el DataTable
+
     } catch (error) {
         console.error('Error al cargar inquilinos:', error);
+
+        // Manejo específico para error de permisos (403)
+        if (error.status === 403 || error.message === 'Permiso denegado') {
+            const errorMsg = error.responseJSON?.error || 'No tiene permisos para ver la lista de inquilinos';
+            showPermissionAlert(errorMsg);
+        }
+        // Manejo de otros tipos de errores
+        else {
+            showToast('Error al cargar la lista de inquilinos', 'error');
+        }
     }
 }
 
@@ -248,12 +384,14 @@ $('#createInquilino').on('click', async function () {
         }
 
         $('#dataTableContainer').html(response).fadeIn();
+        applyCedulaMask();
         applyPhoneMasks();
         initFormValidation($('#dataTableContainer').find('form'));
     } catch (error) {
         if (error.status === 403 || (error.responseJSON && error.responseJSON.error)) {
+            // Solo mostrar la alerta, no mostrar toast adicional
             showPermissionAlert(error.responseJSON?.error || 'No tiene permisos para esta acción');
-        } else {
+        } else if (error.message !== 'Permiso denegado') { // Evitar mostrar toast para errores de permiso
             console.error('Error al cargar formulario de creación:', error);
             showToast('Error al cargar el formulario', 'error');
         }
@@ -275,6 +413,7 @@ $(document).on('click', '.editInquilino', async function () {
 
         // Aplicar máscaras después de renderizar
         setTimeout(() => {
+            applyCedulaMask();
             applyPhoneMasks();
             initFormValidation($('#dataTableContainer').find('form'));
 
@@ -308,27 +447,40 @@ $(document).on('submit', 'form[action*="/Edit"]', async function (e) {
             form: form,
             errorMessage: 'Error al editar los datos del inquilino'
         });
-
+        showToast('Inquilino editado correctamente.', 'success');
         if (data.includes('_InquilinosPartial')) {
             await cargarTablaInquilinos();
-            showToast('Inquilino editado correctamente.', 'success');
-        } else if (data.includes('_EditinquilinoPartial')) {
+        } else if (data.success === false && data.errors) {
+            // Manejo de errores de validación
+            for (const key in data.errors) {
+                if (data.errors.hasOwnProperty(key)) {
+                    const errorMessage = data.errors[key];
+                    const input = form.find(`[name="${key}"]`);
+
+                    // Limpiar mensajes de error anteriores
+                    input.removeClass('is-invalid'); // Eliminar clase de error
+                    input.next('.invalid-feedback').remove(); // Eliminar mensaje de error anterior
+
+                    input.addClass('is-invalid'); // Agregar clase de error
+                    input.after(`<div class="invalid-feedback">${Array.isArray(errorMessage) ? errorMessage.join(' ') : errorMessage}</div>`); // Mostrar mensaje de error
+                }
+            }
+        } else {
             $('#dataTableContainer').html(data);
+            applyCedulaMask();
             applyPhoneMasks();
             initFormValidation($('#dataTableContainer').find('form'));
-        } else {
-            await cargarTablaInquilinos();
-            showToast('Inquilino editado correctamente.', 'success');
         }
     } catch (error) {
         console.error('Error al editar inquilino:', error);
     }
 });
 
+
 $(document).on('submit', '.cambiarEstadoForm', async function (e) {
     e.preventDefault();
     const form = $(this);
-    
+
     try {
         // Realizar la petición AJAX
         const response = await ajaxRequest({
@@ -342,20 +494,20 @@ $(document).on('submit', '.cambiarEstadoForm', async function (e) {
         // Si llegamos aquí, la operación fue exitosa
         await cargarTablaInquilinos();
         showToast('Estado del inquilino actualizado correctamente.', 'success');
-        
+
     } catch (error) {
-        if (error.status === 403) {
+        // Manejo específico para errores de permisos (403)
+        if (error.status === 403 || error.message === 'Permiso denegado') {
             showPermissionAlert(error.responseJSON?.error || 'No tiene permisos para esta acción');
-        // Ignorar errores 403 (ya se mostró showPermissionAlert)
-        } else (error.status && error.status !== 403); {
+        }
+        // Manejo para otros tipos de errores
+        else {
             console.error('Error al cambiar estado:', error);
             showToast('Error al cambiar el estado del inquilino', 'error');
         }
-        // Para errores 403 no hacemos nada adicional
     }
 });
 
-// Manejador de envío de formulario de creación
 $(document).on('submit', 'form[action$="/Create"]', async function (e) {
     e.preventDefault();
     const form = $(this);
@@ -366,22 +518,37 @@ $(document).on('submit', 'form[action$="/Create"]', async function (e) {
             data: form.serialize(),
             form: form,
             errorMessage: 'Error al crear el inquilino',
-            suppressPermissionToasts: false 
+            suppressPermissionToasts: false
         });
 
         // Mostrar toast en cualquier caso de éxito
         showToast('Inquilino creado correctamente.', 'success');
         if (data.includes('_InquilinosPartial')) {
             await cargarTablaInquilinos();
-            showToast('Inquilino creado correctamente.', 'success');
         } else {
             $('#dataTableContainer').html(data);
+            applyCedulaMask();
             applyPhoneMasks();
             initFormValidation(form);
         }
     } catch (error) {
         if (error.status === 403) {
             showPermissionAlert(error.responseJSON?.error || 'No tiene permisos para esta acción');
+        } else if (error.status === 400) { // Manejo de errores de validación
+            const errors = error.responseJSON.errors;
+            for (const key in errors) {
+                if (errors.hasOwnProperty(key)) {
+                    const errorMessage = errors[key];
+                    const input = form.find(`[name="${key}"]`);
+
+                    // Limpiar mensajes de error anteriores
+                    input.removeClass('is-invalid'); // Eliminar clase de error
+                    input.next('.invalid-feedback').remove(); // Eliminar mensaje de error anterior
+
+                    input.addClass('is-invalid'); // Agregar clase de error
+                    input.after(`<div class="invalid-feedback">${Array.isArray(errorMessage) ? errorMessage.join(' ') : errorMessage}</div>`); // Mostrar mensaje de error
+                }
+            }
         } else {
             console.error('Error al crear inquilino:', error);
             showToast('Error al crear inquilino: ' + (error.responseJSON?.message || error.message), 'error');
@@ -389,11 +556,14 @@ $(document).on('submit', 'form[action$="/Create"]', async function (e) {
     }
 });
 
+
+
+
 // Función para mostrar alerta de permisos
 function showPermissionAlert(message) {
     // Cerrar cualquier toast abierto
     $('.toast').toast('hide');
-    
+
     Swal.fire({
         title: 'Permiso denegado',
         text: message,
@@ -413,7 +583,7 @@ function initFormValidation(form) {
         rules: {
             Fcedula: {
                 required: true,
-                digits: true
+                digits: false
             },
         },
         messages: {
@@ -429,6 +599,8 @@ function initFormValidation(form) {
         }
     });
 }
+
+
 
 $(document).ready(function () {
     // Configuración global de manejo de errores AJAX

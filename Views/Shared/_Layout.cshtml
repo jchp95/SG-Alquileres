@@ -25,6 +25,12 @@
     <!-- Toasts -->
     <link href="~/lib/toastr.js/toastr.min.css" rel="stylesheet" />
 
+    <!-- Intro -->
+    <link href="~/lib/intro.js/introjs.min.css" rel="stylesheet" />
+
+    <!-- Leaflet.js mapa-->
+    <link href="~/lib/leaflet/leaflet.min.css" rel="stylesheet" />
+
     <!-- Estilos personalizados -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Alquileres.styles.css" asp-append-version="true" />
@@ -37,7 +43,8 @@
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-none shadow">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    <img src="~/favicon_io/android-chrome-512x512.png" alt="Logo" style="height: 60px; width: auto;" />
+                    <img src="@Url.Action("GetLogo", "Empresa")" alt="Logo" style="height: 60px; width: auto;"
+                        onerror="this.onerror=null;this.src='/images/logo-default.png';" />
                 </a>
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
@@ -96,7 +103,8 @@
         @await Html.PartialAsync("_SidebarPartial")
 
         <!-- Main Content -->
-        <div class="div4">
+        <div class="div4"
+            style="background-image: linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)), url('@Url.Action("GetFondo", "Empresa")');">
             <main role="main" class="my-3">
                 @RenderBody()
             </main>
@@ -113,7 +121,9 @@
 
     <!-- jQuery y plugins generales -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/inputmask/4.0.9/jquery.inputmask.bundle.min.js"></script>
+
+    <!-- InputMask -->
+    <script src="~/lib/inputmask/jquery.inputmask.bundle.min.js"></script>
 
     <!-- Bootstrap y dependencias -->
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
@@ -133,7 +143,8 @@
     <script src="~/lib/inputmask/inputmask/inputmask.min.js"></script>
 
     <!-- Moment.js (necesario para DateTime plugin de DataTables) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.2/moment.min.js"></script>
+    <script src="~/lib/moment.js/moment.min.js"></script>
+  
 
     <!-- DataTables núcleo y bootstrap -->
     <script src="~/lib/datatables.net/datatables.min.js"></script>
@@ -144,12 +155,15 @@
     <script src="https://cdn.datatables.net/datetime/1.5.5/js/dataTables.dateTime.min.js"></script>
 
     <!-- DataTables Buttons: ORDEN CORRECTO -->
-    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+    <script src="~/lib/datatables.net-buttons/js/datatables.buttons.min.js"></script>
+    <script src="~/lib/jszip/jszip.min.js"></script>
+    <script src="~/lib/pdfmake/pdfmake.min.js"></script>
+    <script src="~/lib/pdfmake/vfs_fonts.js"></script>
+    <script src="~/lib/datatables.net-buttons/js/buttons.html5.min.js"></script>
+    <script src="~/lib/datatables.net-buttons/js/buttons.print.min.js"></script>
+
+    <!-- leaflet -->
+    <script src="~/lib/leaflet/leaflet.js"></script>
 
     <!-- Plugins adicionales DataTables -->
     <script src="~/lib/datatables-plugins/buttons/button.download.min.js"></script>
@@ -163,6 +177,10 @@
 
     <!-- Toastr -->
     <script src="~/lib/toastr.js/toastr.min.js"></script>
+
+
+    <script src="~/lib/intro.js/intro.min.js"></script>
+
 
     <!-- Scripts personalizados -->
     <script src="~/js/site.js"></script>
@@ -278,6 +296,8 @@
             "timeOut": "5000"
         };
     </script>
+
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 

@@ -22,14 +22,14 @@
         <div class="mb-3">
             <label asp-for="FfechaInicio" class="form-label">Fecha de Inicio</label>
             <input asp-for="FfechaInicio" class="form-control rounded-3" type="date"
-                   value="@Model.FfechaInicio.ToString("yyyy-MM-dd")" />
+                value="@Model.FfechaInicio.ToString("yyyy-MM-dd")" />
             <span asp-validation-for="FfechaInicio" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
             <label asp-for="Fmonto" class="form-label">Monto</label>
             <input asp-for="Fmonto" class="form-control rounded-3 numeric-input"
-                   value="@Model.Fmonto.ToString("N2", new CultureInfo("es-DO"))" />
+                value="@Model.Fmonto.ToString("N2", new CultureInfo("es-DO"))" />
             <span asp-validation-for="Fmonto" class="text-danger"></span>
         </div>
 
@@ -51,7 +51,7 @@
         </div>
         <div class="mb-3">
             <label asp-for="FidPeriodoPago" class="form-label">Período de Pago</label>
-            <input asp-for="FidPeriodoPago" class="form-control rounded-3" name="FidPeriodoPago" />
+            <select asp-for="FidPeriodoPago" class="form-control rounded-3" asp-items="ViewBag.FidPeriodoPago"></select>
             <span asp-validation-for="FidPeriodoPago" class="text-danger"></span>
         </div>
         <div class="mb-3">

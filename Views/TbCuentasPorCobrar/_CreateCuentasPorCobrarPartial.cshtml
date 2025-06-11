@@ -16,9 +16,8 @@
             <!-- Select para Inquilino -->
             <div class="form-group">
                 <label class="control-label">Buscar Inquilino</label>
-                <select id="busquedaInquilino" class="form-control select2" <!-- Clase necesaria -->
-                    name="busquedaInquilino"
-                    data-placeholder="Buscar inquilino..."> <!-- Placeholder en HTML -->
+                <select id="busquedaInquilino" class="form-control select2" name="busquedaInquilino"
+                    data-placeholder="Buscar inquilino...">
                     <option></option> <!-- Opción vacía para el placeholder -->
                 </select>
                 <input type="hidden" id="FidInquilino" name="FidInquilino" />
@@ -27,9 +26,8 @@
             <!-- Select para Inmueble -->
             <div class="form-group">
                 <label class="control-label">Buscar Inmueble</label>
-                <select id="busquedaInmueble" class="form-control select2" <!-- Clase necesaria -->
-                    name="busquedaInmueble"
-                    data-placeholder="Buscar inmueble..."> <!-- Placeholder en HTML -->
+                <select id="busquedaInmueble" class="form-control select2" name="busquedaInmueble"
+                    data-placeholder="Buscar inmueble...">
                     <option></option> <!-- Opción vacía para el placeholder -->
                 </select>
                 <input type="hidden" id="FkidInmueble" name="FkidInmueble" />
@@ -39,7 +37,7 @@
                     @Html.DisplayNameFor(model =>
                              model.FfechaInicio)
                 </label>
-                <input asp-for="FfechaInicio" class="form-control" type="datetime-local" />
+                <input asp-for="FfechaInicio" class="form-control" type="date" />
                 <span asp-validation-for="FfechaInicio" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -63,7 +61,8 @@
             </div>
             <div class="form-group">
                 <label class="control-label" asp-for="Fnota">@Html.DisplayNameFor(model => model.Fnota)</label>
-                <textarea asp-for="Fnota" class="form-control" rows="3"></textarea>
+                <textarea asp-for="Fnota" placeholder="Ingrese notas adicionales (opcional)" class=" form-control"
+                    rows="3"></textarea>
                 <span asp-validation-for="Fnota" class="text-danger"></span>
             </div>
             <div class="form-group">

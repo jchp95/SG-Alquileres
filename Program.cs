@@ -24,7 +24,7 @@ builder.Services.AddControllersWithViews()
 
 builder.Services.AddRazorPages();
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddHostedService<GeneradorDeCuotasService>();
+
 builder.Services.AddControllersWithViews(options =>
 {
     options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
@@ -44,6 +44,16 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 
 // Servicio de permisos
 builder.Services.AddScoped<IPermissionService, PermissionService>();
+
+// Servicio de generar cuotas
+builder.Services.AddScoped<GeneradorDeCuotasService>();
+
+// Servicio de chequear CxC vencidas
+builder.Services.AddScoped<ChequeaCxCVencidasServices>();
+
+// Servicio de actualización de moras
+builder.Services.AddHostedService<ActualizadorMoraService>();
+
 
 // Configuración de autorización
 builder.Services.AddAuthorization(options =>
@@ -161,7 +171,6 @@ app.MapControllerRoute(
 
 // Inicialización de la base de datos
 await InitializeDatabase(app);
-NotifyDuePayments(app);
 
 await app.RunAsync();
 
@@ -192,12 +201,4 @@ async Task InitializeDatabase(WebApplication app)
         var logger = services.GetRequiredService<ILogger<Program>>();
         logger.LogError(ex, "Error al inicializar la base de datos");
     }
-}
-
-void NotifyDuePayments(WebApplication app)
-{
-    // Implementar lógica para notificar pagos vencidos
-    // Ejemplo:
-    // var paymentService = app.Services.GetRequiredService<IPaymentNotificationService>();
-    // paymentService.StartNotificationTask();
 }

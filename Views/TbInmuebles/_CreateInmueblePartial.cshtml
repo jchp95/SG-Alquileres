@@ -6,8 +6,10 @@
 <hr />
 <div class="row">
     <div class="col-md-6 offset-md-3">
-        <form asp-action="Create">
+        <form id="inmuebleForm" asp-action="Create" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <input type="hidden" asp-for="FkidUsuario" />
 
             <!-- Select para Propietarios -->
             <div class="form-group">
@@ -17,6 +19,7 @@
                     <option></option> <!-- Opción vacía para placeholder -->
                 </select>
                 <input type="hidden" id="FkidPropietario" name="FkidPropietario" asp-for="FkidPropietario" />
+                <span asp-validation-for="FkidPropietario" class="text-danger"></span>
             </div>
 
             <div class="form-group">
@@ -31,17 +34,24 @@
                 <span asp-validation-for="Fdireccion" class="text-danger"></span>
             </div>
 
-            <div class="form-group">
-                <label class="control-label">Ubicación</label>
-                <input asp-for="Fubicacion" class="form-control" placeholder="Ubicación del inmueble" />
+            <div class="mb-3">
+                <label for="Fubicacion" class="form-label">Ubicación (GPS)</label>
+                <div class="input-group">
+                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
+                        data-bs-target="#mapModal" aria-label="Seleccionar ubicación en mapa" id="openMapBtn">
+                        <i class="fas fa-map-marker-alt"></i> Seleccionar
+                    </button>
+                    <input type="text" id="Fubicacion" name="Fubicacion" class="form-control"
+                        placeholder="Ingrese las coordenadas, por ejemplo: -34.6037, -58.3816" />
+                </div>
+                <small class="form-text text-muted">Formato: latitud, longitud</small>
                 <span asp-validation-for="Fubicacion" class="text-danger"></span>
             </div>
 
             <div class="form-group">
                 <label class="control-label">Precio</label>
-                <!-- Elimina data-inputmask y asegura el type="text" -->
                 <input asp-for="Fprecio" class="form-control numeric-input" inputmode="decimal" type="text"
-                    autocomplete="off" value="" placeholder="Precio del inmueble" />
+                    autocomplete="off" placeholder="Precio del inmueble" />
                 <span asp-validation-for="Fprecio" class="text-danger"></span>
             </div>
 
@@ -53,6 +63,27 @@
     </div>
 </div>
 
+<!-- Modal para seleccionar ubicación -->
+<div class="modal fade" id="mapModal" tabindex="-1" aria-labelledby="mapModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="mapModalLabel">Ubicación en el Mapa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <div id="map" class="map-container"></div>
+                <p class="mt-2">Visualización de la ubicación ingresada.</p>
+                <div><strong>Coordenadas:</strong> <span id="selectedLocation">Ninguna</span></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="closeMap" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     @await Html.PartialAsync("_ValidationScriptsPartial")
+
 }

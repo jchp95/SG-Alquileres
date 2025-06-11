@@ -27,14 +27,14 @@
         </div>
 
         <div class="mb-3">
-            <label asp-for="Fubicacion" class="form-label">Ubicación</label>
+            <label asp-for="Fubicacion" class="form-label">Ubicación (GPS)</label>
             <input asp-for="Fubicacion" class="form-control rounded-3" />
             <span asp-validation-for="Fubicacion" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
             <label asp-for="Fprecio" class="form-label">Precio</label>
-            <input asp-for="Fprecio" class="form-control rounded-3"
+            <input asp-for="Fprecio" class="form-control rounded-3 numeric-input"
                 value="@Model.Fprecio.ToString("N2", new CultureInfo("es-DO"))" />
             <span asp-validation-for="Fprecio" class="text-danger"></span>
         </div>

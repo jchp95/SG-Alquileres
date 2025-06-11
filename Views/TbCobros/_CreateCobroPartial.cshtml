@@ -22,6 +22,8 @@
 
                 </div>
                 <input type="hidden" id="__RequestVerificationToken" value="@token" />
+                <input type="hidden" id="FkidCobro" name="FkidCobro" value="" />
+
                 <!-- Columna Izquierda -->
                 <div class="col-md-6">
                     <!-- Select para Cuentas por cobrar (Campo requerido) -->
@@ -39,7 +41,7 @@
                     <!-- Monto -->
                     <div class="form-group">
                         <label class="control-label" asp-for="Fmonto">@Html.DisplayNameFor(model =>
-                                                        model.Fmonto)</label>
+                            model.Fmonto)</label>
                         <input asp-for="Fmonto" id="Fmonto" name="Fmonto" placeholder="0.00"
                             class="form-control numeric-input" inputmode="decimal" type="text" required />
                         <span asp-validation-for="Fmonto" class="text-danger"></span>
@@ -48,7 +50,7 @@
                     <!-- Cargos -->
                     <div class="form-group">
                         <label class="control-label" asp-for="Fcargos">@Html.DisplayNameFor(model =>
-                                                        model.Fcargos)</label>
+                            model.Fcargos)</label>
                         <input asp-for="Fcargos" id="Fcargos" name="Fcargos" placeholder="0.00"
                             class="form-control numeric-input" type="text" />
                     </div>
@@ -58,7 +60,7 @@
                             <!-- Descuento $ -->
                             <div class="form-group">
                                 <label class="control-label" asp-for="Fdescuento">@Html.DisplayNameFor(model =>
-                                                                        model.Fdescuento) $</label>
+                                    model.Fdescuento) $</label>
                                 <input asp-for="Fdescuento" name="Fdescuento" class="form-control numeric-input"
                                     placeholder="0.00" inputmode="decimal" type="text" />
                             </div>
@@ -86,7 +88,7 @@
                     <!-- Concepto (Puede ser nulo) -->
                     <div class="form-group">
                         <label class="control-label" asp-for="Fconcepto">@Html.DisplayNameFor(model =>
-                                                        model.Fconcepto)</label>
+                            model.Fconcepto)</label>
                         <input asp-for="Fconcepto" name="Fconcepto" class="form-control" rows="3" />
                         <span asp-validation-for="Fconcepto" class="text-danger"></span>
                     </div>
@@ -161,6 +163,13 @@
                 <div class="row g-3 mb-3">
                     <div class="col-md-6">
                         <div class="form-floating">
+                            <input id="efectivo" name="efectivo" class="form-control decimal-input" type="text"
+                                inputmode="decimal" placeholder="0.00" />
+                            <label for="efectivo">Efectivo</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
                             <input id="montoRecibido" name="montoRecibido" class="form-control decimal-input"
                                 type="text" inputmode="decimal" placeholder="0.00" />
                             <label for="montoRecibido">Monto Recibido (Efectivo)</label>
@@ -168,9 +177,9 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-floating">
-                            <input id="efectivo" name="efectivo" class="form-control decimal-input" type="text"
-                                inputmode="decimal" placeholder="0.00" readonly />
-                            <label for="efectivo">Cambio</label>
+                            <input id="cambio" name="cambio" class="form-control decimal-input" type="text"
+                                inputmode="cambio" placeholder="0.00" readonly />
+                            <label for="cambio">Cambio</label>
                         </div>
                     </div>
                 </div>
@@ -244,11 +253,11 @@
                 <div class="alert alert-info mt-4">
                     <div class="d-flex justify-content-between fw-bold">
                         <span>Total ingresado:</span>
-                        <span id="totalIngresado">0.00</span>
+                        <span id="totalIngresado" class="numeric-input"></span>
                     </div>
                     <div class="d-flex justify-content-between fw-bold">
                         <span>Monto pendiente:</span>
-                        <span id="montoPendiente">0.00</span>
+                        <span id="montoPendiente" class="numeric-input"></span>
                     </div>
                 </div>
 

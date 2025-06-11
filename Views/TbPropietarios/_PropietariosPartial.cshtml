@@ -8,11 +8,6 @@
             <h2 class="mb-1"><i class="fas fa-user-tie me-2 text-primary"></i>Registro de Propietarios</h2>
             <p class="text-muted mb-0">Gestión y consulta de propietarios</p>
         </div>
-        <div class="d-flex gap-2">
-            <button class="btn btn-outline-primary">
-                <i class="fas fa-file-export me-1"></i> Exportar
-            </button>
-        </div>
     </div>
 
     <!-- Card de Filtros -->
@@ -64,6 +59,7 @@
                 <table id="tablaPropietarios" class="table table-hover align-middle mb-0 table-responsive">
                     <thead class="table-light">
                         <tr>
+                            <th class="ps-4">Id Propietarios</th>
                             <th class="ps-4">Nombre</th>
                             <th>Apellidos</th>
                             <th>Cédula</th>
@@ -78,6 +74,7 @@
                         @foreach (var propietario in Model)
                         {
                             <tr>
+                                <td class="ps-4 fw-medium">@propietario.FidPropietario</td>
                                 <td class="ps-4 fw-medium">@propietario.Fnombre</td>
                                 <td>@propietario.Fapellidos</td>
                                 <td>@propietario.Fcedula</td>

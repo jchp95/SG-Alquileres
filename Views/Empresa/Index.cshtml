@@ -1,0 +1,227 @@
+@model Alquileres.Models.Empresa
+
+@{
+    ViewData["Title"] = "Administrar Empresa";
+    var successMessage = TempData["SuccessMessage"] as string;
+}
+
+@if (!string.IsNullOrEmpty(successMessage))
+{
+    <div class="alert alert-success">
+        @successMessage
+    </div>
+}
+
+
+<form id="empresaForm" asp-action="GuardarDatosEmpresa" method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+    <div class="row">
+        <!-- Información básica -->
+        <div class="col-md-6">
+            <div class="form-group">
+                <label asp-for="Rnc">RNC</label>
+                <input asp-for="Rnc" class="form-control" maxlength="18" />
+                <span asp-validation-for="Rnc" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Nombre">Nombre de la Empresa</label>
+                <input asp-for="Nombre" class="form-control" maxlength="250" />
+                <span asp-validation-for="Nombre" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Slogan">Eslogan de la Empresa</label>
+                <input asp-for="Slogan" class="form-control" maxlength="250" />
+                <span asp-validation-for="Slogan" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Direccion">Dirección</label>
+                <input asp-for="Direccion" class="form-control" maxlength="250" />
+                <span asp-validation-for="Direccion" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Telefonos">Teléfonos</label>
+                <input asp-for="Telefonos" class="form-control telefono-input" maxlength="14" />
+                <span asp-validation-for="Telefonos" class="text-danger"></span>
+            </div>
+        </div>
+
+        <!-- Campos de imágenes en tarjetas -->
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5>Imágenes de la Empresa</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-group-image">
+                        <label>Logo de la Empresa</label>
+                        <input type="file" name="logoFile" class="form-control-file" accept="image/png, image/jpeg"
+                            onchange="previewImage(event, 'logoPreview')" />
+                        <img id="logoPreview" class="img-thumbnail mt-2" style="max-height: 100px; display: none;" />
+                        @if (Model?.Logo != null && Model.Logo.Length > 0)
+                        {
+                            <img src="@Url.Action("GetLogo", "Empresa")?v=@DateTime.Now.Ticks" class="img-thumbnail mt-2"
+                                style="max-height: 100px;" />
+                        }
+                        <span class="text-danger" id="logoFileError"></span>
+                    </div>
+
+                    <div class="form-group-image">
+                        <label>Imagen de Fondo</label>
+                        <input type="file" name="fondoFile" class="form-control-file" accept="image/png, image/jpeg"
+                            onchange="previewImage(event, 'fondoPreview')" />
+                        <img id="fondoPreview" class="img-thumbnail mt-2" style="max-height: 100px; display: none;" />
+                        @if (Model?.Fondo != null && Model.Fondo.Length > 0)
+                        {
+                            <img src="@Url.Action("GetFondo", "Empresa")?v=@DateTime.Now.Ticks" class="img-thumbnail mt-2"
+                                style="max-height: 100px;" />
+                        }
+                        <span class="text-danger" id="fondoFileError"></span>
+                    </div>
+
+                    <div class="form-group-image">
+                        <label>QR Redes Sociales</label>
+                        <input type="file" name="qrRedesFile" class="form-control-file" accept="image/png, image/jpeg"
+                            onchange="previewImage(event, 'qrRedesPreview')" />
+                        <img id="qrRedesPreview" class="img-thumbnail mt-2" style="max-height: 100px; display: none;" />
+                        @if (Model?.CodigoQrRedes != null && Model.CodigoQrRedes.Length > 0)
+                        {
+                            <img src="@Url.Action("GetQrRedes", "Empresa")?v=@DateTime.Now.Ticks" class="img-thumbnail mt-2"
+                                style="max-height: 100px;" />
+                        }
+                        <span class="text-danger" id="qrRedesFileError"></span>
+                    </div>
+
+                    <div class="form-group-image">
+                        <label>QR Sitio Web</label>
+                        <input type="file" name="qrWebFile" class="form-control-file" accept="image/png, image/jpeg"
+                            onchange="previewImage(event, 'qrWebPreview')" />
+                        <img id="qrWebPreview" class="img-thumbnail mt-2" style="max-height: 100px; display: none;" />
+                        @if (Model?.CodigoQrWeb != null && Model.CodigoQrWeb.Length > 0)
+                        {
+                            <img src="@Url.Action("GetQrWeb", "Empresa")?v=@DateTime.Now.Ticks" class="img-thumbnail mt-2"
+                                style="max-height: 100px;" />
+                        }
+                        <span class="text-danger" id="qrWebFileError"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="formErrors" class="text-danger mb-3"></div>
+
+    <button type="submit" class="btn btn-primary">Guardar Información</button>
+    <div id="loadingIndicator" class="spinner-border text-primary d-none" role="status">
+        <span class="sr-only">Cargando...</span>
+    </div>
+    <div id="successMessage" class="alert alert-success mt-3 d-none">Los cambios se guardaron correctamente.</div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function previewImage(event, previewId) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function () {
+                const img = document.getElementById(previewId);
+                img.src = reader.result;
+                img.style.display = 'block'; // Mostrar la imagen
+            }
+            if (file) {
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Función para aplicar máscaras a los teléfonos
+        function applyPhoneMasks() {
+            $('.telefono-input').inputmask({
+                mask: '(999) 999-9999',
+                placeholder: '',
+                showMaskOnHover: false,
+                clearIncomplete: true,
+                autoUnmask: true,
+                showMaskOnFocus: false,
+                onBeforeMask: function (value, opts) {
+                    return value.replace(/[^0-9]/g, '');
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            applyPhoneMasks();
+
+            $('#empresaForm').on('submit', function (e) {
+                e.preventDefault();
+
+                // Reset messages
+                $('.text-danger').text('');
+                $('#formErrors').text('');
+                $('#successMessage').addClass('d-none');
+                $('#loadingIndicator').removeClass('d-none');
+
+                var formData = new FormData(this);
+                console.log('Form data prepared:', formData);
+
+                $.ajax({
+                    url: $(this).attr('action'),
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function (response) {
+                        $('#loadingIndicator').addClass('d-none');
+                        console.log('Response received:', response);
+
+                        if (response.success) {
+                            $('#successMessage').removeClass('d-none');
+                            console.log('Form submitted successfully.');
+
+                            // Redirigir a la misma página para recargar
+                            window.location.reload(); // Recargar la página actual
+                        } else {
+                            // Display validation errors
+                            if (response.errors) {
+                                $.each(response.errors, function (key, value) {
+                                    var errorElement = $('#' + key + 'Error');
+                                    if (errorElement.length) {
+                                        errorElement.text(value);
+                                    } else {
+                                        $('[data-valmsg-for="' + key + '"]').text(value);
+                                    }
+                                    console.log('Validation error for', key, ':', value);
+                                });
+                            }
+
+                            $('#formErrors').text(response.message || 'Error al guardar los datos.');
+                            console.log('Error message:', response.message);
+                        }
+                    },
+                    error: function (xhr) {
+                        $('#loadingIndicator').addClass('d-none');
+                        var errorMsg = 'Ocurrió un error al procesar la solicitud.';
+                        console.error('AJAX error:', xhr);
+
+                        try {
+                            var jsonResponse = JSON.parse(xhr.responseText);
+                            if (jsonResponse && jsonResponse.message) {
+                                errorMsg = jsonResponse.message;
+                                if (jsonResponse.errorDetails) {
+                                    console.error('Detalles del error:', jsonResponse.errorDetails);
+                                }
+                            }
+                        } catch (e) {
+                            console.error('Error parsing response:', e);
+                        }
+
+                        $('#formErrors').text(errorMsg);
+                        console.error('Error completo:', xhr.responseText);
+                    }
+                });
+            });
+        });
+    </script>
+}

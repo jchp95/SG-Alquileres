@@ -5,7 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
-using Microsoft.EntityFrameworkCore; // Añade este using para usar Entity Framework
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using Alquileres.Services; // Añade este using para usar Entity Framework
 
 namespace Alquileres.Controllers
 {
@@ -13,14 +15,18 @@ namespace Alquileres.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<IdentityUser> _userManager; // Mantén IdentityUser
 
         public HomeController(
             ILogger<HomeController> logger,
-            ApplicationDbContext context
+            ApplicationDbContext context,
+            UserManager<IdentityUser> userManager
             )
         {
             _logger = logger;
             _context = context;
+            _userManager = userManager;
+
         }
 
         [HttpGet]
@@ -52,12 +58,26 @@ namespace Alquileres.Controllers
 
 
         [HttpGet]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             var hoy = DateTime.Now;
             var inicioMesActual = new DateTime(hoy.Year, hoy.Month, 1);
             var inicioMesAnterior = inicioMesActual.AddMonths(-1);
             var finMesAnterior = inicioMesActual.AddDays(-1);
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            bool tutorialVisto = false;
+
+            if (!string.IsNullOrEmpty(userId))
+            {
+                // Consulta directa a la base de datos sin usar el servicio
+                var usuario = await _context.TbUsuarios
+                    .FirstOrDefaultAsync(u => u.IdentityId == userId);
+
+                tutorialVisto = usuario?.FTutorialVisto ?? false;
+            }
+
+            ViewBag.MostrarTutorial = !tutorialVisto;
 
             // Total de inmuebles
             var totalInmuebles = _context.TbInmuebles.Count();
@@ -325,9 +345,54 @@ namespace Alquileres.Controllers
                 .ToList();
         }
 
-        public IActionResult Privacy()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MarcarTutorialVisto()
         {
-            return View();
+            try
+            {
+                // Obtener el IdentityId del usuario actual desde los claims
+                var identityId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                if (string.IsNullOrEmpty(identityId))
+                {
+                    _logger.LogWarning("Intento de marcar tutorial visto sin IdentityId en los claims");
+                    return BadRequest(new { success = false, message = "No se pudo identificar al usuario" });
+                }
+
+                // Buscar el usuario en TbUsuario usando el IdentityId
+                var usuario = await _context.TbUsuarios
+                    .FirstOrDefaultAsync(u => u.IdentityId == identityId);
+
+                if (usuario == null)
+                {
+                    _logger.LogWarning($"Usuario con IdentityId {identityId} no encontrado en TbUsuarios");
+                    return NotFound(new { success = false, message = "Usuario no encontrado" });
+                }
+
+                // Si ya estaba marcado, retornar sin cambios
+                if (usuario.FTutorialVisto)
+                {
+                    return Ok(new { success = true, message = "El tutorial ya estaba marcado como visto" });
+                }
+
+                // Marcar el tutorial como visto
+                usuario.FTutorialVisto = true;
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation($"Tutorial marcado como visto para el usuario ID: {usuario.FidUsuario}");
+                return Ok(new { success = true, message = "Tutorial marcado como visto" });
+            }
+            catch (DbUpdateException dbEx)
+            {
+                _logger.LogError(dbEx, "Error al actualizar la base de datos");
+                return StatusCode(500, new { success = false, message = "Error al guardar en base de datos" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error inesperado al marcar tutorial como visto");
+                return StatusCode(500, new { success = false, message = "Error interno del servidor" });
+            }
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

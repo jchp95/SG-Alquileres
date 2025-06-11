@@ -38,7 +38,6 @@ namespace Alquileres.Models
 
         [Required]
         [DisplayName("Estado")]
-        [StringLength(1)] // Limitar a un solo carácter
         public char Fstatus { get; set; }
 
         public bool Factivo { get; set; }

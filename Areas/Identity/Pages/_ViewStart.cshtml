@@ -1,4 +1,7 @@
-
 @{
-    Layout = "/Views/Shared/_Layout.cshtml";
+    // Solo aplica el layout a las páginas que no están en Manage
+    if (!Context.Request.Path.StartsWithSegments("/Identity/Account/Manage"))
+    {
+        Layout = "/Views/Shared/_Layout.cshtml";
+    }
 }

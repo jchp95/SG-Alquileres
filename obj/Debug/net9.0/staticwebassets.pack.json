@@ -53,20 +53,24 @@
       "PackagePath": "staticwebassets\\favicon_io\\site.webmanifest"
     },
     {
-      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\images\\bg-images.png",
-      "PackagePath": "staticwebassets\\images\\bg-images.png"
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\images\\bg-images-default.png",
+      "PackagePath": "staticwebassets\\images\\bg-images-default.png"
     },
     {
       "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\images\\imagen-fondo.png",
       "PackagePath": "staticwebassets\\images\\imagen-fondo.png"
     },
     {
-      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\images\\login.webp",
-      "PackagePath": "staticwebassets\\images\\login.webp"
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\images\\login.jpg",
+      "PackagePath": "staticwebassets\\images\\login.jpg"
     },
     {
       "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\images\\logo.JPG",
       "PackagePath": "staticwebassets\\images\\logo.JPG"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\images\\register.jpg",
+      "PackagePath": "staticwebassets\\images\\register.jpg"
     },
     {
       "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\js\\administrarPermisos.js",
@@ -2737,6 +2741,38 @@
       "PackagePath": "staticwebassets\\lib\\datatables.net-bs5\\datatables.bootstrap5.min.js"
     },
     {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\datatables.net-buttons\\js\\buttons.colvis.js",
+      "PackagePath": "staticwebassets\\lib\\datatables.net-buttons\\js\\buttons.colvis.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\datatables.net-buttons\\js\\buttons.colvis.min.js",
+      "PackagePath": "staticwebassets\\lib\\datatables.net-buttons\\js\\buttons.colvis.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\datatables.net-buttons\\js\\buttons.html5.js",
+      "PackagePath": "staticwebassets\\lib\\datatables.net-buttons\\js\\buttons.html5.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\datatables.net-buttons\\js\\buttons.html5.min.js",
+      "PackagePath": "staticwebassets\\lib\\datatables.net-buttons\\js\\buttons.html5.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\datatables.net-buttons\\js\\buttons.print.js",
+      "PackagePath": "staticwebassets\\lib\\datatables.net-buttons\\js\\buttons.print.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\datatables.net-buttons\\js\\buttons.print.min.js",
+      "PackagePath": "staticwebassets\\lib\\datatables.net-buttons\\js\\buttons.print.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\datatables.net-buttons\\js\\datatables.buttons.js",
+      "PackagePath": "staticwebassets\\lib\\datatables.net-buttons\\js\\datatables.buttons.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\datatables.net-buttons\\js\\datatables.buttons.min.js",
+      "PackagePath": "staticwebassets\\lib\\datatables.net-buttons\\js\\datatables.buttons.min.js"
+    },
+    {
       "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\datatables.net\\datatables.js",
       "PackagePath": "staticwebassets\\lib\\datatables.net\\datatables.js"
     },
@@ -2959,6 +2995,42 @@
     {
       "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\inputmask\\jquery.inputmask.bundle.min.js",
       "PackagePath": "staticwebassets\\lib\\inputmask\\jquery.inputmask.bundle.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\intro.js\\intro.js",
+      "PackagePath": "staticwebassets\\lib\\intro.js\\intro.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\intro.js\\intro.min.js",
+      "PackagePath": "staticwebassets\\lib\\intro.js\\intro.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\intro.js\\intro.min.js.map",
+      "PackagePath": "staticwebassets\\lib\\intro.js\\intro.min.js.map"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\intro.js\\introjs-rtl.css",
+      "PackagePath": "staticwebassets\\lib\\intro.js\\introjs-rtl.css"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\intro.js\\introjs-rtl.min.css",
+      "PackagePath": "staticwebassets\\lib\\intro.js\\introjs-rtl.min.css"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\intro.js\\introjs-rtl.min.css.map",
+      "PackagePath": "staticwebassets\\lib\\intro.js\\introjs-rtl.min.css.map"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\intro.js\\introjs.css",
+      "PackagePath": "staticwebassets\\lib\\intro.js\\introjs.css"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\intro.js\\introjs.min.css",
+      "PackagePath": "staticwebassets\\lib\\intro.js\\introjs.min.css"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\intro.js\\introjs.min.css.map",
+      "PackagePath": "staticwebassets\\lib\\intro.js\\introjs.min.css.map"
     },
     {
       "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\jquery-validate\\additional-methods.js",
@@ -3575,6 +3647,1226 @@
     {
       "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\jquery\\jquery.slim.min.map",
       "PackagePath": "staticwebassets\\lib\\jquery\\jquery.slim.min.map"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\jszip\\jszip.js",
+      "PackagePath": "staticwebassets\\lib\\jszip\\jszip.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\jszip\\jszip.min.js",
+      "PackagePath": "staticwebassets\\lib\\jszip\\jszip.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\leaflet\\images\\layers-2x.png",
+      "PackagePath": "staticwebassets\\lib\\leaflet\\images\\layers-2x.png"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\leaflet\\images\\layers.png",
+      "PackagePath": "staticwebassets\\lib\\leaflet\\images\\layers.png"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\leaflet\\images\\marker-icon-2x.png",
+      "PackagePath": "staticwebassets\\lib\\leaflet\\images\\marker-icon-2x.png"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\leaflet\\images\\marker-icon.png",
+      "PackagePath": "staticwebassets\\lib\\leaflet\\images\\marker-icon.png"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\leaflet\\images\\marker-shadow.png",
+      "PackagePath": "staticwebassets\\lib\\leaflet\\images\\marker-shadow.png"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\leaflet\\leaflet-src.js",
+      "PackagePath": "staticwebassets\\lib\\leaflet\\leaflet-src.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\leaflet\\leaflet-src.js.map",
+      "PackagePath": "staticwebassets\\lib\\leaflet\\leaflet-src.js.map"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\leaflet\\leaflet-src.min.js",
+      "PackagePath": "staticwebassets\\lib\\leaflet\\leaflet-src.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\leaflet\\leaflet.css",
+      "PackagePath": "staticwebassets\\lib\\leaflet\\leaflet.css"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\leaflet\\leaflet.js",
+      "PackagePath": "staticwebassets\\lib\\leaflet\\leaflet.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\leaflet\\leaflet.js.map",
+      "PackagePath": "staticwebassets\\lib\\leaflet\\leaflet.js.map"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\leaflet\\leaflet.min.css",
+      "PackagePath": "staticwebassets\\lib\\leaflet\\leaflet.min.css"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\leaflet\\leaflet.min.js",
+      "PackagePath": "staticwebassets\\lib\\leaflet\\leaflet.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\af.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\af.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\af.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\af.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ar-dz.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ar-dz.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ar-dz.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ar-dz.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ar-kw.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ar-kw.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ar-kw.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ar-kw.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ar-ly.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ar-ly.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ar-ly.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ar-ly.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ar-ma.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ar-ma.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ar-ma.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ar-ma.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ar-ps.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ar-ps.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ar-ps.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ar-ps.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ar-sa.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ar-sa.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ar-sa.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ar-sa.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ar-tn.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ar-tn.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ar-tn.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ar-tn.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ar.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ar.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ar.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ar.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\az.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\az.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\az.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\az.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\be.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\be.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\be.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\be.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\bg.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\bg.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\bg.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\bg.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\bm.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\bm.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\bm.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\bm.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\bn-bd.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\bn-bd.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\bn-bd.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\bn-bd.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\bn.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\bn.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\bn.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\bn.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\bo.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\bo.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\bo.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\bo.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\br.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\br.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\br.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\br.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\bs.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\bs.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\bs.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\bs.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ca.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ca.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ca.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ca.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\cs.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\cs.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\cs.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\cs.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\cv.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\cv.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\cv.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\cv.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\cy.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\cy.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\cy.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\cy.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\da.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\da.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\da.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\da.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\de-at.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\de-at.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\de-at.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\de-at.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\de-ch.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\de-ch.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\de-ch.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\de-ch.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\de.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\de.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\de.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\de.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\dv.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\dv.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\dv.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\dv.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\el.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\el.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\el.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\el.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\en-au.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\en-au.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\en-au.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\en-au.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\en-ca.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\en-ca.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\en-ca.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\en-ca.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\en-gb.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\en-gb.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\en-gb.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\en-gb.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\en-ie.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\en-ie.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\en-ie.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\en-ie.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\en-il.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\en-il.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\en-il.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\en-il.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\en-in.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\en-in.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\en-in.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\en-in.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\en-nz.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\en-nz.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\en-nz.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\en-nz.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\en-sg.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\en-sg.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\en-sg.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\en-sg.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\eo.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\eo.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\eo.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\eo.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\es-do.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\es-do.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\es-do.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\es-do.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\es-mx.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\es-mx.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\es-mx.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\es-mx.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\es-us.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\es-us.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\es-us.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\es-us.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\es.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\es.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\es.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\es.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\et.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\et.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\et.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\et.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\eu.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\eu.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\eu.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\eu.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\fa.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\fa.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\fa.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\fa.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\fi.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\fi.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\fi.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\fi.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\fil.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\fil.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\fil.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\fil.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\fo.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\fo.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\fo.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\fo.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\fr-ca.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\fr-ca.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\fr-ca.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\fr-ca.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\fr-ch.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\fr-ch.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\fr-ch.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\fr-ch.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\fr.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\fr.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\fr.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\fr.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\fy.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\fy.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\fy.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\fy.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ga.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ga.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ga.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ga.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\gd.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\gd.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\gd.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\gd.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\gl.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\gl.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\gl.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\gl.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\gom-deva.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\gom-deva.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\gom-deva.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\gom-deva.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\gom-latn.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\gom-latn.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\gom-latn.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\gom-latn.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\gu.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\gu.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\gu.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\gu.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\he.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\he.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\he.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\he.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\hi.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\hi.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\hi.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\hi.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\hr.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\hr.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\hr.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\hr.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\hu.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\hu.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\hu.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\hu.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\hy-am.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\hy-am.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\hy-am.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\hy-am.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\id.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\id.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\id.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\id.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\is.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\is.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\is.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\is.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\it-ch.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\it-ch.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\it-ch.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\it-ch.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\it.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\it.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\it.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\it.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ja.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ja.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ja.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ja.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\jv.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\jv.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\jv.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\jv.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ka.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ka.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ka.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ka.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\kk.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\kk.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\kk.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\kk.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\km.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\km.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\km.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\km.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\kn.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\kn.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\kn.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\kn.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ko.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ko.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ko.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ko.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ku-kmr.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ku-kmr.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ku-kmr.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ku-kmr.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ku.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ku.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ku.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ku.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ky.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ky.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ky.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ky.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\lb.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\lb.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\lb.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\lb.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\lo.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\lo.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\lo.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\lo.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\lt.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\lt.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\lt.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\lt.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\lv.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\lv.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\lv.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\lv.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\me.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\me.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\me.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\me.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\mi.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\mi.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\mi.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\mi.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\mk.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\mk.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\mk.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\mk.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ml.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ml.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ml.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ml.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\mn.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\mn.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\mn.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\mn.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\mr.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\mr.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\mr.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\mr.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ms-my.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ms-my.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ms-my.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ms-my.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ms.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ms.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ms.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ms.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\mt.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\mt.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\mt.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\mt.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\my.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\my.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\my.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\my.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\nb.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\nb.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\nb.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\nb.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ne.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ne.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ne.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ne.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\nl-be.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\nl-be.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\nl-be.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\nl-be.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\nl.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\nl.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\nl.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\nl.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\nn.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\nn.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\nn.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\nn.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\oc-lnc.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\oc-lnc.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\oc-lnc.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\oc-lnc.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\pa-in.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\pa-in.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\pa-in.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\pa-in.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\pl.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\pl.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\pl.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\pl.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\pt-br.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\pt-br.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\pt-br.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\pt-br.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\pt.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\pt.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\pt.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\pt.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ro.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ro.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ro.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ro.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ru.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ru.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ru.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ru.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\sd.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\sd.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\sd.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\sd.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\se.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\se.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\se.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\se.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\si.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\si.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\si.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\si.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\sk.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\sk.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\sk.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\sk.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\sl.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\sl.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\sl.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\sl.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\sq.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\sq.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\sq.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\sq.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\sr-cyrl.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\sr-cyrl.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\sr-cyrl.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\sr-cyrl.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\sr.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\sr.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\sr.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\sr.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ss.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ss.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ss.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ss.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\sv.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\sv.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\sv.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\sv.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\sw.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\sw.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\sw.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\sw.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ta.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ta.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ta.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ta.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\te.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\te.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\te.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\te.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\tet.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\tet.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\tet.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\tet.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\tg.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\tg.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\tg.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\tg.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\th.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\th.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\th.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\th.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\tk.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\tk.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\tk.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\tk.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\tl-ph.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\tl-ph.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\tl-ph.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\tl-ph.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\tlh.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\tlh.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\tlh.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\tlh.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\tr.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\tr.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\tr.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\tr.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\tzl.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\tzl.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\tzl.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\tzl.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\tzm-latn.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\tzm-latn.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\tzm-latn.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\tzm-latn.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\tzm.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\tzm.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\tzm.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\tzm.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ug-cn.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ug-cn.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ug-cn.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ug-cn.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\uk.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\uk.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\uk.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\uk.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ur.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ur.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\ur.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\ur.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\uz-latn.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\uz-latn.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\uz-latn.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\uz-latn.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\uz.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\uz.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\uz.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\uz.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\vi.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\vi.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\vi.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\vi.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\x-pseudo.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\x-pseudo.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\x-pseudo.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\x-pseudo.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\yo.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\yo.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\yo.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\yo.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\zh-cn.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\zh-cn.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\zh-cn.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\zh-cn.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\zh-hk.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\zh-hk.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\zh-hk.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\zh-hk.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\zh-mo.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\zh-mo.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\zh-mo.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\zh-mo.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\zh-tw.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\zh-tw.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\locale\\zh-tw.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\locale\\zh-tw.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\moment-with-locales.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\moment-with-locales.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\moment-with-locales.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\moment-with-locales.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\moment-with-locales.min.js.map",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\moment-with-locales.min.js.map"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\moment.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\moment.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\moment.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\moment.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\moment.js\\moment.min.js.map",
+      "PackagePath": "staticwebassets\\lib\\moment.js\\moment.min.js.map"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\pdfmake\\fonts\\roboto\\roboto-italic.ttf",
+      "PackagePath": "staticwebassets\\lib\\pdfmake\\fonts\\roboto\\roboto-italic.ttf"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\pdfmake\\fonts\\roboto\\roboto-medium.ttf",
+      "PackagePath": "staticwebassets\\lib\\pdfmake\\fonts\\roboto\\roboto-medium.ttf"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\pdfmake\\fonts\\roboto\\roboto-mediumitalic.ttf",
+      "PackagePath": "staticwebassets\\lib\\pdfmake\\fonts\\roboto\\roboto-mediumitalic.ttf"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\pdfmake\\fonts\\roboto\\roboto-regular.ttf",
+      "PackagePath": "staticwebassets\\lib\\pdfmake\\fonts\\roboto\\roboto-regular.ttf"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\pdfmake\\pdfmake.js",
+      "PackagePath": "staticwebassets\\lib\\pdfmake\\pdfmake.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\pdfmake\\pdfmake.js.map",
+      "PackagePath": "staticwebassets\\lib\\pdfmake\\pdfmake.js.map"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\pdfmake\\pdfmake.min.js",
+      "PackagePath": "staticwebassets\\lib\\pdfmake\\pdfmake.min.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\pdfmake\\pdfmake.min.js.map",
+      "PackagePath": "staticwebassets\\lib\\pdfmake\\pdfmake.min.js.map"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\pdfmake\\vfs_fonts.js",
+      "PackagePath": "staticwebassets\\lib\\pdfmake\\vfs_fonts.js"
+    },
+    {
+      "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\pdfmake\\vfs_fonts.min.js",
+      "PackagePath": "staticwebassets\\lib\\pdfmake\\vfs_fonts.min.js"
     },
     {
       "Id": "D:\\Programacion\\Proyectos de programacion\\Anthony trabajo RD\\Alquileres\\wwwroot\\lib\\select2\\css\\select2.css",

@@ -23,16 +23,17 @@
 </div>
 
 @section Scripts {
-                    <script src="~/js/reportes.js" asp-append-version="true"></script>
-                    <script>
-                        document.addEventListener("DOMContentLoaded", function () {
-                            const tipoReporte = document.getElementById("tipoReporte")?.dataset.tiporeporte || "CxC";
-
-                            if (tipoReporte === "Cobros") {
-                                cargarReporteCobros();
-                            } else {
-                                cargarReporteCxC();
-                            }
-                        });
-                    </script>
+    <script src="~/js/reportes.js" asp-append-version="true"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const tipoReporte = document.getElementById("tipoReporte")?.dataset.tiporeporte || "CxC";
+            if (tipoReporte === "Atrasos") {
+                cargarReporteAtrasos();
+            } else if (tipoReporte === "Cobros") {
+                cargarReporteCobros();
+            } else {
+                cargarReporteCxC();
+            }
+        });
+    </script>
 }

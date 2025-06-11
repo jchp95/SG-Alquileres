@@ -17,6 +17,15 @@ namespace Alquileres.Models
         // Para los cobros
         public int FidCobro { get; set; }
         public string Fconcepto { get; set; } = null!;
+
+        // Para los atrasos
+        public string DescripcionInmueble { get; set; }
+        public int CantCuotasAtrasadas { get; set; }
+        public decimal MontoTotalAtraso { get; set; }
+        public decimal Mora { get; set; }
+        public decimal Total { get; set; }
+
+
     }
 
 }

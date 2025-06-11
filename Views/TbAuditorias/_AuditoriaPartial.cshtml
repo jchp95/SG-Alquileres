@@ -1,4 +1,4 @@
-@model IEnumerable<TbAuditorium>
+@model IEnumerable<dynamic>
 
 <div class="table-responsive shadow-sm rounded-3 p-3 bg-white">
     <table id="auditoriaTable" class="table table-hover">
@@ -13,34 +13,17 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var auditoria in Model.OrderByDescending(a => a.Ffecha))
+            @foreach (var item in Model)
             {
-                <tr>
-                    <td>@auditoria.Ftabla</td>
-                    <td>@auditoria.FkidRegistro</td>
-                    <td>@auditoria.Ffecha.ToString("dd/MM/yyyy")</td>
-                    <td>@auditoria.Fhora</td>
-                    <td>@auditoria.Faccion</td>
-                    <td>@auditoria.FkidUsuario</td>
-                </tr>
+                        <tr>
+                            <td>@item.Auditoria.Ftabla</td>
+                            <td>@item.Auditoria.FkidRegistro</td>
+                            <td>@item.Auditoria.Ffecha.ToString("dd/MM/yyyy")</td>
+                            <td>@item.Auditoria.Fhora</td>
+                            <td>@item.Auditoria.Faccion</td>
+                            <td>@item.NombreUsuario</td>
+                        </tr>
             }
         </tbody>
     </table>
 </div>
-
-@section Scripts {
-    <script>
-        $(document).ready(function () {
-            var table = $('#auditoriaTable').DataTable({
-                responsive: true,
-                language: {
-                    url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
-                },
-                pageLength: 10,
-                lengthMenu: [5, 10, 25, 50],
-                order: [[2, 'desc']], // Ordenar por fecha descendente
-                autoWidth: false,
-            });
-        });
-    </script>
-}

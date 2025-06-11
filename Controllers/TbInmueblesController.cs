@@ -1,6 +1,7 @@
 ﻿using Alquileres.Context;
 using Alquileres.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -13,11 +14,14 @@ namespace Alquileres.Controllers
         private readonly ApplicationDbContext _context;
         private readonly ILogger<TbInmueblesController> _logger;
 
+        private readonly UserManager<IdentityUser> _userManager;
+
         // Corrección: Usar el tipo correcto para el logger
-        public TbInmueblesController(ApplicationDbContext context, ILogger<TbInmueblesController> logger)
+        public TbInmueblesController(ApplicationDbContext context, ILogger<TbInmueblesController> logger, UserManager<IdentityUser> userManager)
         {
             _context = context;
             _logger = logger;
+            _userManager = userManager;
         }
 
         [HttpPost]
@@ -60,7 +64,11 @@ namespace Alquileres.Controllers
         {
             try
             {
-                var inmuebles = await _context.TbInmuebles.ToListAsync();
+                // Ordenar antes de proyectar a ViewModel
+                var inmuebles = await _context.TbInmuebles
+                    .OrderBy(i => i.FidInmueble)
+                    .ToListAsync();
+
                 var propietarios = await _context.TbPropietarios
                     .Where(p => p.Factivo)
                     .ToDictionaryAsync(p => p.FidPropietario, p => $"{p.Fnombre} {p.Fapellidos}");
@@ -124,12 +132,27 @@ namespace Alquileres.Controllers
         [HttpPost]
         [Authorize(Policy = "Permissions.Inmuebles.Crear")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("FidInmueble,FkidPropietario,Fdescripcion,Fdireccion,Fubicacion,Fprecio")] TbInmueble tbInmueble)
+        public async Task<IActionResult> Create([Bind("FidInmueble,FkidPropietario,Fdescripcion,Fdireccion,Fubicacion,Fprecio,FkidUsuario")] TbInmueble tbInmueble)
         {
             try
             {
+                // Debugging - log all permissions
+                var claims = User.Claims.Where(c => c.Type == "Permission").ToList();
+                _logger.LogInformation("User  permissions: {@Permissions}", claims.Select(c => c.Value));
+
+                var identityId = _userManager.GetUserId(User);
+                if (string.IsNullOrEmpty(identityId))
+                    return BadRequest(new { success = false, message = "El usuario no está autenticado." });
+
+                var usuario = await _context.TbUsuarios.FirstOrDefaultAsync(u => u.IdentityId == identityId);
+                if (usuario == null)
+                    return BadRequest(new { success = false, message = $"No se encontró un usuario con el IdentityId: {identityId}" });
+
+
                 if (ModelState.IsValid)
                 {
+                    tbInmueble.FkidUsuario = usuario.FidUsuario;
+
                     tbInmueble.FfechaRegistro = DateTime.Now; // ✅ Asignar fecha actual
                     tbInmueble.Factivo = true; // (opcional) marcar como activo por defecto
 
@@ -201,6 +224,8 @@ namespace Alquileres.Controllers
                     if (inmueble == null) return NotFound();
 
                     tbInmueble.Factivo = true;
+                    tbInmueble.FkidUsuario = inmueble.FkidUsuario;
+
                     _context.Entry(inmueble).CurrentValues.SetValues(tbInmueble);
                     await _context.SaveChangesAsync();
                     _logger.LogInformation($"Inmueble actualizado: {id}");

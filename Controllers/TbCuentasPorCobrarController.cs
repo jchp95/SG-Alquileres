@@ -30,20 +30,177 @@ namespace Alquileres.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CambiarEstado(int id)
         {
-            var cxC = await _context.TbCxcs.FindAsync(id);
-            if (cxC == null)
+            try
             {
-                return NotFound();
+                var cxC = await _context.TbCxcs.FindAsync(id);
+                if (cxC == null)
+                {
+                    _logger.LogWarning($"Intento de cambiar estado de la CxC no encontrado: {id}");
+                    return NotFound();
+                }
+
+                // Cambiar el estado del inmueble
+                cxC.Factivo = !cxC.Factivo;
+                _context.Update(cxC);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation($"Estado de la CxC {id} cambiado a: {cxC.Factivo}");
+                return RedirectToAction(nameof(Index));
             }
-
-            // Cambiar el estado del inmueble
-            cxC.Factivo = !cxC.Factivo;
-
-            _context.Update(cxC);
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction(nameof(Index));
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error al cambiar estado de la CxC {id}");
+                return StatusCode(500, "Error interno al cambiar el estado");
+            }
         }
+
+        [HttpPost]
+        [Authorize(Policy = "Permissions.CxC.Cancelar")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CancelarCxC(int id, [FromBody] CancelarCxCRequest request)
+        {
+            try
+            {
+                // Validar contraseña primero
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                    return Unauthorized(new { success = false, message = "Usuario no autenticado." });
+
+                var isValid = await _userManager.CheckPasswordAsync(user, request.Password);
+                if (!isValid)
+                    return BadRequest(new { success = false, message = "Contraseña incorrecta." });
+
+                // Validar motivo de anulación
+                if (string.IsNullOrWhiteSpace(request.MotivoCancelacion))
+                    return BadRequest(new { success = false, message = "Debe especificar un motivo para la cancelación." });
+
+                // Obtener el cobro principal
+                var cxC = await _context.TbCxcs.FindAsync(id);
+
+                if (cxC == null)
+                    return NotFound(new { success = false, message = "CxC no encontrada." });
+
+                // Verificar si ya está anulado
+                if (cxC.Fstatus == 'S')
+                    return BadRequest(new { success = false, message = "La CxC ya está cancelada." });
+
+                // Obtener usuario actual
+                var identityId = _userManager.GetUserId(User);
+                var usuario = await _context.TbUsuarios.FirstOrDefaultAsync(u => u.IdentityId == identityId);
+
+                // Obtener todas las cuotas asociadas a esta CxC que no estén ya canceladas
+                var cuotas = await _context.TbCxcCuota
+                    .Where(c => c.FidCxc == id && c.Fstatus != 'S')
+                    .ToListAsync();
+
+                // Actualizar todas las cuotas relacionadas
+                foreach (var cuota in cuotas)
+                {
+                    cuota.Fstatus = 'S'; // Cancelada
+                    cuota.Fsaldo = 0;   // Saldo a cero
+                    _context.TbCxcCuota.Update(cuota);
+                }
+
+                // Actualizar datos de anulación del cobro principal
+                cxC.FmotivoCancelacion = request.MotivoCancelacion;
+                cxC.FfechaCancelacion = DateOnly.FromDateTime(DateTime.Now);
+                cxC.FkidUsuario = usuario?.FidUsuario ?? cxC.FkidUsuario;
+                cxC.Fstatus = 'S'; // Cancelada
+
+                await _context.SaveChangesAsync();
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "CxC y sus cuotas canceladas exitosamente.",
+                    cuotasCanceladas = cuotas.Count
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al cancelar la CxC.");
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Error interno al cancelar la CxC.",
+                    error = ex.Message
+                });
+            }
+        }
+
+        public class CancelarCxCRequest
+        {
+            public string MotivoCancelacion { get; set; }
+            public string Password { get; set; }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetUsuarioActual()
+        {
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                    return Unauthorized(new { success = false, message = "Usuario no autenticado." });
+
+                return Ok(new
+                {
+                    success = true,
+                    usuario = new
+                    {
+                        UserName = user.UserName
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener usuario actual");
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Error interno al obtener usuario",
+                    error = ex.Message
+                });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ValidarContrasena([FromBody] ValidarContrasenaRequest request)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(request.Password))
+                    return BadRequest(new { success = false, message = "La contraseña es requerida." });
+
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                    return Unauthorized(new { success = false, message = "Usuario no autenticado." });
+
+                var isValid = await _userManager.CheckPasswordAsync(user, request.Password);
+
+                return Ok(new
+                {
+                    success = isValid,
+                    message = isValid ? "Contraseña válida" : "Contraseña incorrecta"
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al validar contraseña");
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Error interno al validar contraseña",
+                    error = ex.Message
+                });
+            }
+        }
+
+        public class ValidarContrasenaRequest
+        {
+            public string Password { get; set; }
+        }
+
 
         // GET: Carga vista principal
         public IActionResult Index()
@@ -57,7 +214,11 @@ namespace Alquileres.Controllers
         {
             try
             {
-                var cuentas = await _context.TbCxcs.ToListAsync();
+                // Ordenar las cuentas por cobrar por FidCuenta
+                var cuentas = await _context.TbCxcs
+                    .OrderBy(c => c.FidCuenta)  // Orden ascendente por defecto
+                    .ToListAsync();
+
                 var inquilinos = await _context.TbInquilinos.ToListAsync();
                 var periodos = await _context.PeriodosPagos.ToListAsync();
 
@@ -65,18 +226,11 @@ namespace Alquileres.Controllers
 
                 foreach (var c in cuentas)
                 {
-                    // Obtener la última cuota de la cuenta
+                    // Obtener la última cuota de la cuenta (mantenemos esta consulta separada)
                     var ultimaCuota = await _context.TbCxcCuota
                         .Where(q => q.FidCxc == c.FidCuenta)
                         .OrderByDescending(q => q.Fvence)
                         .FirstOrDefaultAsync();
-
-                    // Calcular la fecha de la próxima cuota
-                    DateTime? fechaProxCuota = null;
-                    if (ultimaCuota != null)
-                    {
-                        fechaProxCuota = CalcularFechaProxCuota(ultimaCuota.Fvence, c.FidPeriodoPago);
-                    }
 
                     cuentasPorCobrarViewModels.Add(new CuentaPorCobrarViewModel
                     {
@@ -93,9 +247,10 @@ namespace Alquileres.Controllers
                         Factivo = c.Factivo,
                         FtasaMora = c.FtasaMora,
                         Fnota = c.Fnota,
+                        Fstatus = c.Fstatus,
                         FidPeriodoPago = c.FidPeriodoPago,
                         NombrePeriodoPago = periodos.FirstOrDefault(p => p.Id == c.FidPeriodoPago)?.Nombre ?? "Desconocido",
-                        FfechaProxCuota = fechaProxCuota // Asignar la fecha de la próxima cuota calculada
+                        FfechaProxCuota = c.FfechaProxCuota,
                     });
                 }
 
@@ -103,12 +258,12 @@ namespace Alquileres.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                _logger.LogError(ex, "Error al cargar cuentas por cobrar");
+                return PartialView("_CuentasPorCobrarPartial", new List<CuentaPorCobrarViewModel>());
             }
         }
 
         // Método para calcular la fecha de la próxima cuota
-        // Modifica el método CalcularFechaProxCuota para que devuelva DateTime en lugar de DateTime?
         private DateTime CalcularFechaProxCuota(DateTime fechaVencimiento, int periodoPagoId)
         {
             int dias = 0;
@@ -132,18 +287,21 @@ namespace Alquileres.Controllers
             // Cargar los periodos de pago desde la base de datos
             var periodosPagos = await _context.PeriodosPagos.ToListAsync();
 
-            // Crear una lista de opciones que incluya la opción predeterminada
-            var opciones = new List<SelectListItem>
+            // Verificar si hay periodos de pago disponibles
+            if (periodosPagos == null || !periodosPagos.Any())
             {
-                new SelectListItem { Value = "", Text = "Seleccionar método de pago" } // Opción predeterminada
-            };
+                // Manejar el caso donde no hay periodos de pago disponibles
+                ModelState.AddModelError("", "No hay periodos de pago disponibles.");
+                return PartialView("_CreateCuentasPorCobrarPartial");
+            }
 
-            // Agregar las opciones de periodos de pago
-            opciones.AddRange(periodosPagos.Select(p => new SelectListItem
+            // Crear una lista de opciones con los periodos de pago
+            var opciones = periodosPagos.Select(p => new SelectListItem
             {
                 Value = p.Id.ToString(),
-                Text = p.Nombre
-            }));
+                Text = p.Nombre,
+                Selected = p.Nombre.Equals("Mensual", StringComparison.OrdinalIgnoreCase) // Seleccionar el periodo "Mensual" por defecto
+            }).ToList();
 
             // Crear el SelectList para el ViewBag
             ViewBag.FidPeriodoPago = opciones;
@@ -155,114 +313,176 @@ namespace Alquileres.Controllers
         [HttpPost]
         [Authorize(Policy = "Permissions.CxC.Crear")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("FidInquilino,FkidInmueble,FfechaInicio,Fmonto,FdiasGracia,FtasaMora,Fnota,FidPeriodoPago")] TbCxc tbCxc)
+        public async Task<IActionResult> Create(TbCxc tbCxc)
         {
+            // Loggear el estado del modelo
+            Console.WriteLine($"ModelState isValid: {ModelState.IsValid}");
+            foreach (var state in ModelState)
+            {
+                Console.WriteLine($"{state.Key}: {state.Value.RawValue}");
+            }
+
             if (!ModelState.IsValid)
             {
-                return Json(new
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+                Console.WriteLine("Errores de validación:");
+                foreach (var error in errors)
                 {
-                    success = false,
-                    errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList()
-                });
+                    Console.WriteLine(error);
+                }
+                return Json(new { success = false, errors = errors });
             }
 
             try
             {
+                // Verificar datos recibidos
+                Console.WriteLine($"Datos recibidos - Inquilino: {tbCxc.FidInquilino}, Inmueble: {tbCxc.FkidInmueble}, Monto: {tbCxc.Fmonto}");
+
                 var identityId = _userManager.GetUserId(User);
                 if (string.IsNullOrEmpty(identityId))
-                    return BadRequest("El usuario no está autenticado.");
+                    return Json(new { success = false, message = "El usuario no está autenticado." });
 
                 var usuario = await _context.TbUsuarios.FirstOrDefaultAsync(u => u.IdentityId == identityId);
                 if (usuario == null)
-                    return BadRequest($"No se encontró un usuario con el IdentityId: {identityId}");
+                    return Json(new { success = false, message = $"No se encontró un usuario con el IdentityId: {identityId}" });
 
-                // Asignar valores básicos
+                // Configuración básica de la cuenta
+                if (string.IsNullOrEmpty(tbCxc.Fnota))
+                {
+                    tbCxc.Fnota = "No se proporcionaron notas adicionales";
+                }
+
                 tbCxc.FfechaInicio = tbCxc.FfechaInicio.Date.Add(DateTime.Now.TimeOfDay);
                 tbCxc.FkidUsuario = usuario.FidUsuario;
                 tbCxc.Factivo = true;
+                tbCxc.Fstatus = 'N';
 
-                // Guardar primero la cuenta por cobrar para obtener el ID
+                // Loggear antes de guardar
+                Console.WriteLine("Intentando guardar la cuenta por cobrar...");
+
                 _context.Add(tbCxc);
-                await _context.SaveChangesAsync();
+                var result = await _context.SaveChangesAsync();
+                Console.WriteLine($"SaveChangesAsync result: {result}");
 
-                // Calcular fecha de vencimiento de la primera cuota
-                var fechaVencimiento = CalcularFechaVencimiento(tbCxc.FfechaInicio, tbCxc.FidPeriodoPago);
+                // Calcular todas las cuotas necesarias
+                var fechaActual = DateTime.Now;
+                // MODIFICACIÓN: Fecha límite es el último día del mes actual
+                var fechaLimite = new DateTime(fechaActual.Year, fechaActual.Month, DateTime.DaysInMonth(fechaActual.Year, fechaActual.Month));
 
-                // Calcular fecha de próxima cuota (después de la primera cuota)
-                tbCxc.FfechaProxCuota = CalcularFechaProxCuota(fechaVencimiento, tbCxc.FidPeriodoPago);
+                var fechaVencimiento = tbCxc.FfechaInicio;
+                int numeroCuota = 1;
+                decimal saldoPendiente = tbCxc.Fmonto;
 
-                // Actualizar la cuenta con la fecha de próxima cuota
+                // Lista para almacenar todas las fechas de vencimiento
+                var fechasVencimiento = new List<DateTime>();
+
+                // Generar cuotas desde la fecha de inicio hasta la fecha límite
+                while (fechaVencimiento <= fechaLimite)
+                {
+                    if (fechaVencimiento >= tbCxc.FfechaInicio)
+                    {
+                        fechasVencimiento.Add(fechaVencimiento);
+                        Console.WriteLine($"Generando cuota para: {fechaVencimiento.ToShortDateString()}");
+                    }
+                    // ✅ Usar el método que calcula correctamente la siguiente fecha
+                    fechaVencimiento = CalcularFechaVencimiento(fechaVencimiento, tbCxc.FidPeriodoPago);
+                }
+
+                // Generar las cuotas para cada fecha de vencimiento
+                foreach (var fecha in fechasVencimiento)
+                {
+                    var cuota = new TbCxcCuotum
+                    {
+                        FidCxc = tbCxc.FidCuenta,
+                        FNumeroCuota = numeroCuota,
+                        Fvence = fecha,
+                        Fmonto = (int)tbCxc.Fmonto,
+                        Fsaldo = saldoPendiente,
+                        Fmora = tbCxc.FtasaMora,
+                        FfechaUltCalculo = fecha,
+                        Factivo = true,
+                        Fstatus = 'N'
+                    };
+
+                    _context.TbCxcCuota.Add(cuota);
+                    numeroCuota++;
+                }
+
+                // Actualizar la fecha de próxima cuota en la cuenta
+                if (fechasVencimiento.Any())
+                {
+                    // La próxima cuota será un mes después de la última generada
+                    tbCxc.FfechaProxCuota = fechasVencimiento.Last().AddMonths(1);
+                    Console.WriteLine($"Próxima cuota programada para: {tbCxc.FfechaProxCuota.ToShortDateString()}");
+                }
+                else
+                {
+                    // Si no se generaron cuotas, la próxima será un mes después de la fecha de inicio
+                    tbCxc.FfechaProxCuota = tbCxc.FfechaInicio.AddMonths(1);
+                }
+
                 _context.Update(tbCxc);
                 await _context.SaveChangesAsync();
 
-                // Crear la primera cuota
-                var cuota = new TbCxcCuotum
-                {
-                    FidCxc = tbCxc.FidCuenta,
-                    FNumeroCuota = 1, // Siempre será la primera cuota
-                    Fvence = fechaVencimiento,
-                    Fmonto = (int)tbCxc.Fmonto,
-                    Fsaldo = tbCxc.Fmonto,
-                    Fmora = tbCxc.FtasaMora,
-                    FfechaUltCalculo = fechaVencimiento,
-                    Factivo = true,
-                    Fstatus = 'N'
-                };
+                // Obtener las cuentas actualizadas para devolver en la respuesta
+                var cuentas = await (from c in _context.TbCxcs
+                                     join i in _context.TbInquilinos on c.FidInquilino equals i.FidInquilino
+                                     join p in _context.PeriodosPagos on c.FidPeriodoPago equals p.Id
+                                     select new
+                                     {
+                                         Cxc = c,
+                                         InquilinoNombre = $"{i.Fnombre} {i.Fapellidos}",
+                                         PeriodoNombre = p.Nombre
+                                     })
+                                 .ToListAsync();
 
-                _context.TbCxcCuota.Add(cuota);
-                await _context.SaveChangesAsync();
-
-                // Cargar las cuentas actualizadas para devolver a la vista
-                var cuentasPorCobrar = await _context.TbCxcs.ToListAsync();
-                var cuentasPorCobrarViewModels = cuentasPorCobrar.Select(c => new CuentaPorCobrarViewModel
+                var cuentasPorCobrarViewModels = cuentas.Select(x => new CuentaPorCobrarViewModel
                 {
-                    FidCuenta = c.FidCuenta,
-                    FidInquilino = c.FidInquilino,
-                    FidInmueble = c.FkidInmueble,
-                    Fmonto = c.Fmonto,
-                    FfechaInicio = c.FfechaInicio,
-                    FdiasGracia = c.FdiasGracia,
-                    Factivo = c.Factivo,
-                    FtasaMora = c.FtasaMora,
-                    Fnota = c.Fnota,
-                    FidPeriodoPago = c.FidPeriodoPago,
-                    FfechaProxCuota = c.FfechaProxCuota // Incluir la fecha de próxima cuota
+                    FidCuenta = x.Cxc.FidCuenta,
+                    FidInquilino = x.Cxc.FidInquilino,
+                    InquilinoNombre = x.InquilinoNombre,
+                    FidInmueble = x.Cxc.FkidInmueble,
+                    Fmonto = x.Cxc.Fmonto,
+                    FfechaInicio = x.Cxc.FfechaInicio,
+                    FdiasGracia = x.Cxc.FdiasGracia,
+                    Factivo = x.Cxc.Factivo,
+                    FtasaMora = x.Cxc.FtasaMora,
+                    Fnota = x.Cxc.Fnota,
+                    FidPeriodoPago = x.Cxc.FidPeriodoPago,
+                    NombrePeriodoPago = x.PeriodoNombre,
+                    FfechaProxCuota = x.Cxc.FfechaProxCuota
                 }).ToList();
 
-                return PartialView("_CuentasPorCobrarPartial", cuentasPorCobrarViewModels);
+                // Devolver JSON con éxito y los datos necesarios
+                return Json(new
+                {
+                    success = true,
+                    message = "Cuenta por cobrar creada correctamente.",
+                    data = cuentasPorCobrarViewModels
+                });
             }
             catch (Exception ex)
             {
-                // Manejo de errores
-                return StatusCode(500, new { success = false, message = ex.Message });
+                Console.WriteLine($"Error: {ex.Message}");
+                Console.WriteLine($"StackTrace: {ex.StackTrace}");
+                return Json(new { success = false, message = ex.Message });
             }
         }
-
-
 
         // Método para calcular la fecha de vencimiento
         private DateTime CalcularFechaVencimiento(DateTime fechaInicio, int periodoPagoId)
         {
-            int dias = 0;
-
-            // Determinar el número de días según el periodo de pago
             switch (periodoPagoId)
             {
-                case 1: // Suponiendo que 1 es semanal
-                    dias = 7;
-                    break;
-                case 2: // Suponiendo que 2 es quincenal
-                    dias = 15;
-                    break;
-                case 3: // Suponiendo que 3 es mensual
-                    dias = 30;
-                    break;
+                case 1: // Semanal
+                    return fechaInicio.AddDays(7);
+                case 2: // Quincenal
+                    return fechaInicio.AddDays(15);
+                case 3: // Mensual (siempre último día del mes)
+                    return fechaInicio.AddMonths(1);
                 default:
                     throw new ArgumentException("Periodo de pago no válido");
             }
-
-            // Calcular y devolver la fecha de vencimiento
-            return fechaInicio.AddDays(dias);
         }
 
         [HttpGet]
@@ -306,7 +526,8 @@ namespace Alquileres.Controllers
                 {
                     id = m.FidInmueble,
                     text = $"{m.Fdireccion} - Ubicación: {m.Fubicacion}",
-                    tipo = "inmueble"
+                    tipo = "inmueble",
+                    monto = m.Fprecio // Asegúrate de que este campo exista en tu modelo
                 })
                 .ToListAsync();
 
@@ -351,11 +572,26 @@ namespace Alquileres.Controllers
                     .FirstOrDefaultAsync() ?? string.Empty;
             }
 
+            // Cargar los periodos de pago desde la base de datos
+            var periodosPagos = await _context.PeriodosPagos.ToListAsync();
+
+            // Crear una lista de opciones con los periodos de pago
+            var opciones = periodosPagos.Select(p => new SelectListItem
+            {
+                Value = p.Id.ToString(),
+                Text = p.Nombre,
+                Selected = p.Id == tbCxc.FidPeriodoPago // Seleccionar el periodo correspondiente
+            }).ToList();
+
+            // Crear el SelectList para el ViewBag
+            ViewBag.FidPeriodoPago = opciones;
+
             ViewBag.Inquilino = inquilino;
             ViewBag.Inmueble = inmuebleDesc;
 
             return PartialView("_EditCxcPartial", tbCxc);
         }
+
 
         [HttpPost]
         [Authorize(Policy = "Permissions.CxC.Editar")]
@@ -472,23 +708,42 @@ namespace Alquileres.Controllers
                 _context.TbCxcCuota.Add(nuevaCuota);
                 await _context.SaveChangesAsync();
 
-                // 7: Cargar las cuentas por cobrar actualizadas
-                var cuentasPorCobrar = await _context.TbCxcs.ToListAsync();
-                var cuentasPorCobrarViewModels = cuentasPorCobrar.Select(c => new CuentaPorCobrarViewModel
+                // Obtener las cuentas actualizadas para devolver en la respuesta
+                var cuentas = await (from c in _context.TbCxcs
+                                     join i in _context.TbInquilinos on c.FidInquilino equals i.FidInquilino
+                                     join p in _context.PeriodosPagos on c.FidPeriodoPago equals p.Id
+                                     select new
+                                     {
+                                         Cxc = c,
+                                         InquilinoNombre = $"{i.Fnombre} {i.Fapellidos}",
+                                         PeriodoNombre = p.Nombre
+                                     })
+                         .ToListAsync();
+
+                var cuentasPorCobrarViewModels = cuentas.Select(x => new CuentaPorCobrarViewModel
                 {
-                    FidCuenta = c.FidCuenta,
-                    FidInquilino = c.FidInquilino,
-                    FidInmueble = c.FkidInmueble,
-                    Fmonto = c.Fmonto,
-                    FfechaInicio = c.FfechaInicio,
-                    FdiasGracia = c.FdiasGracia,
-                    Factivo = c.Factivo,
-                    FtasaMora = c.FtasaMora,
-                    Fnota = c.Fnota,
-                    FidPeriodoPago = c.FidPeriodoPago
+                    FidCuenta = x.Cxc.FidCuenta,
+                    FidInquilino = x.Cxc.FidInquilino,
+                    InquilinoNombre = x.InquilinoNombre,
+                    FidInmueble = x.Cxc.FkidInmueble,
+                    Fmonto = x.Cxc.Fmonto,
+                    FfechaInicio = x.Cxc.FfechaInicio,
+                    FdiasGracia = x.Cxc.FdiasGracia,
+                    Factivo = x.Cxc.Factivo,
+                    FtasaMora = x.Cxc.FtasaMora,
+                    Fnota = x.Cxc.Fnota,
+                    FidPeriodoPago = x.Cxc.FidPeriodoPago,
+                    NombrePeriodoPago = x.PeriodoNombre,
+                    FfechaProxCuota = x.Cxc.FfechaProxCuota
                 }).ToList();
 
-                return PartialView("_CuentasPorCobrarPartial", cuentasPorCobrarViewModels);
+                // Devolver JSON con éxito y los datos necesarios
+                return Json(new
+                {
+                    success = true,
+                    message = "Cuenta por cobrar creada correctamente.",
+                    data = cuentasPorCobrarViewModels
+                });
             }
             catch (ArgumentException argEx)
             {

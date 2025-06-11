@@ -1,350 +1,253 @@
 @model Alquileres.Models.DetallesCobroViewModel
 
 <div class="container-fluid px-0">
-    <!-- Card Principal -->
-    <div class="card card-detail mb-4 border-0 shadow-sm">
-        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3">
-            <div>
-                <div class="d-flex align-items-center mb-1">
-                    <i class="fas fa-receipt fa-lg me-3"></i>
-                    <h2 class="h5 mb-0">Recibo de Pago #@Model.Cobro.FidCobro</h2>
-                </div>
-                <p class="small mb-0 opacity-75">
-                    <i class="far fa-calendar-alt me-1"></i>
-                    Emitido el @Model.Cobro.Ffecha.ToString("dd/MM/yyyy") a las @Model.Cobro.Fhora.ToString("hh:mm tt")
-                </p>
-            </div>
-            <div class="amount-highlight bg-white text-primary px-4 py-2 rounded-3 fs-4 fw-bold shadow-sm">
-                @Model.Cobro.Fmonto.ToString("C")
-            </div>
-        </div>
+    <!-- Tabla principal modificada para DataTable -->
+    <div class="table-responsive">
+        <table id="reciboTable" class="table table-bordered display nowrap" style="width:100%">
+            <thead class="bg-light"> <!-- Ocultamos el thead ya que no es compatible con nuestra estructura -->
+                <tr>
+                    <th>Recibo de Pago</th>
+                    <td>
+                        #@Model.Cobro.FidCobro - Emitido el @Model.Cobro.Ffecha.ToString("dd/MM/yyyy") a las
+                        @Model.Cobro.Fhora.ToString("hh:mm tt") - @Model.Cobro.Fmonto.ToString("C")
+                    </td>
+                </tr>
+                <tr>
+                    <th>Detalle</th>
+                    <th>Información</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Información del pago -->
+                <tr class="table-info">
+                    <th colspan="2" class="bg-light">
+                        <i class="fas fa-info-circle me-2"></i>Información del pago
+                    </th>
+                </tr>
+                <tr>
+                    <th>Concepto</th>
+                    <td>@Model.Cobro.Fconcepto</td>
+                </tr>
 
-        <!-- Cuerpo con detalles del pago -->
-        <div class="card-body p-4">
-            <!-- Sección de información básica -->
-            <div class="mb-4">
-                <h3 class="h6 text-muted mb-3 d-flex align-items-center">
-                    <i class="fas fa-info-circle text-primary me-2"></i>
-                    Información del pago
-                </h3>
-                <div class="ps-4">
-                    <div class="detail-row mb-2">
-                        <span class="detail-label fw-medium">Concepto:</span>
-                        <span class="detail-value">@Model.Cobro.Fconcepto</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sección de desglose financiero -->
-            <div class="border-top pt-4">
-                <h3 class="h6 text-muted mb-3 d-flex align-items-center">
-                    <i class="fas fa-calculator text-primary me-2"></i>
-                    Desglose del monto
-                </h3>
-
-                <div class="row ps-3">
-                    <!-- Columna izquierda -->
-                    <div class="col-md-6">
-                        <div class="detail-row mb-2">
-                            <span class="detail-label">Monto original:</span>
-                            <span class="detail-value">@Model.Cobro.Fmonto.ToString("C")</span>
-                        </div>
-                        <div class="detail-row mb-2">
-                            <span class="detail-label">Descuento aplicado:</span>
-                            <span class="detail-value text-danger">
-                                <i class="fas fa-minus-circle me-1"></i>
-                                @Model.Cobro.Fdescuento.ToString("C")
-                            </span>
-                        </div>
-                    </div>
-
-                    <!-- Columna derecha -->
-                    <div class="col-md-6">
-                        <div class="detail-row mb-2">
-                            <span class="detail-label">Cargos adicionales:</span>
-                            <span class="detail-value text-success">
-                                <i class="fas fa-plus-circle me-1"></i>
-                                @Model.Cobro.Fcargos.ToString("C")
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Total con mayor destaque -->
-                <div class="bg-light rounded-3 p-3 mt-3 d-flex justify-content-between align-items-center">
-                    <span class="detail-label fw-bold fs-5">Total pagado:</span>
-                    <span class="detail-value fw-bold fs-4 text-primary">
+                <!-- Desglose del monto -->
+                <tr class="table-info">
+                    <th colspan="2" class="bg-light">
+                        <i class="fas fa-calculator me-2"></i>Desglose del monto
+                    </th>
+                </tr>
+                <tr>
+                    <th>Monto original</th>
+                    <td>@Model.Cobro.Fmonto.ToString("C")</td>
+                </tr>
+                <tr>
+                    <th>Descuento aplicado</th>
+                    <td class="text-danger">
+                        <i class="fas fa-minus-circle me-1"></i>
+                        @Model.Cobro.Fdescuento.ToString("C")
+                    </td>
+                </tr>
+                <tr>
+                    <th>Cargos adicionales</th>
+                    <td class="text-success">
+                        <i class="fas fa-plus-circle me-1"></i>
+                        @Model.Cobro.Fcargos.ToString("C")
+                    </td>
+                </tr>
+                <tr class="bg-light">
+                    <th class="fw-bold">Total pagado</th>
+                    <td class="fw-bold text-primary">
                         @((Model.Cobro.Fmonto + Model.Cobro.Fcargos - Model.Cobro.Fdescuento).ToString("C"))
-                    </span>
-                </div>
-            </div>
-        </div>
-    </div>
+                    </td>
+                </tr>
 
-    <!-- Payment and Tenant Info in Compact Grid -->
-    <div class="row g-4">
-        <!-- Payment Methods Card -->
-        <div class="col-lg-4 col-md-6">
-            <div class="card card-detail h-100 border-0 shadow-sm">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3">
-                    <h3 class="h6 mb-0 d-flex align-items-center">
-                        <i class="fas fa-credit-card me-2"></i>
-                        Métodos de Pago
-                    </h3>
-                </div>
-                <div class="card-body p-0">
-                    @if (Model.Desglose != null)
-                    {
-                        <div class="detail-section">
-                            <div class="detail-row px-4 py-3">
-                                <div class="d-flex align-items-center">
-                                    <i class="fas fa-money-bill-wave text-primary me-3"></i>
-                                    <span class="detail-label">Efectivo</span>
-                                </div>
-                                <span class="detail-value">@Model.Desglose.Fefectivo.ToString("C")</span>
-                            </div>
-                            <div class="detail-row px-4 py-3">
-                                <div class="d-flex align-items-center">
-                                    <i class="fas fa-exchange-alt text-primary me-3"></i>
-                                    <span class="detail-label">Transferencia</span>
-                                </div>
-                                <span class="detail-value">@Model.Desglose.Ftransferencia.ToString("C")</span>
-                            </div>
-                            <div class="detail-row px-4 py-3">
-                                <div class="d-flex align-items-center">
-                                    <i class="far fa-credit-card text-primary me-3"></i>
-                                    <span class="detail-label">Tarjeta</span>
-                                </div>
-                                <span class="detail-value">@Model.Desglose.Ftarjeta.ToString("C")</span>
-                            </div>
-                            <div class="detail-row px-4 py-3">
-                                <div class="d-flex align-items-center">
-                                    <i class="fas fa-file-invoice-dollar text-primary me-3"></i>
-                                    <span class="detail-label">Nota Crédito (@Model.Desglose.FnoNotaCredito)</span>
-                                </div>
-                                <span class="detail-value">@Model.Desglose.FnotaCredito.ToString("C")</span>
-                            </div>
-                            <div class="bg-light rounded-3 p-3 mx-3 mt-2 d-flex justify-content-between align-items-center">
-                                <span class="detail-label fw-bold fs-6">Total pagado</span>
-                                <span class="detail-value fw-bold text-primary">
-                                    @Model.TotalPagos.ToString("C")
-                                </span>
-                            </div>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="empty-state p-4 text-center">
-                            <i class="far fa-folder-open fa-2x text-muted mb-3"></i>
-                            <p class="mb-0 text-muted">No hay desglose de pagos</p>
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
+                <!-- Métodos de Pago -->
+                <tr class="table-info">
+                    <th colspan="2" class="bg-light">
+                        <i class="fas fa-credit-card me-2"></i>Métodos de Pago
+                    </th>
+                </tr>
+                @if (Model.Desglose != null)
+                {
+                    <tr>
+                        <th>Efectivo</th>
+                        <td>@Model.Desglose.Fefectivo.ToString("C")</td>
+                    </tr>
+                    <tr>
+                        <th>Transferencia</th>
+                        <td>@Model.Desglose.Ftransferencia.ToString("C")</td>
+                    </tr>
+                    <tr>
+                        <th>Tarjeta</th>
+                        <td>@Model.Desglose.Ftarjeta.ToString("C")</td>
+                    </tr>
+                    <tr>
+                        <th>Cheque</th>
+                        <td>@Model.Desglose.Fcheque.ToString("C")</td>
+                    </tr>
+                    <tr>
+                        <th>Depósito</th>
+                        <td>@Model.Desglose.Fdeposito.ToString("C")</td>
+                    </tr>
+                    <tr>
+                        <th>Nota Crédito (@Model.Desglose.FnoNotaCredito)</th>
+                        <td>@Model.Desglose.FnotaCredito.ToString("C")</td>
+                    </tr>
+                    <tr>
+                        <th>Débito automático</th>
+                        <td>@Model.Desglose.FdebitoAutomatico.ToString("C")</td>
+                    </tr>
+                    <tr class="bg-light">
+                        <th class="fw-bold">Total pagado</th>
+                        <td class="fw-bold text-primary">
+                            @Model.TotalPagos.ToString("C")
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="2" class="text-center text-muted">No hay desglose de pagos</td>
+                    </tr>
+                }
 
-        <!-- Tenant Info Card -->
-        <div class="col-lg-4 col-md-6">
-            <div class="card card-detail h-100 border-0 shadow-sm">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3">
-                    <h3 class="h6 mb-0 d-flex align-items-center">
-                        <i class="fas fa-user-tie me-2"></i>
-                        Información del Inquilino
-                    </h3>
-                </div>
-                <div class="card-body p-0">
-                    @if (Model.Inquilino != null)
-                    {
-                        <div class="detail-section">
-                            <div class="detail-row px-4 py-3">
-                                <span class="detail-label d-flex align-items-center">
-                                    <i class="fas fa-user text-primary me-3"></i>
-                                    Nombre completo
-                                </span>
-                                <span class="detail-value fw-medium">@Model.Inquilino.Fnombre
-                                    @Model.Inquilino.Fapellidos</span>
-                            </div>
-                            <div class="detail-row px-4 py-3">
-                                <span class="detail-label d-flex align-items-center">
-                                    <i class="fas fa-id-card text-primary me-3"></i>
-                                    Cédula
-                                </span>
-                                <span class="detail-value">@Model.Inquilino.Fcedula</span>
-                            </div>
-                            <div class="detail-row px-4 py-3">
-                                <span class="detail-label d-flex align-items-center">
-                                    <i class="fas fa-map-marker-alt text-primary me-3"></i>
-                                    Dirección
-                                </span>
-                                <span class="detail-value">@Model.Inquilino.Fdireccion</span>
-                            </div>
-                            <div class="detail-row px-4 py-3">
-                                <span class="detail-label d-flex align-items-center">
-                                    <i class="fas fa-phone text-primary me-3"></i>
-                                    Teléfono
-                                </span>
-                                <span class="detail-value">@Model.Inquilino.Ftelefono</span>
-                            </div>
-                            <div class="detail-row px-4 py-3">
-                                <span class="detail-label d-flex align-items-center">
-                                    <i class="fas fa-mobile-alt text-primary me-3"></i>
-                                    Celular
-                                </span>
-                                <span class="detail-value">@Model.Inquilino.Fcelular</span>
-                            </div>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="empty-state p-4 text-center">
-                            <i class="far fa-user fa-2x text-muted mb-3"></i>
-                            <p class="mb-0 text-muted">Información no disponible</p>
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
+                <!-- Información del Inquilino -->
+                <tr class="table-info">
+                    <th colspan="2" class="bg-light">
+                        <i class="fas fa-user-tie me-2"></i>Información del Inquilino
+                    </th>
+                </tr>
+                @if (Model.Inquilino != null)
+                {
+                    <tr>
+                        <th>Nombre completo</th>
+                        <td>@Model.Inquilino.Fnombre @Model.Inquilino.Fapellidos</td>
+                    </tr>
+                    <tr>
+                        <th>Cédula</th>
+                        <td>@Model.Inquilino.Fcedula</td>
+                    </tr>
+                    <tr>
+                        <th>Dirección</th>
+                        <td>@Model.Inquilino.Fdireccion</td>
+                    </tr>
+                    <tr>
+                        <th>Teléfono</th>
+                        <td>@Model.Inquilino.Ftelefono</td>
+                    </tr>
+                    <tr>
+                        <th>Celular</th>
+                        <td>@Model.Inquilino.Fcelular</td>
+                    </tr>
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="2" class="text-center text-muted">Información no disponible</td>
+                    </tr>
+                }
 
-        <!-- Property Info Card -->
-        <div class="col-lg-4 col-md-6">
-            <div class="card card-detail h-100 border-0 shadow-sm">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3">
-                    <h3 class="h6 mb-0 d-flex align-items-center">
-                        <i class="fas fa-home me-2"></i>
-                        Información del Inmueble
-                    </h3>
-                </div>
-                <div class="card-body p-0">
-                    @if (Model.Inmueble != null)
-                    {
-                        <div class="detail-section">
-                            <div class="detail-row px-4 py-3">
-                                <span class="detail-label d-flex align-items-center">
-                                    <i class="fas fa-align-left text-primary me-3"></i>
-                                    Descripción
-                                </span>
-                                <span class="detail-value">@Model.Inmueble.Fdescripcion</span>
-                            </div>
-                            <div class="detail-row px-4 py-3">
-                                <span class="detail-label d-flex align-items-center">
-                                    <i class="fas fa-map-marked-alt text-primary me-3"></i>
-                                    Dirección
-                                </span>
-                                <span class="detail-value">@Model.Inmueble.Fdireccion</span>
-                            </div>
-                            <div class="detail-row px-4 py-3">
-                                <span class="detail-label d-flex align-items-center">
-                                    <i class="fas fa-location-arrow text-primary me-3"></i>
-                                    Ubicación
-                                </span>
-                                <span class="detail-value">@Model.Inmueble.Fubicacion</span>
-                            </div>
-                            <div class="detail-row px-4 py-3">
-                                <span class="detail-label d-flex align-items-center">
-                                    <i class="fas fa-tag text-primary me-3"></i>
-                                    Precio
-                                </span>
-                                <span class="detail-value fw-bold text-primary">@Model.Inmueble.Fprecio.ToString("C")</span>
-                            </div>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="empty-state p-4 text-center">
-                            <i class="far fa-building fa-2x text-muted mb-3"></i>
-                            <p class="mb-0 text-muted">Información no disponible</p>
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
-    </div>
+                <!-- Información del Inmueble -->
+                <tr class="table-info">
+                    <th colspan="2" class="bg-light">
+                        <i class="fas fa-home me-2"></i>Información del Inmueble
+                    </th>
+                </tr>
+                @if (Model.Inmueble != null)
+                {
+                    <tr>
+                        <th>Descripción</th>
+                        <td>@Model.Inmueble.Fdescripcion</td>
+                    </tr>
+                    <tr>
+                        <th>Dirección</th>
+                        <td>@Model.Inmueble.Fdireccion</td>
+                    </tr>
+                    <tr>
+                        <th>Ubicación</th>
+                        <td>@Model.Inmueble.Fubicacion</td>
+                    </tr>
+                    <tr>
+                        <th>Precio</th>
+                        <td class="fw-bold text-primary">@Model.Inmueble.Fprecio.ToString("C")</td>
+                    </tr>
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="2" class="text-center text-muted">Información no disponible</td>
+                    </tr>
+                }
 
-    <!-- Paid Fees Section -->
-    <div class="card card-detail mt-4 border-0 shadow-sm">
-        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3">
-            <h3 class="h6 mb-0 d-flex align-items-center">
-                <i class="fas fa-list-check me-2"></i>
-                Cuotas Pagadas
-            </h3>
-        </div>
-        <div class="card-body p-0">
-            @if (Model.Detalles != null && Model.Detalles.Any())
-            {
-                <div class="table-responsive">
-                    <table class="table table-borderless compact-table mb-0">
-                        <thead>
-                            <tr class="border-bottom bg-light">
-                                <th class="ps-4"><i class="fas fa-hashtag text-primary me-2"></i>Cuota</th>
-                                <th class="text-end"><i class="fas fa-money-bill-wave text-primary me-2"></i>Monto</th>
-                                <th class="text-end"><i class="fas fa-wallet text-primary me-2"></i>Saldo</th>
-                                <th class="text-end"><i class="fas fa-clock text-primary me-2"></i>Mora</th>
-                                <th class="text-center"><i class="far fa-calendar-alt text-primary me-2"></i>Vencimiento
-                                </th>
-                                <th class="text-center pe-4"><i class="fas fa-info-circle text-primary me-2"></i>Estado</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var detalle in Model.Detalles)
-                            {
-                                var cuota = Model.Cuotas?.FirstOrDefault(c => c.FNumeroCuota == detalle.FnumeroCuota);
-                                <tr class="hover-effect border-bottom">
-                                    <td class="ps-4">#@detalle.FnumeroCuota</td>
-                                    <td class="text-end">@detalle.Fmonto.ToString("C")</td>
-                                    <td class="text-end @(cuota?.Fsaldo > 0 ? "text-warning" : "text-success")">
-                                        @(cuota?.Fsaldo.ToString("C") ?? "N/A")
-                                    </td>
-                                    <td class="text-end">@detalle.Fmora.ToString("0.00")%</td>
-                                    <td class="text-center">@(cuota?.Fvence.ToString("dd/MM/yy") ?? "N/A")</td>
-                                    <td class="text-center pe-4">
-                                        @if (cuota != null)
-                                        {
-                                            <span
-                                                class="badge @(cuota.Fstatus == 'S' ? "bg-success" : cuota.Fstatus == 'N' ? "bg-warning" : "bg-secondary") rounded-pill px-3 py-1">
-                                                @(cuota.Fstatus == 'S' ? "Pagado" : cuota.Fstatus == 'N' ? "Pendiente" :
-                                                                                    "Desconocido")
-                                </span>
-                                                                }
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                        <tfoot class="border-top bg-light">
-                            <tr>
-                                <td colspan="6" class="text-end fw-bold py-3 pe-4">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <i class="fas fa-calculator text-primary me-2"></i>
-                                            Total Monto: @Model.Detalles.Sum(d => d.Fmonto).ToString("C")
-                                        </div>
-                                        <div class="ms-4">
-                                            <i class="fas fa-wallet text-primary me-2"></i>
-                                            Saldo Pendiente: @(Model.Cuotas?.Sum(c => c.Fsaldo).ToString("C") ?? "N/A")
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-            }
-            else
-            {
-                <div class="empty-state p-4 text-center">
-                    <i class="far fa-list-alt fa-2x text-muted mb-3"></i>
-                    <p class="mb-0 text-muted">No se encontraron cuotas pagadas</p>
-                </div>
-            }
-        </div>
-    </div>
+                <!-- Cuotas Pagadas -->
+                <tr class="table-info">
+                    <th colspan="2" class="bg-light">
+                        <i class="fas fa-list-check me-2"></i>Cuotas Pagadas
+                    </th>
+                </tr>
+                @if (Model.Detalles != null && Model.Detalles.Any())
+                {
+                    <!-- Listado de cuotas en formato de dos columnas -->
+                    @foreach (var detalle in Model.Detalles)
+                    {
+                        var cuota = Model.Cuotas?.FirstOrDefault(c => c.FNumeroCuota == detalle.FnumeroCuota);
 
-    <!-- Action Buttons -->
-    <div class="d-flex justify-content-end mt-4 gap-3">
-        <button class="btn btn-outline-primary px-4 py-2 d-flex align-items-center">
-            <i class="fas fa-print me-2"></i> Imprimir
-        </button>
-        <button class="btn btn-primary px-4 py-2 d-flex align-items-center">
-            <i class="fas fa-download me-2"></i> Descargar PDF
-        </button>
+                        <!-- Encabezado de la cuota -->
+                        <tr>
+                            <th>No. Cuota </th>
+                            <td>@detalle.FnumeroCuota</td> <!-- Celda vacía para mantener la estructura -->
+                        </tr>
+
+                        <!-- Detalles de la cuota -->
+                        <tr>
+                            <th class="ps-4 text-muted">Monto</th>
+                            <td>@detalle.Fmonto.ToString("C")</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-4 text-muted">Saldo</th>
+                            <td class="@(cuota?.Fsaldo > 0 ? "text-warning" : "text-success")">
+                                @(cuota?.Fsaldo.ToString("C") ?? "N/A")
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="ps-4 text-muted">Mora</th>
+                            <td>@detalle.Fmora.ToString("0.00")%</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-4 text-muted">Vencimiento</th>
+                            <td>@(cuota?.Fvence.ToString("dd/MM/yy") ?? "N/A")</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-4 text-muted">Estado</th>
+                            <td>
+                                @if (cuota != null)
+                                {
+                                    <span
+                                        class="badge @(cuota.Fstatus == 'S' ? "bg-success" : cuota.Fstatus == 'N' ? "bg-warning" : "bg-secondary") rounded-pill px-2 py-1">
+                                        @(cuota.Fstatus == 'S' ? "Pagado" : cuota.Fstatus == 'N' ? "Pendiente" : "Desconocido")
+                                    </span>
+                                }
+                            </td>
+                        </tr>
+                    }
+
+                    <!-- Totales de cuotas -->
+                    <tr class="bg-light">
+                        <th class="fw-bold">Total Monto</th>
+                        <td class="fw-bold">@Model.Detalles.Sum(d => d.Fmonto).ToString("C")</td>
+                    </tr>
+                    <tr class="bg-light">
+                        <th class="fw-bold">Saldo Pendiente</th>
+                        <td class="fw-bold">@(Model.Cuotas?.Sum(c => c.Fsaldo).ToString("C") ?? "N/A")</td>
+                    </tr>
+                }
+                else
+                {
+                    <tr>
+                        <th>Cuotas pagadas</th>
+                        <td class="text-muted">No se encontraron cuotas pagadas</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     </div>
 </div>

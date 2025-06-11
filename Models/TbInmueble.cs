@@ -25,6 +25,7 @@ namespace Alquileres.Models
 
         public DateTime FfechaRegistro { get; set; }
 
+        public int FkidUsuario { get; set; }
         public bool Factivo { get; set; }
 
     }

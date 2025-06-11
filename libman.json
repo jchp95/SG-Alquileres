@@ -47,10 +47,6 @@
       "destination": "wwwroot/lib/jquery-validate/"
     },
     {
-      "library": "inputmask@4.0.9",
-      "destination": "wwwroot/lib/inputmask/"
-    },
-    {
       "library": "toastr.js@2.1.4",
       "destination": "wwwroot/lib/toastr.js/"
     },
@@ -61,6 +57,34 @@
     {
       "library": "datatables.net-buttons@3.2.1",
       "destination": "wwwroot/lib/datatables.net-buttons/"
+    },
+    {
+      "library": "intro.js@7.2.0",
+      "destination": "wwwroot/lib/intro.js/"
+    },
+    {
+      "library": "leaflet@1.9.4",
+      "destination": "wwwroot/lib/leaflet/"
+    },
+    {
+      "library": "moment.js@2.30.1",
+      "destination": "wwwroot/lib/moment.js/"
+    },
+    {
+      "library": "inputmask@4.0.9",
+      "destination": "wwwroot/lib/inputmask/"
+    },
+    {
+      "library": "jszip@3.10.1",
+      "destination": "wwwroot/lib/jszip/"
+    },
+    {
+      "library": "pdf.js@5.0.375",
+      "destination": "wwwroot/lib/pdf.js/"
+    },
+    {
+      "library": "pdfmake@0.2.12",
+      "destination": "wwwroot/lib/pdfmake/"
     }
   ]
 }

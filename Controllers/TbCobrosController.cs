@@ -44,29 +44,40 @@ namespace Alquileres.Controllers
         }
 
 
-        // GET: TbCobros/CargarCobro
         [HttpGet]
         [Authorize(Policy = "Permissions.Cobros.Ver")]
         public async Task<IActionResult> CargarCobro()
         {
-            var cobros = await _context.TbCobros.ToListAsync();
-
-            // Crear una lista de modelos de vista
-            var cobroViewModels = cobros.Select(c => new CobroViewModel
+            try
             {
-                FidCobro = c.FidCobro,
-                FkidCxc = c.FkidCxc,
-                Ffecha = c.Ffecha,
-                Fhora = c.Fhora,
-                Fmonto = c.Fmonto,
-                Fdescuento = c.Fdescuento,
-                Fcargos = c.Fcargos,
-                Fconcepto = c.Fconcepto,
-                NombreOrigen = ((OrigenCobro)c.FkidOrigen).ToString(), // Asignar el nombre del origen
-                Factivo = c.Factivo
-            }).ToList();
+                // Ordenar los cobros por FidCobro
+                var cobros = await _context.TbCobros
+                    .OrderBy(c => c.FidCobro)
+                    .ToListAsync();
 
-            return PartialView("_CobroPartial", cobroViewModels); // Devuelve la vista parcial
+                var cobroViewModels = cobros.Select(c => new CobroViewModel
+                {
+                    FidCobro = c.FidCobro,
+                    FkidCxc = c.FkidCxc,
+                    Ffecha = c.Ffecha,
+                    Fhora = c.Fhora,
+                    Fmonto = c.Fmonto,
+                    Fdescuento = c.Fdescuento,
+                    Fcargos = c.Fcargos,
+                    Fconcepto = c.Fconcepto,
+                    NombreOrigen = ((OrigenCobro)c.FkidOrigen).ToString(),
+                    Factivo = c.Factivo
+                })
+                .OrderBy(c => c.FidCobro)
+                .ToList();
+
+                return PartialView("_CobroPartial", cobroViewModels);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al cargar cobros");
+                return PartialView("_CobroPartial", new List<CobroViewModel>());
+            }
         }
 
         [HttpGet]
@@ -242,23 +253,18 @@ namespace Alquileres.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetDatosTicket(int cuentaId)
+        public async Task<IActionResult> GetDatosTicket(int cuentaId, int idCobro)
         {
             try
             {
-                Console.WriteLine($"Buscando datos para cuentaId: {cuentaId}"); // Debug backend 1
-
                 // Obtener la cuenta por cobrar
                 var cuenta = await _context.TbCxcs
                     .FirstOrDefaultAsync(c => c.FidCuenta == cuentaId);
 
                 if (cuenta == null)
                 {
-                    Console.WriteLine("Cuenta no encontrada"); // Debug backend 2
                     return Json(new { success = false, message = "Cuenta no encontrada" });
                 }
-
-                Console.WriteLine($"Cuenta encontrada. Inquilino ID: {cuenta.FidInquilino}"); // Debug backend 3
 
                 // Obtener el inquilino
                 var inquilino = await _context.TbInquilinos
@@ -266,13 +272,9 @@ namespace Alquileres.Controllers
 
                 if (inquilino == null)
                 {
-                    Console.WriteLine("Inquilino no encontrado"); // Debug backend 4
                     return Json(new { success = false, message = "Inquilino no encontrado" });
                 }
 
-                Console.WriteLine($"Inquilino encontrado: {inquilino.Fnombre} {inquilino.Fapellidos}"); // Debug backend 5
-
-                // Resto del código...
                 var inmueble = await _context.TbInmuebles
                     .FirstOrDefaultAsync(i => i.FidInmueble == cuenta.FkidInmueble);
 
@@ -281,40 +283,72 @@ namespace Alquileres.Controllers
                     return Json(new { success = false, message = "Inmueble no encontrado" });
                 }
 
-                var cobro = await _context.TbCobros
-                    .Where(c => c.FkidCxc == cuentaId)
-                    .OrderByDescending(c => c.FidCobro)
-                    .FirstOrDefaultAsync();
+                // Obtener el cobro específico
+                var cobroActual = await _context.TbCobros
+                    .FirstOrDefaultAsync(c => c.FidCobro == idCobro);
 
-                var descuento = await _context.TbCobros.FirstOrDefaultAsync(c => c.Fdescuento == cobro.Fdescuento);
-                var cargo = await _context.TbCobros.FirstOrDefaultAsync(c => c.Fcargos == cobro.Fcargos);
-                var monto = await _context.TbCobros.FirstOrDefaultAsync(c => c.Fmonto == cobro.Fmonto);
-                var subTotal = (cobro?.Fmonto) + (cobro?.Fcargos ?? 0) - (cobro?.Fdescuento ?? 0);
-                var Total = subTotal + (cobro?.Fcargos ?? 0) - (cobro?.Fdescuento ?? 0);
+                if (cobroActual == null)
+                {
+                    return Json(new { success = false, message = "Cobro no encontrado" });
+                }
+
+                // Obtener el desglose de cobros para el cobro actual
+                var desgloseCobros = await _context.TbCobrosDesgloses
+                    .Where(d => d.FkidCobro == cobroActual.FidCobro)
+                    .ToListAsync();
+
+                // Calcular los totales - IMPORTANTE: El subtotal es el monto original de la cuota
+                var subtotal = cuenta.Fmonto; // Usamos el monto de la cuenta, no del cobro
+                var cargos = cobroActual.Fcargos;
+                var descuento = cobroActual.Fdescuento;
+                var total = subtotal + cargos - descuento;
+                var mora = 0; // Asumiendo que no hay mora en este caso
+
+                // Obtener los datos de desglose de cobros
+                var efectivo = desgloseCobros.Sum(d => d.Fefectivo);
+                var transferencia = desgloseCobros.Sum(d => d.Ftransferencia);
+                var tarjeta = desgloseCobros.Sum(d => d.Ftarjeta);
+                var cheque = desgloseCobros.Sum(d => d.Fcheque);
+                var deposito = desgloseCobros.Sum(d => d.Fdeposito);
+                var montoNotaCredito = desgloseCobros.Sum(d => d.FnotaCredito);
+                var noNotaCredito = desgloseCobros.Sum(d => d.FnoNotaCredito);
+                var debitoAutomatico = desgloseCobros.Sum(d => d.FdebitoAutomatico);
+
+                // Obtener el monto recibido del desglose de cobros
+                var montoRecibido = desgloseCobros.Sum(d => d.FmontoRecibido);
+
+                // Calcular el cambio correctamente
+                var cambio = Math.Max(0, montoRecibido - efectivo);
+
                 var datosTicket = new
                 {
                     direccion = inmueble.Fdireccion,
                     ubicacion = inmueble.Fubicacion,
-                    telefono = inquilino.Ftelefono ?? "No disponible", // Manejar nulos
+                    telefono = inquilino.Ftelefono ?? "No disponible",
                     cliente = $"{inquilino.Fnombre} {inquilino.Fapellidos}",
-                    noCobro = cobro?.FidCobro,
-                    concepto = cobro?.Fconcepto,
-                    subtotal = subTotal,
-                    cargos = cobro?.Fcargos,
-                    mora = 0,
-                    descuento = cobro?.Fdescuento,
-                    total = Total,
+                    noCobro = cobroActual.FidCobro,
+                    concepto = cobroActual.Fconcepto,
+                    subtotal = subtotal,
+                    cargos = cargos,
+                    mora = mora,
+                    descuento = descuento,
+                    total = total,
+                    efectivo = efectivo,
+                    efectivoRecibido = montoRecibido,
+                    cambio = cambio,
+                    transferencia = transferencia,
+                    tarjeta = tarjeta,
+                    cheque = cheque,
+                    deposito = deposito,
+                    montoNotaCredito = montoNotaCredito,
+                    noNotaCredito = noNotaCredito,
+                    debitoAutomatico = debitoAutomatico,
                 };
-
-                Console.WriteLine("Datos del ticket preparados:"); // Debug backend 6
-                Console.WriteLine(JsonSerializer.Serialize(datosTicket)); // Debug backend 7
 
                 return Json(new { success = true, datos = datosTicket });
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error: {ex}"); // Debug backend 8
-                _logger.LogError(ex, "Error al obtener datos para el ticket");
                 return Json(new { success = false, message = ex.Message });
             }
         }

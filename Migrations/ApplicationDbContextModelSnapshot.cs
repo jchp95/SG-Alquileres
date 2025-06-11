@@ -22,6 +22,82 @@ namespace Alquileres.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Alquileres.Models.Empresa", b =>
+                {
+                    b.Property<int>("IdEmpresa")
+                        .HasColumnType("int")
+                        .HasColumnName("fid_empresa");
+
+                    b.Property<byte[]>("CodigoQrRedes")
+                        .HasColumnType("varbinary(max)")
+                        .HasColumnName("fcodigoqr_redes");
+
+                    b.Property<byte[]>("CodigoQrWeb")
+                        .HasColumnType("varbinary(max)")
+                        .HasColumnName("fcodigoqr_web");
+
+                    b.Property<string>("Contrasena")
+                        .HasMaxLength(100)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("fcontraseña");
+
+                    b.Property<string>("Direccion")
+                        .HasMaxLength(250)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(250)")
+                        .HasColumnName("fdireccion");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(50)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("femail");
+
+                    b.Property<byte[]>("Fondo")
+                        .HasColumnType("varbinary(max)")
+                        .HasColumnName("ffondo");
+
+                    b.Property<byte[]>("Logo")
+                        .HasColumnType("varbinary(max)")
+                        .HasColumnName("flogo");
+
+                    b.Property<string>("Mensaje")
+                        .HasMaxLength(250)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(250)")
+                        .HasColumnName("fmensaje");
+
+                    b.Property<string>("Nombre")
+                        .HasMaxLength(250)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(250)")
+                        .HasColumnName("fnombre");
+
+                    b.Property<string>("Rnc")
+                        .HasMaxLength(18)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(18)")
+                        .HasColumnName("frnc");
+
+                    b.Property<string>("Slogan")
+                        .HasMaxLength(250)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(250)")
+                        .HasColumnName("festlogan");
+
+                    b.Property<string>("Telefonos")
+                        .HasMaxLength(14)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(14)")
+                        .HasColumnName("ftelefonos");
+
+                    b.HasKey("IdEmpresa")
+                        .HasName("PK_tb_empresa");
+
+                    b.ToTable("tb_empresa", (string)null);
+                });
+
             modelBuilder.Entity("Alquileres.Models.TbAuditorium", b =>
                 {
                     b.Property<int>("Fid")
@@ -88,10 +164,10 @@ namespace Alquileres.Migrations
 
                     b.Property<string>("Fconcepto")
                         .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nchar(255)")
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("fconcepto")
-                        .IsFixedLength();
+                        .IsFixedLength(false);
 
                     b.Property<decimal>("Fdescuento")
                         .HasColumnType("decimal(18, 2)")
@@ -255,6 +331,9 @@ namespace Alquileres.Migrations
                         .HasColumnType("int")
                         .HasColumnName("fdias_gracia");
 
+                    b.Property<DateOnly?>("FfechaCancelacion")
+                        .HasColumnType("date");
+
                     b.Property<DateTime>("FfechaInicio")
                         .HasColumnType("datetime2");
 
@@ -281,9 +360,19 @@ namespace Alquileres.Migrations
                         .HasColumnType("decimal(18, 2)")
                         .HasColumnName("fmonto");
 
+                    b.Property<string>("FmotivoCancelacion")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Fnota")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Fstatus")
+                        .IsRequired()
+                        .HasMaxLength(1)
+                        .HasColumnType("char")
+                        .HasColumnName("fstatus");
 
                     b.Property<decimal>("FtasaMora")
                         .HasColumnType("decimal(18, 2)")
@@ -394,6 +483,9 @@ namespace Alquileres.Migrations
                         .HasColumnType("int")
                         .HasColumnName("fkid_propietario");
 
+                    b.Property<int>("FkidUsuario")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("Fprecio")
                         .HasColumnType("decimal(18, 2)")
                         .HasColumnName("fprecio");
@@ -406,6 +498,8 @@ namespace Alquileres.Migrations
                         .HasColumnName("fubicacion");
 
                     b.HasKey("FidInmueble");
+
+                    b.HasIndex("FkidUsuario");
 
                     b.HasIndex(new[] { "FkidPropietario" }, "IX_tb_inmueble_fkid_propietario");
 
@@ -614,6 +708,11 @@ namespace Alquileres.Migrations
                         .HasColumnName("fid_usuario");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FidUsuario"));
+
+                    b.Property<bool>("FTutorialVisto")
+                        .HasMaxLength(450)
+                        .HasColumnType("bit")
+                        .HasColumnName("tutorial_visto");
 
                     b.Property<bool>("Factivado")
                         .HasColumnType("bit")
@@ -879,6 +978,19 @@ namespace Alquileres.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("UserTutorialStatus", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("TutorialSeen")
+                        .HasColumnType("bit");
+
+                    b.ToTable((string)null);
+
+                    b.ToView("vw_UserTutorialStatus", (string)null);
+                });
+
             modelBuilder.Entity("Alquileres.Models.TbCobro", b =>
                 {
                     b.HasOne("Alquileres.Models.TbCxc", null)
@@ -950,6 +1062,12 @@ namespace Alquileres.Migrations
                         .WithMany()
                         .HasForeignKey("FkidPropietario")
                         .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alquileres.Models.TbUsuario", null)
+                        .WithMany()
+                        .HasForeignKey("FkidUsuario")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 

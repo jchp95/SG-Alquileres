@@ -1,36 +1,31 @@
 ﻿@{
-    if (ViewData.TryGetValue("ParentLayout", out var parentLayout) && parentLayout != null)
-    {
-        Layout = parentLayout.ToString();
-    }
-    else
-    {
-        Layout = "/Areas/Identity/Pages/_Layout.cshtml";
-    }
+    Layout = ViewData.TryGetValue("ParentLayout", out var parentLayout) && parentLayout != null
+    ? parentLayout.ToString()
+    : "/Views/Shared/_Layout.cshtml";
 }
 
-<section class="py-5" style="background: linear-gradient(135deg, #0077cc 0%, #ffffff 80%); min-height: 100vh;">
-    <div class="container">
-        <div class="text-center mb-5">
-            <h1 class="fw-bold" style="color: #333;">Manage Your Account</h1>
-            <p class="text-muted fs-5">Change your account settings and preferences</p>
-        </div>
+<section class="py-5>
+    <div class=" container">
+    <div class="text-center mb-5">
+        <h1 class="fw-bold" style="color: #333;">Gestiona tu cuenta</h1>
+        <p class="text-muted fs-5">Cambia la configuración y preferencias de tu cuenta</p>
+    </div>
 
-        <div class="row">
-            <!-- Navegación lateral -->
-            <div class="col-md-3">
-                <div class="bg-white shadow rounded-3 p-3 mb-4 border-start border-4 border-primary">
-                    <partial name="_ManageNav" />
-                </div>
-            </div>
-
-            <!-- Cuerpo de contenido -->
-            <div class="col-md-9">
-                <div class="bg-white shadow-lg rounded-4 p-4 border border-light-subtle">
-                    @RenderBody()
-                </div>
+    <div class="row">
+        <!-- Navegación lateral -->
+        <div class="col-md-3">
+            <div class="bg-white shadow rounded-3 p-3 mb-4 border-start border-4 border-primary">
+                <partial name="_ManageNav" />
             </div>
         </div>
+
+        <!-- Cuerpo de contenido -->
+        <div class="col-md-9">
+            <div class="bg-white shadow-lg rounded-4 p-4 border border-light-subtle">
+                @RenderBody()
+            </div>
+        </div>
+    </div>
     </div>
 </section>
 

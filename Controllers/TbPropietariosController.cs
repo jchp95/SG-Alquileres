@@ -53,7 +53,9 @@ namespace Alquileres.Controllers
         [Authorize(Policy = "Permissions.Propietarios.Ver")]
         public async Task<IActionResult> CargarPropietarios()
         {
-            var propietarios = await _context.TbPropietarios.ToListAsync();
+            var propietarios = await _context.TbPropietarios
+                .OrderBy(i => i.FidPropietario)
+                .ToListAsync();
             return PartialView("_PropietariosPartial", propietarios);
         }
 
@@ -72,6 +74,7 @@ namespace Alquileres.Controllers
         {
             try
             {
+                // Verificar si la cédula ya existe
                 if (!string.IsNullOrWhiteSpace(tbPropietario.Fcedula))
                 {
                     bool cedulaExiste = await _context.TbPropietarios
@@ -83,11 +86,12 @@ namespace Alquileres.Controllers
                     }
                 }
 
+                // Verificar si el modelo es válido
                 if (!ModelState.IsValid)
                 {
                     var errors = ModelState.ToDictionary(
                         kvp => kvp.Key,
-                        kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).FirstOrDefault()
+                        kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray() // Asegúrate de que sea un array
                     );
 
                     return BadRequest(new
@@ -162,6 +166,18 @@ namespace Alquileres.Controllers
                 return NotFound();
             }
 
+            // Verificar si la cédula ya existe, excluyendo el propietario actual
+            if (!string.IsNullOrWhiteSpace(tbPropietario.Fcedula))
+            {
+                bool cedulaExiste = await _context.TbPropietarios
+                    .AnyAsync(p => p.Fcedula.ToUpper() == tbPropietario.Fcedula.ToUpper() && p.FidPropietario != id);
+
+                if (cedulaExiste)
+                {
+                    ModelState.AddModelError("Fcedula", "Esta cédula ya está registrada");
+                }
+            }
+
             if (ModelState.IsValid)
             {
                 try
@@ -175,6 +191,9 @@ namespace Alquileres.Controllers
                     tbPropietario.Factivo = true;
                     _context.Entry(propietario).CurrentValues.SetValues(tbPropietario);
                     await _context.SaveChangesAsync();
+
+                    var propietarios = await _context.TbPropietarios.ToListAsync();
+                    return PartialView("_PropietariosPartial", propietarios);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -187,45 +206,19 @@ namespace Alquileres.Controllers
                         throw;
                     }
                 }
-
-                var propietarios = await _context.TbPropietarios.ToListAsync();
-                return PartialView("_PropietariosPartial", propietarios);
             }
 
-            return PartialView("_EditPropietarioPartial", tbPropietario);
-        }
+            // Si hay errores de validación, devolver el formulario con errores
+            var errors = ModelState.ToDictionary(
+                kvp => kvp.Key,
+                kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
+            );
 
-        // GET: TbPropietarios/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
+            return BadRequest(new
             {
-                return NotFound();
-            }
-
-            var propietario = await _context.TbPropietarios
-                .FirstOrDefaultAsync(m => m.FidPropietario == id);
-            if (propietario == null)
-            {
-                return NotFound();
-            }
-
-            return View(propietario);
-        }
-
-        // POST: TbPropietarios/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var propietario = await _context.TbPropietarios.FindAsync(id);
-            if (propietario != null)
-            {
-                _context.TbPropietarios.Remove(propietario);
-            }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+                success = false,
+                errors = errors
+            });
         }
 
         private bool TbPropietarioExists(int id)

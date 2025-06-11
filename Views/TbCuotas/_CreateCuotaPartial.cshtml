@@ -1,0 +1,69 @@
+@model Alquileres.Models.CuotaCreateViewModel
+
+<div class="mb-4">
+    <h3>Crear Cuotas para las CxC</h3>
+</div>
+<hr />
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <form id="cuotaForm" asp-action="Create" method="post" data-ajax="true">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <!-- Select para Cuentas por cobrar (Campo requerido) -->
+            <div class="form-group">
+                <label asp-for="FidCxc" class="control-label"></label>
+                <select id="busquedaCxC" class="form-control select2" asp-for="FidCxc" required
+                    data-placeholder="Buscar Cuenta por cobrar...">
+                    <option value=""></option>
+                </select>
+                <span asp-validation-for="FidCxc" class="text-danger"></span>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-6">
+                    <label class="control-label">Próximo No. de Cuota</label>
+                    <input asp-for="FNumeroCuota" class="form-control" placeholder="Número de cuota" id="FNumeroCuota"
+                        readonly />
+                    <span asp-validation-for="FNumeroCuota" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label class="control-label">Cantidad de Cuotas a Crear</label>
+                    <input asp-for="CantidadCuotas" class="form-control" placeholder="Cantidad de cuotas" required
+                        min="1" />
+                    <span asp-validation-for="CantidadCuotas" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Fecha de vencimiento</label>
+                <input asp-for="Fvence" class="form-control" placeholder="Fecha de vencimiento" id="Fvence" required />
+                <span asp-validation-for="Fvence" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Monto</label>
+                <input asp-for="Fmonto" class="form-control numeric-input" inputmode="decimal" type="text"
+                    placeholder="Monto de la cuota" id="Fmonto" />
+                <span asp-validation-for="Fmonto" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Mora %</label>
+                <input asp-for="TasaMora" class="form-control numeric-input" inputmode="decimal"
+                    placeholder="Tasa mora %" id="Fmora" required />
+                <span asp-validation-for="TasaMora" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mt-2">
+                <button type="submit" class="btn btn-primary">Crear</button>
+                <a asp-action="Index" class="btn btn-secondary ml-2">Volver a la Lista</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+
+}

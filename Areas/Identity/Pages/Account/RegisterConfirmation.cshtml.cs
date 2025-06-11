@@ -1,5 +1,5 @@
-// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
+// Licenciado por .NET Foundation bajo uno o más acuerdos
+// .NET Foundation concede licencia de este archivo bajo la licencia MIT
 #nullable disable
 
 using System;
@@ -27,20 +27,23 @@ namespace Alquileres.Areas.Identity.Pages.Account
         }
 
         /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Esta API soporta la infraestructura de UI por defecto de ASP.NET Core Identity
+        ///     y no está diseñada para ser usada directamente desde tu código.
+        ///     Esta API puede cambiar o eliminarse en futuras versiones.
         /// </summary>
         public string Email { get; set; }
 
         /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Esta API soporta la infraestructura de UI por defecto de ASP.NET Core Identity
+        ///     y no está diseñada para ser usada directamente desde tu código.
+        ///     Esta API puede cambiar o eliminarse en futuras versiones.
         /// </summary>
         public bool DisplayConfirmAccountLink { get; set; }
 
         /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Esta API soporta la infraestructura de UI por defecto de ASP.NET Core Identity
+        ///     y no está diseñada para ser usada directamente desde tu código.
+        ///     Esta API puede cambiar o eliminarse en futuras versiones.
         /// </summary>
         public string EmailConfirmationUrl { get; set; }
 
@@ -55,11 +58,11 @@ namespace Alquileres.Areas.Identity.Pages.Account
             var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
             {
-                return NotFound($"Unable to load user with email '{email}'.");
+                return NotFound($"No se pudo encontrar un usuario con el email '{email}'.");
             }
 
             Email = email;
-            // Once you add a real email sender, you should remove this code that lets you confirm the account
+            // Una vez que agregues un servicio de email real, deberías eliminar este código que permite confirmar la cuenta
             DisplayConfirmAccountLink = true;
             if (DisplayConfirmAccountLink)
             {

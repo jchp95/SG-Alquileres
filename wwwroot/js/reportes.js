@@ -170,7 +170,7 @@ async function cargarReporteCxC() {
 
                         // Obtener fecha y hora actual
                         const now = new Date();
-                        const fechaHora = now.toLocaleDateString('es-MX', {
+                        const fechaHora = now.toLocaleDateString('es-RD', {
                             year: 'numeric',
                             month: 'long',
                             day: 'numeric',
@@ -673,6 +673,254 @@ async function cargarReporteCobros() {
         }
     }
 };
+
+/////// Función para cargar el reporte de atrasos ///////
+async function cargarReporteAtrasos() {
+    const spinner = document.getElementById("loadingSpinner");
+    const container = document.getElementById("dataTableContainer");
+
+    spinner.style.display = "block";
+    container.style.display = "none";
+
+    const filtroNombreUsuario = $('#NombreUsuario').val();
+
+    const queryParams = new URLSearchParams({
+        filtroNombreUsuario: filtroNombreUsuario || '',
+    });
+
+
+    try {
+        const html = await ajaxRequest({
+            url: `/Reportes/ReporteAtrasos?${queryParams}`,
+            type: 'GET',
+            errorMessage: 'Error al cargar el reporte de atrasos',
+            suppressPermissionToasts: false // Permitir toasts de permisos
+        });
+
+        container.innerHTML = html;
+        container.style.display = "block";
+
+        inicializarSelect2('reporteAtrasosTable'); // Inicializar Select2 si es necesario
+        inicializarTooltips(); // Inicializar tooltips
+
+        // Inicializar el DataTable con los datos cargados
+        const table = $('#reporteAtrasosTable').DataTable({
+            destroy: true,
+            responsive: true,
+            dom: '<"top"lf>Brt<"bottom"ip>',
+            buttons: [
+                {
+                    extend: 'copyHtml5',
+                    text: '<i class="fas fa-copy"></i> Copiar',
+                    className: 'btn btn-outline-primary btn-sm'
+                },
+                {
+                    extend: 'excelHtml5',
+                    text: '<i class="fas fa-file-excel"></i> Excel',
+                    className: 'btn btn-outline-success btn-sm'
+                },
+                {
+                    extend: 'csvHtml5',
+                    text: '<i class="fas fa-file-csv"></i> CSV',
+                    className: 'btn btn-outline-info btn-sm'
+                },
+                {
+                    extend: 'pdfHtml5',
+                    text: '<i class="fas fa-file-pdf"></i> PDF',
+                    className: 'btn btn-outline-danger btn-sm',
+                    orientation: 'landscape',
+                    pageSize: 'A4',
+                    exportOptions: {
+                        columns: ':visible',
+                        modifier: {
+                            page: 'all'
+                        }
+                    },
+                    customize: function (doc) {
+                        // Función para formatear números al estilo RD (comas para miles, punto para decimales)
+                        function formatoRD(numero) {
+                            return numero.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+                        }
+
+                        // Obtener fecha y hora actual
+                        const now = new Date();
+                        const fechaHora = now.toLocaleDateString('es-RD', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+
+                        const table = $('#reporteAtrasosTable').DataTable();
+
+                        // Encontrar los índices de las columnas necesarias
+                        let montoIndex = -1;
+                        let totalIndex = -1;
+
+                        table.columns().every(function () {
+                            const headerText = this.header().textContent.trim();
+                            if (headerText === 'Monto Total Atraso') {
+                                montoIndex = this.index();
+                            } else if (headerText === 'Total') {
+                                totalIndex = this.index();
+                            }
+                        });
+
+                        // Calcular el total de la columna Monto Total Atraso
+                        let totalMonto = 0;
+                        let totalRegistros = 0;
+
+                        if (montoIndex !== -1) {
+                            table.rows({ search: 'applied' }).data().each(function (row) {
+                                const montoStr = row[montoIndex].toString();
+                                const montoLimpio = montoStr.replace(/[^\d.-]/g, '');
+                                const montoNum = parseFloat(montoLimpio) || 0;
+                                totalMonto += montoNum;
+                            });
+                        }
+
+                        // Contar registros (filas visibles después de búsqueda/filtrado)
+                        totalRegistros = table.rows({ search: 'applied' }).count();
+
+                        // Formatear los totales al formato RD
+                        const totalFormateado = 'RD$ ' + formatoRD(totalMonto);
+
+                        // Ajustar márgenes y centrar contenido
+                        doc.pageMargins = [40, 80, 40, 60];
+                        doc.defaultStyle.fontSize = 8;
+                        doc.styles.tableHeader.fontSize = 9;
+                        doc.styles.tableHeader.alignment = 'center';
+                        doc.content[0].alignment = 'center';
+
+                        // Añadir información de total de registros al título
+                        doc.content.splice(1, 0, {
+                            text: `Total de registros: ${totalRegistros.toLocaleString('es-RD')}`,
+                            alignment: 'right',
+                            margin: [0, 0, 40, 10],
+                            fontSize: 9,
+                            bold: true
+                        });
+
+                        // Añadir fila de total al cuerpo de la tabla
+                        if (doc.content[2].table.body.length > 0) {
+                            const columnsCount = doc.content[2].table.body[0].length;
+                            const totalRow = new Array(columnsCount).fill('');
+
+                            // Colocar "TOTAL:" en la columna Ubicación (índice 3)
+                            totalRow[3] = { text: 'TOTAL:', bold: true, alignment: 'right' };
+
+                            // Colocar el monto total en la columna Monto (índice 4)
+                            totalRow[4] = { text: totalFormateado, bold: true, alignment: 'right' };
+
+                            doc.content[2].table.body.push(totalRow);
+                        }
+
+                        // Centrar la tabla
+                        doc.content[2].alignment = 'center';
+
+                        // Ajustar el ancho de la tabla
+                        doc.content[2].table.widths = Array(doc.content[2].table.body[0].length + 1).join('*').split('');
+
+                        // Footer con paginación y fecha
+                        doc['footer'] = function (page, pages) {
+                            return {
+                                columns: [
+                                    {
+                                        alignment: 'left',
+                                        text: `Generado: ${fechaHora}`,
+                                        fontSize: 8,
+                                        margin: [40, 10, 0, 0]
+                                    },
+                                    {
+                                        alignment: 'center',
+                                        text: [
+                                            { text: 'Página ', fontSize: 10 },
+                                            { text: page.toString(), fontSize: 10 },
+                                            { text: ' de ', fontSize: 10 },
+                                            { text: pages.toString(), fontSize: 10 }
+                                        ],
+                                        margin: [0, 10, 0, 0]
+                                    }
+                                ],
+                                margin: [40, 10, 40, 0]
+                            };
+                        };
+
+                        // Estilo de la tabla
+                        const objLayout = {};
+                        objLayout['hLineWidth'] = function (i) {
+                            return (i === doc.content[2].table.body.length - 2) ? 1 : 0.5;
+                        };
+                        objLayout['vLineWidth'] = function (i) { return 0.5; };
+                        objLayout['hLineColor'] = function (i) { return '#aaa'; };
+                        objLayout['vLineColor'] = function (i) { return '#aaa'; };
+                        objLayout['paddingLeft'] = function (i) { return 4; };
+                        objLayout['paddingRight'] = function (i) { return 4; };
+                        doc.content[2].layout = objLayout;
+                    }
+                },
+                {
+                    extend: 'print',
+                    text: '<i class="fas fa-print"></i> Imprimir',
+                    className: 'btn btn-outline-dark btn-sm',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                }
+            ],
+            lengthMenu: [10, 25, 50, 100],
+            pageLength: 10,
+            columnDefs: [
+                {
+                    targets: [0],
+                    visible: false,
+                    searchable: true
+                },
+                {
+                    targets: [1, 2, 3, 4, 5],
+                    visible: true,
+                    searchable: true
+                }
+            ],
+        });
+
+        // Filtros rápidos
+        $('#filtroInquilino').on('keyup', function () {
+            table.column(1).search(this.value).draw();
+        });
+
+        // Botón reset (actualizado para limpiar todo correctamente)
+        $('#btnResetFiltros').on('click', function () {
+            // Limpiar inputs de filtro
+            $('#busquedaUsuario').val(null).trigger('change');
+            $('#NombreUsuario').val('');
+            $('#filtroInquilino').val('');
+
+            // Limpiar clases visuales si se usaban
+            $('#filtroInquilino').removeClass('has-value');
+
+            // Resetear filtros del DataTable
+            const table = $('#reporteAtrasosTable').DataTable();
+            table.search('').columns().search('').draw();
+
+            // Forzar nuevo filtrado sin el filtro de fechas
+            $.fn.dataTable.ext.search = $.fn.dataTable.ext.search.filter(function (filtro) {
+                return filtro.name;
+            });
+
+            table.draw();
+        });
+
+    } catch (error) {
+        if (error.status === 403) {
+            showPermissionAlert(error.responseJSON?.error || 'No tiene permisos para esta acción');
+        } else if (error.status === 404) {
+            showToast('Reporte no encontrado', 'error');
+        }
+    }
+}
+
 
 /////// Inicializar Select2 y conectar el evento onchange ///////
 function inicializarSelect2(nombreTabla) {

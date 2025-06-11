@@ -8,11 +8,6 @@
             <h2 class="mb-1"><i class="fas fa-receipt me-2 text-primary"></i>Registro de Cobros</h2>
             <p class="text-muted mb-0">Gestión y consulta de transacciones</p>
         </div>
-        <div class="d-flex gap-2">
-            <button class="btn btn-outline-primary">
-                <i class="fas fa-file-export me-1"></i> Exportar
-            </button>
-        </div>
     </div>
 
     <!-- Card de Filtros -->
@@ -116,7 +111,6 @@
                                 </td>
                                 <td class="text-center pe-4">
                                     <div class="d-flex justify-content-center gap-2">
-
                                         @if (item.Factivo)
                                         {
                                             <a href="#" title="Ver detalles" class="btn btn-sm btn-outline-primary btn-detalles"
@@ -131,6 +125,11 @@
                                                     <i class="fas fa-ban"></i>
                                                 </button>
                                             </form>
+                                            <!-- Nuevo botón para reimprimir ticket -->
+                                            <button class="btn btn-sm btn-outline-success btn-reimprimir"
+                                                title="Reimprimir ticket" data-id="@item.FidCobro" data-cuenta="@item.FkidCxc">
+                                                <i class="fas fa-print"></i>
+                                            </button>
                                         }
                                         else
                                         {
@@ -139,6 +138,10 @@
                                             </button>
                                             <button class="btn btn-sm btn-outline-secondary" title="Cobro anulado" disabled>
                                                 <i class="fas fa-ban"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-secondary" title="Reimprimir (Anulado)"
+                                                disabled>
+                                                <i class="fas fa-print"></i>
                                             </button>
                                         }
                                     </div>

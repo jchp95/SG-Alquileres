@@ -22,8 +22,19 @@ namespace Alquileres.Controllers
         // Acción para cargar los datos de auditoría dinámicamente
         public async Task<IActionResult> CargarAuditoria()
         {
-            var auditoria = await _context.TbAuditoria.ToListAsync();
-            return PartialView("_AuditoriaPartial", auditoria); // Carga la vista parcial
+            var auditorias = await _context.TbAuditoria
+                .Join(_context.TbUsuarios,
+                    auditoria => auditoria.FkidUsuario,
+                    usuario => usuario.FidUsuario,
+                    (auditoria, usuario) => new
+                    {
+                        Auditoria = auditoria,
+                        NombreUsuario = usuario.Fusuario
+                    })
+                .OrderByDescending(x => x.Auditoria.Fid)
+                .ToListAsync();
+
+            return PartialView("_AuditoriaPartial", auditorias);
         }
     }
 }

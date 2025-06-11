@@ -2,7 +2,7 @@
 @model LoginModel
 
 @{
-    ViewData["Title"] = "Log in";
+    ViewData["Title"] = "Acceder";
 }
 
 <section class="vh-100 d-flex align-items-center justify-content-center">
@@ -17,25 +17,25 @@
                             <div class="text-center mb-4">
                                 <img src="~/favicon_io/android-chrome-192x192.png" alt="logo"
                                     style="height: 200px; width: auto;" class="img-fluid" />
-                                <h3 class="fw-bold mb-2" style="color: #0077cc;">Welcome Back</h3>
-                                <p class="text-muted">Sign into your account</p>
+                                <h3 class="fw-bold mb-2" style="color: #0077cc;">Bienvenido</h3>
+                                <p class="text-muted">Acceder con su cuenta</p>
                             </div>
 
                             <form id="account" method="post">
                                 <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
 
                                 <div class="form-outline mb-4">
-                                    <label asp-for="Input.UserName" class="form-label">UserName</label>
+                                    <label asp-for="Input.UserName" class="form-label">Usuario</label>
                                     <input asp-for="Input.UserName" class="form-control form-control-lg"
-                                        autocomplete="UserName" aria-required="true" placeholder="your UserName" />
+                                        autocomplete="UserName" aria-required="true" placeholder="Nombre de usuario" />
                                     <span asp-validation-for="Input.UserName" class="text-danger"></span>
                                 </div>
 
 
                                 <div class="form-outline mb-4">
-                                    <label asp-for="Input.Password" class="form-label">Password</label>
+                                    <label asp-for="Input.Password" class="form-label">Contraseña</label>
                                     <input asp-for="Input.Password" class="form-control form-control-lg"
-                                        autocomplete="current-password" aria-required="true" placeholder="password" />
+                                        autocomplete="current-password" aria-required="true" placeholder="Contraseña" />
                                     <span asp-validation-for="Input.Password" class="text-danger"></span>
                                 </div>
 
@@ -48,25 +48,25 @@
 
                                 <div class="d-grid gap-2">
                                     <button id="login-submit" type="submit" class="btn btn-primary btn-lg">
-                                        Login
+                                        Acceder
                                     </button>
                                 </div>
 
                                 <div class="mt-3 text-center">
-                                    <a class="small text-muted" asp-page="./ForgotPassword">Forgot password?</a>
+                                    <a class="small text-muted" asp-page="./ForgotPassword">Olvidaste la Contraseña?</a>
                                 </div>
 
                                 <p class="mt-4 mb-0 text-center text-muted">
-                                    Don't have an account?
+                                    Aún no te has registrado?
                                     <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl"
                                         class="text-primary">
-                                        Register here
+                                        Registrar
                                     </a>
                                 </p>
 
                                 <div class="mt-4 text-center">
-                                    <a href="#" class="small text-muted me-2">Terms of use</a>
-                                    <a href="#" class="small text-muted">Privacy policy</a>
+                                    <a href="#" class="small text-muted me-2">Términos de uso</a>
+                                    <a href="#" class="small text-muted">Políticas de Privacidad</a>
                                 </div>
                             </form>
                         </div>
@@ -74,7 +74,7 @@
 
                     <!-- Imagen lateral -->
                     <div class="col-md-6 d-none d-md-block">
-                        <img src="~/images/login.webp" alt="login visual" class="img-fluid h-100 w-100"
+                        <img src="~/images/login.jpg" alt="login visual" class="img-fluid h-100 w-100"
                             style="object-fit: cover;" />
                     </div>
                 </div>

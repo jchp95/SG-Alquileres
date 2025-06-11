@@ -23,14 +23,13 @@
 
             <div class="form-group">
                 <label class="control-label">Apellidos</label>
-                <input asp-for="Fapellidos" id="cedula-input" class="form-control"
-                    placeholder="Ingrese los apellidos" />
+                <input asp-for="Fapellidos" class="form-control" placeholder="Ingrese los apellidos" />
                 <span asp-validation-for="Fapellidos" class="text-danger"></span>
             </div>
 
             <div class="form-group">
                 <label class="control-label">Cédula</label>
-                <input asp-for="Fcedula" class="form-control" placeholder="Documento de identificación" />
+                <input asp-for="Fcedula" class="form-control" placeholder="Cédula o Pasaporte" />
                 <span asp-validation-for="Fcedula" class="text-danger"></span>
                 <div class="cedula-error text-danger" style="display: none;"></div>
             </div>

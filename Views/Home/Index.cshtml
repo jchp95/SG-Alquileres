@@ -22,10 +22,12 @@
 
         <!-- Sección de métricas clave -->
         <section class="metrics-section">
-            <div class="metric-card">
+            <div class="metric-card secondary" data-intro="Datos estadísticos de inmuebles creados y en estado activo"
+                data-step="1">
                 <div class="metric-content">
                     <h3 class="metric-title">Propiedades Activas</h3>
-                    <p class="metric-value">@Model.InmueblesActivosCount</p>
+                    <p class="metric-value">
+                        @Model.InmueblesActivosCount</p>
                     <p class="metric-change @Model.ClaseCambioInmuebles">
                         @Model.TextoCambioInmuebles
                     </p>
@@ -36,7 +38,7 @@
                 </div>
             </div>
 
-            <div class="metric-card">
+            <div class="metric-card success" data-intro="Datos estadísticos de los pagos efectuados" data-step="2">
                 <div class="metric-content">
                     <h3 class="metric-title">Ingresos Mensuales</h3>
                     <p class="metric-value">@Model.IngresosMensuales.ToString("C")</p>
@@ -47,7 +49,7 @@
                 </div>
             </div>
 
-            <div class="metric-card alert">
+            <div class="metric-card danger" data-intro="Cantidad de cuotas vencidas en el sistema" data-step="3">
                 <div class="metric-content">
                     <h3 class="metric-title">Pagos Pendientes</h3>
                     <p class="metric-value">@Model.CuotasVencidasCount</p>
@@ -60,8 +62,10 @@
                 </div>
             </div>
 
-
-            <div class="metric-card">
+            <div class="metric-card warning"
+                data-intro="Relación entre los inmuebles activos 
+                                                                    e inactivos. Donde los inmuebles activos representará los inmuebles rentados"
+                data-step="4">
                 <div class="metric-content">
                     <h3 class="metric-title">Ocupación</h3>
                     <p class="metric-value">@Model.OcupacionActual.ToString("F0")%</p>
@@ -210,9 +214,9 @@ else
         @if (User.Identity.IsAuthenticated)
         {
             <text>
-                                                        // Solo hacer la llamada AJAX si el usuario está autenticado
+                                                                                                                                                                                                                // Solo hacer la llamada AJAX si el usuario está autenticado
                         $.get('@Url.Action("CheckCuotasVencidas", "Home")', function (data) {
-                                                            if (data.tieneCuotasVencidas) {
+                                                                                                                                                                                                                    if (data.tieneCuotasVencidas) {
                             Swal.fire({
                                 title: '¡Cuotas Vencidas!',
                                 html: `Tienes <b>${data.cantidad}</b> cuotas vencidas que requieren atención.`,
@@ -221,10 +225,46 @@ else
                                 confirmButtonColor: '#3085d6',
                                 footer: '<a href="/TbCuotas/Index">Ir a gestión de cuotas</a>'
                             });
-                                                            }
-                                                        });
+                                                                                                                                                                                                                    }
+                                                                                                                                                                                                                });
             </text>
         }
-                            });
+                                                                                                        });
     </script>
+
+    @if (ViewBag.MostrarTutorial)
+    {
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                introJs()
+                    .setOptions({
+                        nextLabel: '>',
+                        prevLabel: '<',
+                        doneLabel: 'OK',
+                        skipLabel: 'X',
+                        exitOnOverlayClick: false,
+                        tooltipClass: 'customTooltip'
+                    })
+                    .oncomplete(function () {
+                        // Marcar como visto vía AJAX
+                        fetch('/Home/MarcarTutorialVisto', {
+                            method: 'POST',
+                            headers: {
+                                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                            }
+                        });
+                    })
+                    .onexit(function () {
+                        // También marcar como visto si el usuario hace clic en 'X' (skip)
+                        fetch('/Home/MarcarTutorialVisto', {
+                            method: 'POST',
+                            headers: {
+                                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                            }
+                        });
+                    })
+                    .start();
+            });
+        </script>
+    }
 }

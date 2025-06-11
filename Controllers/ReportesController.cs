@@ -32,6 +32,12 @@ namespace Alquileres.Controllers
         {
             try
             {
+                // Construir consulta base con ordenamiento
+                var query = _context.TbCxcs
+                 .OrderBy(c => c.FidCuenta)
+                    .ThenByDescending(c => c.FfechaInicio) // Segundo criterio de orden
+                    .AsQueryable();
+
                 // Cargar todos los datos requeridos desde la base de datos
                 var cuentas = await _context.TbCxcs.ToListAsync();
                 var inquilinos = await _context.TbInquilinos.ToListAsync();
@@ -91,6 +97,11 @@ namespace Alquileres.Controllers
         {
             try
             {
+                // Construir consulta base con ordenamiento
+                var query = _context.TbCobros
+                 .OrderBy(c => c.FidCobro)
+                 .AsQueryable();
+
                 // Cargar todos los datos requeridos desde la base de datos
                 var cobros = await _context.TbCobros.ToListAsync();
                 var cxcs = await _context.TbCxcs.ToListAsync();
@@ -120,6 +131,69 @@ namespace Alquileres.Controllers
                 }).ToList();
 
                 return PartialView("_ReporteCobrosPartial", reporte);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        [Authorize(Policy = "Permissions.Reportes.Ver")]
+        public async Task<IActionResult> ReporteAtrasos(string filtroUsuarioId)
+        {
+            try
+            {
+                // Cargar todos los datos requeridos desde la base de datos
+                var inquilinos = await _context.TbInquilinos.ToListAsync();
+                var inmuebles = await _context.TbInmuebles.ToListAsync();
+                var cuentasPorCobrar = await _context.TbCxcs.ToListAsync();
+                var cuotas = await _context.TbCxcCuota.ToListAsync();
+                var usuarios = await _context.TbUsuarios.ToListAsync();
+
+                // Mapear a ViewModel y ordenar por FidCuenta
+                var reporte = cuentasPorCobrar.Select(c =>
+                {
+                    // Obtener las cuotas vencidas para la cuenta por cobrar actual
+                    var cuotasVencidas = cuotas
+                        .Where(x => x.FidCxc == c.FidCuenta && x.Fstatus == 'V')
+                        .ToList();
+
+                    // Obtener el inquilino y el inmueble relacionados
+                    var inquilino = inquilinos.FirstOrDefault(i => i.FidInquilino == c.FidInquilino);
+                    var inmueble = inmuebles.FirstOrDefault(i => i.FidInmueble == c.FkidInmueble);
+                    var usuario = usuarios.FirstOrDefault(u => u.FidUsuario == c.FkidUsuario);
+
+                    // Calcular el monto total de atraso
+                    var montoTotalAtraso = cuotasVencidas.Sum(x => x.Fmonto);
+
+                    // Calcular la cantidad de cuotas atrasadas
+                    var cantCuotasAtrasadas = cuotasVencidas.Count;
+
+                    // Calcular el total incluyendo la mora
+                    var total = c.FtasaMora > 0
+                        ? montoTotalAtraso + (montoTotalAtraso * (c.FtasaMora / 100)) // %
+                        : montoTotalAtraso; // Si la mora es 0%, el total es igual al monto total de atraso
+
+                    return new ReporteViewModel
+                    {
+                        FidCuenta = c.FidCuenta,
+                        NombreUsuario = usuario?.Fusuario ?? "Desconocido",
+                        NombreInquilino = inquilino != null
+                            ? $"{inquilino.Fnombre?.Trim()} {inquilino.Fapellidos?.Trim()}".Trim()
+                            : "N/A",
+                        DireccionInmueble = inmueble?.Fdescripcion,
+                        UbicacionInmueble = inmueble?.Fdireccion,
+                        CantCuotasAtrasadas = cantCuotasAtrasadas, // Cantidad de cuotas vencidas
+                        MontoTotalAtraso = montoTotalAtraso,
+                        Mora = c.FtasaMora,
+                        Total = total
+                    };
+                })
+                .OrderBy(x => x.FidCuenta)  // Ordenar por FidCuenta ascendente
+                .ToList();
+
+                return PartialView("_ReporteAtrasosPartial", reporte);
             }
             catch (Exception ex)
             {

@@ -4,12 +4,13 @@
     ViewData["Title"] = "Gestión de Cuotas";
 }
 
-<div class="text-center mb-4">
-    <h1>Gestión de Cuotas</h1>
-</div>
-
-<div class="d-flex justify-content-center mb-4">
-    <button id="loadCuota" class="btn btn-secondary me-2">Cargar Cuotas</button>
+<div class="d-flex mb-4">
+    <a id="createCuota" class="btn btn-primary shadow-sm me-3">
+        <i class="fa fa-plus"></i> Crear Cuotas
+    </a>
+    <a id="deleteCuota" class="btn btn-danger shadow-sm me-3">
+        <i class="fa fa-minus"></i> Eliminar Cuotas
+    </a>
 </div>
 
 <div id="dataTableContainer" style="display: none;">

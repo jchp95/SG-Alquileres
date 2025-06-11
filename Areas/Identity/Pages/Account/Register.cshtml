@@ -1,7 +1,7 @@
 ﻿@page
 @model RegisterModel
 @{
-    ViewData["Title"] = "Register";
+    ViewData["Title"] = "Registrar";
 }
 
 <section class="vh-100 d-flex align-items-center justify-content-center">
@@ -12,7 +12,7 @@
 
                     <!-- Imagen lateral -->
                     <div class="col-md-6 d-none d-md-block">
-                        <img src="~/images/login.webp" alt="register visual" class="img-fluid h-100 w-100"
+                        <img src="~/images/register.jpg" alt="register visual" class="img-fluid h-100 w-100"
                             style="object-fit: cover;" />
                     </div>
 
@@ -22,30 +22,30 @@
                             <div class="text-center mb-4">
                                 <img src="~/favicon_io/android-chrome-192x192.png" alt="logo"
                                     style="height: 200px; width: auto;" class="img-fluid" />
-                                <h3 class="fw-bold mb-2" style="color: #0077cc;">Create an Account</h3>
-                                <p class="text-muted">Sign up to get started</p>
+                                <h3 class="fw-bold mb-2" style="color: #0077cc;">Crear cuenta</h3>
+                                <p class="text-muted">Regístrate para comenzar</p>
                             </div>
 
                             <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
                                 <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
 
                                 <div class="mb-3">
-                                    <label asp-for="Input.UserName" class="form-label fw-semibold">UserName</label>
+                                    <label asp-for="Input.UserName" class="form-label fw-semibold">Usuario</label>
                                     <input asp-for="Input.UserName" class="form-control form-control-lg"
                                         autocomplete="username" aria-required="true" />
                                     <span asp-validation-for="Input.UserName" class="text-danger"></span>
                                 </div>
 
                                 <div class="mb-3">
-                                    <label asp-for="Input.Password" class="form-label fw-semibold">Password</label>
+                                    <label asp-for="Input.Password" class="form-label fw-semibold">Contraseña</label>
                                     <input asp-for="Input.Password" class="form-control form-control-lg"
                                         autocomplete="new-password" aria-required="true" />
                                     <span asp-validation-for="Input.Password" class="text-danger"></span>
                                 </div>
 
                                 <div class="mb-3">
-                                    <label asp-for="Input.ConfirmPassword" class="form-label fw-semibold">Confirm
-                                        Password</label>
+                                    <label asp-for="Input.ConfirmPassword" class="form-label fw-semibold">Confirmar
+                                        Contraseña</label>
                                     <input asp-for="Input.ConfirmPassword" class="form-control form-control-lg"
                                         autocomplete="new-password" aria-required="true" />
                                     <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
@@ -53,7 +53,7 @@
 
                                 <div class="d-grid gap-2">
                                     <button id="registerSubmit" type="submit" class="btn btn-primary btn-lg">
-                                        Register
+                                        Registrar
                                     </button>
                                 </div>
                             </form>
@@ -63,7 +63,7 @@
                             {
                                 <hr />
                                 <div class="text-center">
-                                    <p class="mb-2 text-muted">Or register with</p>
+                                    <p class="mb-2 text-muted">Registrar con:</p>
                                     <form id="external-account" asp-page="./ExternalLogin"
                                         asp-route-returnUrl="@Model.ReturnUrl" method="post">
                                         @foreach (var provider in Model.ExternalLogins!)

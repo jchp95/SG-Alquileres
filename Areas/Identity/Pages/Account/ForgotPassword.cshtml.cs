@@ -1,5 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
+// Licenciado por .NET Foundation bajo MIT
 #nullable disable
 
 using System.ComponentModel.DataAnnotations;
@@ -17,32 +16,26 @@ namespace Alquileres.Areas.Identity.Pages.Account
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IEmailSender _emailSender;
+        private readonly ILogger<ForgotPasswordModel> _logger;
 
-        public ForgotPasswordModel(UserManager<IdentityUser> userManager, IEmailSender emailSender)
+        public ForgotPasswordModel(
+            UserManager<IdentityUser> userManager,
+            IEmailSender emailSender,
+            ILogger<ForgotPasswordModel> logger)
         {
             _userManager = userManager;
             _emailSender = emailSender;
+            _logger = logger;
         }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         [BindProperty]
         public InputModel Input { get; set; }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public class InputModel
         {
-            /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
-            [Required]
-            [EmailAddress]
+            [Required(ErrorMessage = "El correo electrónico es obligatorio")]
+            [EmailAddress(ErrorMessage = "Ingrese un correo electrónico válido")]
+            [Display(Name = "Correo electrónico")]
             public string Email { get; set; }
         }
 
@@ -51,28 +44,43 @@ namespace Alquileres.Areas.Identity.Pages.Account
             if (ModelState.IsValid)
             {
                 var user = await _userManager.FindByEmailAsync(Input.Email);
+
+                // Medida de seguridad: No revelar si el email existe o está confirmado
                 if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
                 {
-                    // Don't reveal that the user does not exist or is not confirmed
+                    _logger.LogInformation($"Solicitud de restablecimiento para email no registrado: {Input.Email}");
                     return RedirectToPage("./ForgotPasswordConfirmation");
                 }
 
-                // For more information on how to enable account confirmation and password reset please
-                // visit https://go.microsoft.com/fwlink/?LinkID=532713
-                var code = await _userManager.GeneratePasswordResetTokenAsync(user);
-                code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                var callbackUrl = Url.Page(
-                    "/Account/ResetPassword",
-                    pageHandler: null,
-                    values: new { area = "Identity", code },
-                    protocol: Request.Scheme);
+                try
+                {
+                    var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                    token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
 
-                await _emailSender.SendEmailAsync(
-                    Input.Email,
-                    "Reset Password",
-                    $"Please reset your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                    var resetUrl = Url.Page(
+                        "/Account/ResetPassword",
+                        pageHandler: null,
+                        values: new { area = "Identity", code = token },
+                        protocol: Request.Scheme);
 
-                return RedirectToPage("./ForgotPasswordConfirmation");
+                    await _emailSender.SendEmailAsync(
+                        Input.Email,
+                        "Restablecer contraseña - Alquileres",
+                        $"""
+                        <h3>Restablecimiento de contraseña</h3>
+                        <p>Para crear una nueva contraseña, <a href='{HtmlEncoder.Default.Encode(resetUrl)}'>haga clic aquí</a>.</p>
+                        <p>Si no solicitó este cambio, puede ignorar este mensaje.</p>
+                        <p><small>Enlace válido por 24 horas</small></p>
+                        """);
+
+                    _logger.LogInformation($"Enlace de restablecimiento enviado a: {Input.Email}");
+                    return RedirectToPage("./ForgotPasswordConfirmation");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error al enviar email de restablecimiento");
+                    ModelState.AddModelError(string.Empty, "Ocurrió un error al procesar su solicitud.");
+                }
             }
 
             return Page();

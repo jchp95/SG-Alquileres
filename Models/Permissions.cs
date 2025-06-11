@@ -38,6 +38,15 @@ namespace Alquileres.Models
             public const string Crear = "Permissions.CxC.Crear";
             public const string Editar = "Permissions.CxC.Editar";
             public const string Anular = "Permissions.CxC.Anular";
+            public const string Cancelar = "Permissions.CxC.Cancelar";
+        }
+
+        // Permisos para las cuotas
+        public static class Cuotas
+        {
+            public const string Ver = "Permissions.Cuotas.Ver";
+            public const string Crear = "Permissions.Cuotas.Crear";
+            public const string Eliminar = "Permissions.Cuotas.Eliminar";
         }
 
         // Permisos para Cobros
@@ -77,7 +86,8 @@ namespace Alquileres.Models
                 ["Inquilinos"] = new List<string> { Inquilinos.Ver, Inquilinos.Crear, Inquilinos.Editar, Inquilinos.Anular },
                 ["Propietarios"] = new List<string> { Propietarios.Ver, Propietarios.Crear, Propietarios.Editar, Propietarios.Anular },
                 ["Inmuebles"] = new List<string> { Inmuebles.Ver, Inmuebles.Crear, Inmuebles.Editar, Inmuebles.Anular },
-                ["CuentaPorCobrar"] = new List<string> { CxC.Ver, CxC.Crear, CxC.Editar, CxC.Anular },
+                ["CuentaPorCobrar"] = new List<string> { CxC.Ver, CxC.Crear, CxC.Editar, CxC.Anular, CxC.Cancelar },
+                ["Cuotas"] = new List<string> { Cuotas.Ver, Cuotas.Crear, Cuotas.Eliminar },
                 ["Cobros"] = new List<string> { Cobros.Ver, Cobros.Crear, Cobros.VerDetalles, Cobros.Anular },
                 ["Reportes"] = new List<string> { Reportes.Ver }
             };

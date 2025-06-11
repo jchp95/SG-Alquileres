@@ -1,5 +1,5 @@
-// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
+// Licenciado por .NET Foundation bajo uno o más acuerdos
+// .NET Foundation concede licencia de este archivo bajo la licencia MIT
 #nullable disable
 
 using System.ComponentModel.DataAnnotations;
@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-// Services/NoOpEmailSender.cs
+
 namespace Alquileres.Areas.Identity.Pages.Account
 {
     public class RegisterModel : PageModel
@@ -40,45 +40,28 @@ namespace Alquileres.Areas.Identity.Pages.Account
             _dbContext = dbContext;
         }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         [BindProperty]
         public InputModel Input { get; set; }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public string ReturnUrl { get; set; }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public IList<AuthenticationScheme> ExternalLogins { get; set; }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public class InputModel
         {
-            [Required]
-            [Display(Name = "Username")]
+            [Required(ErrorMessage = "El nombre de usuario es requerido")]
+            [Display(Name = "Nombre de usuario")]
             public string UserName { get; set; }
 
-            [Required]
-            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 2)]
-
+            [Required(ErrorMessage = "La contraseña es requerida")]
+            [StringLength(100, ErrorMessage = "La {0} debe tener al menos {2} y como máximo {1} caracteres.", MinimumLength = 6)]
             [DataType(DataType.Password)]
-            [Display(Name = "Password")]
+            [Display(Name = "Contraseña")]
             public string Password { get; set; }
 
             [DataType(DataType.Password)]
-            [Display(Name = "Confirm password")]
-            [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+            [Display(Name = "Confirmar contraseña")]
+            [Compare("Password", ErrorMessage = "La contraseña y su confirmación no coinciden.")]
             public string ConfirmPassword { get; set; }
         }
 
@@ -86,11 +69,10 @@ namespace Alquileres.Areas.Identity.Pages.Account
         {
             public Task SendEmailAsync(string email, string subject, string htmlMessage)
             {
-                // No hacemos nada
+                // Implementación vacía
                 return Task.CompletedTask;
             }
         }
-
 
         public async Task OnGetAsync(string returnUrl = null)
         {
@@ -102,6 +84,7 @@ namespace Alquileres.Areas.Identity.Pages.Account
         {
             returnUrl ??= Url.Content("~/");
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
             if (ModelState.IsValid)
             {
                 var user = CreateUser();
@@ -111,11 +94,9 @@ namespace Alquileres.Areas.Identity.Pages.Account
 
                 if (result.Succeeded)
                 {
-                    _logger.LogInformation("User created a new account with password.");
+                    _logger.LogInformation("Usuario creado exitosamente con contraseña.");
 
-                    // ==============================================
-                    // CREAR REGISTRO EN TB_USUARIO
-                    // ==============================================
+                    // Crear registro en TbUsuario
                     var nuevoUsuario = new TbUsuario
                     {
                         Fnombre = Input.UserName,
@@ -123,24 +104,25 @@ namespace Alquileres.Areas.Identity.Pages.Account
                         Fpassword = user.PasswordHash,
                         Fnivel = 2, // Nivel por defecto para usuarios normales
                         Factivado = true,
-                        FkidSucursal = 1, // Ajustar según tu lógica
+                        FkidSucursal = 1, // Ajustar según necesidad
                         FestadoSync = "A",
                         Factivo = true,
-                        IdentityId = user.Id // Enlazar con Identity
+                        IdentityId = user.Id
                     };
 
                     _dbContext.TbUsuarios.Add(nuevoUsuario);
                     await _dbContext.SaveChangesAsync();
-                    // ==============================================
 
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     return LocalRedirect(returnUrl);
                 }
+
                 foreach (var error in result.Errors)
                 {
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
             }
+
             return Page();
         }
 
@@ -152,9 +134,9 @@ namespace Alquileres.Areas.Identity.Pages.Account
             }
             catch
             {
-                throw new InvalidOperationException($"Can't create an instance of '{nameof(IdentityUser)}'. " +
-                    $"Ensure that '{nameof(IdentityUser)}' is not an abstract class and has a parameterless constructor, or alternatively " +
-                    $"override the register page in /Areas/Identity/Pages/Account/Register.cshtml");
+                throw new InvalidOperationException($"No se pudo crear una instancia de '{nameof(IdentityUser)}'. " +
+                    $"Asegúrese que '{nameof(IdentityUser)}' no es una clase abstracta y tiene un constructor sin parámetros, " +
+                    $"o alternativamente sobrescriba la página de registro en /Areas/Identity/Pages/Account/Register.cshtml");
             }
         }
 
@@ -162,7 +144,7 @@ namespace Alquileres.Areas.Identity.Pages.Account
         {
             if (!_userManager.SupportsUserEmail)
             {
-                throw new NotSupportedException("The default UI requires a user store with email support.");
+                throw new NotSupportedException("La interfaz de usuario requiere un almacén de usuarios con soporte para email.");
             }
             return (IUserEmailStore<IdentityUser>)_userStore;
         }

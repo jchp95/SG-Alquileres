@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace Alquileres.Models;
 
@@ -38,6 +39,12 @@ public partial class TbCxc
     [Display(Name = "Notas")]
     public string Fnota { get; set; } = null!;
 
+    [DisplayName("Motivo de anulación")]
+    public string FmotivoCancelacion { get; set; } = string.Empty;
+
+    [DisplayName("Fecha de anulación")]
+    public DateOnly? FfechaCancelacion { get; set; }
+    public char Fstatus { get; set; }
     public bool Factivo { get; set; }
 
 }

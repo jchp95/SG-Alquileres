@@ -1,0 +1,66 @@
+@using Microsoft.AspNetCore.Antiforgery
+@inject IAntiforgery Antiforgery
+@model Alquileres.Models.TbCxcCuotum
+
+@{
+    ViewData["Title"] = "Eliminar Cuota";
+    var token = Antiforgery.GetAndStoreTokens(Context).RequestToken;
+}
+
+<div class="mb-4">
+    <h3>Eliminar Cuotas para las CxC</h3>
+</div>
+<hr />
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <form id="cuotaForm" asp-action="Create" method="post" data-ajax="true">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" id="__RequestVerificationToken" value="@token" />
+
+            <!-- Select para Cuentas por cobrar (Campo requerido) -->
+            <div class="form-group">
+                <label class="control-label">Buscar Cuenta por cobrar</label>
+                <select id="busquedaCxC" class="form-control select2" name="FkidCxC" required
+                    data-placeholder="Buscar Cuenta por cobrar...">
+                    <option></option>
+                </select>
+                <div class="invalid-feedback">
+                    Por favor seleccione una cuenta por cobrar.
+                </div>
+            </div>
+
+            <!-- Tabla de cuotas -->
+            <div class="form-group">
+                <label>
+                    <h5 class="mt-2">Listado de Cuotas</h5>
+                </label>
+                <table class="table" id="tablaCuotasPorCxC">
+                    <thead>
+                        <tr>
+                            <th>ID Cuota</th>
+                            <th>Número de Cuota</th>
+                            <th>Fecha de Vencimiento</th>
+                            <th>Monto</th>
+                            <th>Saldo</th>
+                            <th>Tasa de Mora</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Las filas de cuotas vencidas se agregan dinámicamente aquí -->
+                    </tbody>
+                </table>
+                <div id="cuotasError" class="invalid-feedback" style="display: none;">
+                    Por favor seleccione al menos una cuota.
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+
+}

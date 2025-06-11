@@ -115,7 +115,7 @@ namespace Alquileres.Controllers
                     foreach (var cuota in cuotasSeleccionadas)
                     {
                         var mes = culture.DateTimeFormat.GetMonthName(cuota.Fvence.Month);
-                        var concepto = $"Pago de la cuota {cuota.FNumeroCuota} correspondiente al mes de {mes} con vencimiento el {cuota.Fvence.ToString("d", culture)}";
+                        var concepto = $"Cuota {cuota.FNumeroCuota} con vencimiento {cuota.Fvence:dd/MM/yyyy}";
                         conceptos.Add(concepto);
                     }
 
@@ -183,6 +183,17 @@ namespace Alquileres.Controllers
                 _context.TbCobrosDesgloses.Add(desglose);
 
                 await _context.SaveChangesAsync();
+
+                // Nueva lógica: Verificar si no hay cuotas vencidas y actualizar estado de la cuenta
+                var tieneCuotasVencidas = await _context.TbCxcCuota
+                    .AnyAsync(c => c.FidCxc == request.FkidCxc && c.Fstatus == 'V');
+
+                if (!tieneCuotasVencidas)
+                {
+                    cuenta.Fstatus = 'N'; // Cambiar a Normal si no hay cuotas vencidas
+                    _context.TbCxcs.Update(cuenta);
+                    await _context.SaveChangesAsync();
+                }
 
                 return Ok(new
                 {

@@ -224,7 +224,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 
 ### 🚀 Versión 1.2.0 - Q1 2026
 #### ✨ Características Planeadas
-- [ ] **Aplicación móvil** (Flutter/React Native)
+- [ ] **Aplicación móvil** (React Native)
 - [ ] **Pagos en línea** con pasarelas de pago
 - [ ] **Contratos digitales** con firma electrónica
 - [ ] **Calendario de vencimientos** interactivo

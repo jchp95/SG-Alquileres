@@ -1,5 +1,3 @@
-// Función genérica para llamadas AJAX
-// Función ajaxRequest - MODIFICADA
 async function ajaxRequest(config) {
     const defaults = {
         showLoading: true,
@@ -70,6 +68,19 @@ async function ajaxRequest(config) {
     }
 }
 
+// Configuración del toast (misma configuración que cobros.js)
+const Toast = Swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 2000,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer);
+        toast.addEventListener('mouseleave', Swal.resumeTimer);
+    }
+});
+
 // Función para mostrar toasts
 function showToast(message, type = 'error', duration = 3000) {
     const backgroundColor = type === 'error' ? 'red' : (type === 'success' ? 'green' : 'orange');
@@ -107,6 +118,21 @@ function initPropietariosDataTable() {
         autoWidth: false,
         responsive: true,
         dom: '<"top"lf>Brt<"bottom"ip>',
+        language: {
+            "lengthMenu": "Mostrar _MENU_ registros",
+            "emptyTable": "No hay datos disponibles en la tabla",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+            "infoEmpty": "Mostrando 0 a 0 de 0 registros",
+            "infoFiltered": "(filtrado de _MAX_ registros totales)",
+            "search": "Buscar:",
+            "zeroRecords": "No se encontraron registros coincidentes",
+            "paginate": {
+                "first": "Primero",
+                "last": "Último",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            },
+        },
         buttons: [
             {
                 extend: 'pdfHtml5',
@@ -437,7 +463,10 @@ $(document).on('submit', 'form[action*="/Edit"]', async function (e) {
             form: form,
             errorMessage: 'Error al editar los datos del propietario'
         });
-        showToast('Propietario editado correctamente.', 'success');
+        Toast.fire({
+            icon: 'success',
+            title: 'Propietario editado correctamente'
+        });
         if (data.includes('_PropietariosPartial')) {
             await cargarTablaPropietarios();
         } else if (data.success === false && data.errors) {
@@ -483,7 +512,10 @@ $(document).on('submit', '.cambiarEstadoForm', async function (e) {
 
         // Si llegamos aquí, la operación fue exitosa
         await cargarTablaPropietarios();
-        showToast('Estado del propietario actualizado correctamente.', 'success');
+        Toast.fire({
+            icon: 'success',
+            title: 'Estado del propietario actualizado correctamente'
+        });
 
     } catch (error) {
         // Manejo específico para errores de permisos (403)
@@ -508,38 +540,27 @@ $(document).on('submit', 'form[action$="/Create"]', async function (e) {
             type: 'POST',
             data: form.serialize(),
             form: form,
-            errorMessage: 'Error al crear el inquilino',
+            dataType: 'json',
+            errorMessage: 'Error al crear el propietario',
             suppressPermissionToasts: false
         });
 
-        // Mostrar toast en cualquier caso de éxito
-        showToast('Propietario creado correctamente.', 'success');
-        if (data.includes('_PropietariosPartial')) {
-            await cargarTablaPropietarios();
-        } else {
-            $('#dataTableContainer').html(data);
-            applyCedulaMask();
-            applyPhoneMasks();
-            initFormValidation(form);
+        if (data.success) {
+            Toast.fire({
+                icon: 'success',
+                title: 'Propietario creado correctamente'
+            });
+            // 🚀 Recargar la vista de creación
+            await cargarVistaCrearPropietario();
+        } else if (data.errors) {
+            handleValidationErrors(form, data.errors);
         }
     } catch (error) {
         if (error.status === 403) {
             showPermissionAlert(error.responseJSON?.error || 'No tiene permisos para esta acción');
-        } else if (error.status === 400) { // Manejo de errores de validación
+        } else if (error.status === 400) {
             const errors = error.responseJSON.errors;
-            for (const key in errors) {
-                if (errors.hasOwnProperty(key)) {
-                    const errorMessage = errors[key];
-                    const input = form.find(`[name="${key}"]`);
-
-                    // Limpiar mensajes de error anteriores
-                    input.removeClass('is-invalid'); // Eliminar clase de error
-                    input.next('.invalid-feedback').remove(); // Eliminar mensaje de error anterior
-
-                    input.addClass('is-invalid'); // Agregar clase de error
-                    input.after(`<div class="invalid-feedback">${Array.isArray(errorMessage) ? errorMessage.join(' ') : errorMessage}</div>`); // Mostrar mensaje de error
-                }
-            }
+            handleValidationErrors(form, errors);
         } else {
             console.error('Error al crear propietario:', error);
             showToast('Error al crear propietario: ' + (error.responseJSON?.message || error.message), 'error');
@@ -593,12 +614,45 @@ function initFormValidation(form) {
     });
 }
 
-$(document).ready(function () {
+async function cargarVistaCrearPropietario() {
+    try {
+        const response = await ajaxRequest({
+            url: '/TbPropietarios/Create',
+            type: 'GET',
+            errorMessage: 'Error al cargar el formulario de creación',
+            suppressPermissionToasts: true
+        });
+
+        if (response && response.success === false && response.error) {
+            showPermissionAlert(response.error);
+            return;
+        }
+
+        $('#dataTableContainer').html(response).fadeIn();
+        applyCedulaMask();
+        applyPhoneMasks();
+        initFormValidation($('#dataTableContainer').find('form'));
+    } catch (error) {
+        if (error.status === 403 || (error.responseJSON && error.responseJSON.error)) {
+            showPermissionAlert(error.responseJSON?.error || 'No tiene permisos para esta acción');
+        } else if (error.message !== 'Permiso denegado') {
+            console.error('Error al cargar formulario de creación:', error);
+            showToast('Error al cargar el formulario', 'error');
+        }
+    }
+}
+
+// Click en la opción "Lista inquilinos" del sidebar
+$(document).on('click', '#menuListaPropietarios', function (e) {
+    e.preventDefault();
+    cargarTablaPropietarios();
+});
+
+
+$(document).ready(async function () {
     // Configuración global de manejo de errores AJAX
     $(document).ajaxError(function (event, jqxhr, settings, thrownError) {
         showToast('Ocurrió un error inesperado. Por favor intente nuevamente.');
     });
 
-    // Cargar tabla al inicio
-    cargarTablaPropietarios();
 });

@@ -5,11 +5,21 @@ function calcularMontoTotal() {
     console.log('Descuento raw:', $('#Fdescuento').val());
 
     const monto = parseFloat($('#Fmonto').val()) || 0;
+    let mora = parseFloat($('#Fmora').val()) || 0;
     const cargos = parseFloat($('#Fcargos').val()) || 0;
-    const descuento = parseFloat($('#Fdescuento').val()) || 0;
-    const montoTotal = monto + cargos - descuento;
+    let descuento = parseFloat($('#Fdescuento').val()) || 0;
 
-    console.log({ monto, cargos, descuento, montoTotal });
+    // Aplicar descuento primero a la mora
+    if (descuento > 0 && mora > 0) {
+        const descuentoAplicadoAMora = Math.min(descuento, mora);
+        mora -= descuentoAplicadoAMora;
+        descuento -= descuentoAplicadoAMora;
+    }
+
+    // El descuento restante se aplica al monto principal
+    const montoTotal = monto + mora + cargos - descuento;
+
+    console.log({ monto, mora, cargos, descuento, montoTotal });
     $('#MontoTotal').val(montoTotal.toFixed(2));
 }
 
@@ -30,26 +40,15 @@ function calcularDescuentoAbsoluto() {
 }
 
 //////////// Función para calcular el Total Ingresado en el modal //////////////////////////////////
-// Función para calcular el Total Ingresado en el modal - MODIFICADA
 function calcularTotalIngresado() {
+    const montoTotal = parseFloat($('#modalMontoTotal').inputmask('unmaskedvalue')) || 0;
+    const montoRecibido = parseFloat($('#montoRecibido').inputmask('unmaskedvalue')) || 0;
+    const efectivo = parseFloat($('#efectivo').inputmask('unmaskedvalue')) || 0;
+
     let total = 0;
-    const montoTotal = parseFloat($('#modalMontoTotal').val()) || 0;
-    const montoRecibido = parseFloat($('#montoRecibido').val()) || 0;
-    const efectivo = parseFloat($('#efectivo').val()) || 0;
 
-    // Lógica modificada:
-    if (montoRecibido > 0) {
-        // Si hay monto recibido, lo sumamos y calculamos cambio
-        total += montoRecibido;
-        const cambio = Math.max(0, montoRecibido - efectivo);
-        $('#cambio').val(cambio.toFixed(2));
-    } else {
-        // Si no hay monto recibido, sumamos el efectivo normal
-        total += efectivo;
-        $('#cambio').val('0.00');
-    }
-
-    // Sumar los otros métodos de pago
+    // Sumar todos los métodos de pago (excepto montoRecibido)
+    total += efectivo; // El efectivo ya ingresado como método de pago
     total += parseFloat($('#transferencia').val()) || 0;
     total += parseFloat($('#tarjeta').val()) || 0;
     total += parseFloat($('#notaCredito').val()) || 0;
@@ -57,37 +56,59 @@ function calcularTotalIngresado() {
     total += parseFloat($('#deposito').val()) || 0;
     total += parseFloat($('#debitoAutomatico').val()) || 0;
 
+    // Calcular cambio solo si hay monto recibido
+    if (montoRecibido > 0) {
+        const cambio = Math.max(0, montoRecibido - efectivo);
+        $('#cambio').val(cambio.toFixed(2));
+    } else {
+        $('#cambio').val('0.00');
+    }
+
     // Calcular pendiente (nunca debe ser negativo)
     const pendiente = Math.max(0, montoTotal - total);
+
+    // Validación adicional: Si hay efectivo, montoRecibido debe ser >= efectivo
+    const efectivoValido = (efectivo > 0) ? (montoRecibido >= efectivo) : true;
 
     // Formatear el total y el pendiente
     $('#totalIngresado').text(total.toLocaleString('en-US', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     }));
+
     $('#montoPendiente').text(pendiente.toLocaleString('en-US', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     }));
 
-    // Habilitar el botón siempre
-    $('#finalizarCobro').prop('disabled', false);
+    // Habilitar el botón SOLO si:
+    // 1. El pendiente es menor o igual a 0.01 (para manejar decimales)
+    // 2. Y si hay efectivo, el monto recibido es válido
+    const botonHabilitado = (pendiente <= 0.01) && efectivoValido;
+    $('#finalizarCobro').prop('disabled', !botonHabilitado);
 
-    // Mostrar mensaje de validación solo si hay pendiente por pagar
-    if (pendiente > 0.01) {
+    // Mostrar mensaje de validación si:
+    // 1. Hay pendiente por pagar O
+    // 2. Hay efectivo pero monto recibido no es válido
+    if (pendiente > 0.01 || (efectivo > 0 && !efectivoValido)) {
         $('#errorValidacion').removeClass('d-none');
+        if (efectivo > 0 && !efectivoValido) {
+            $('#errorValidacion').text('El monto recibido debe ser igual o mayor al efectivo ingresado');
+        } else {
+            $('#errorValidacion').text('El monto ingresado no cubre el total a pagar');
+        }
     } else {
         $('#errorValidacion').addClass('d-none');
     }
 }
 
-// Función ajaxRequest - MODIFICADA
 async function ajaxRequest(config) {
     const defaults = {
         showLoading: true,
         retries: 3,
         retryDelay: 1000,
-        suppressPermissionToasts: true
+        suppressPermissionToasts: true,
+        handleCustomErrors: true // Habilitar manejo de errores personalizados
     };
 
     const options = { ...defaults, ...config };
@@ -108,8 +129,32 @@ async function ajaxRequest(config) {
         } catch (error) {
             attempts++;
 
+            // Manejar error específico de comprobantes fiscales faltantes
+            if (error.status === 400 &&
+                error.responseJSON?.errorType === "no_fiscal_documents" &&
+                options.handleCustomErrors) {
+
+                // Mostrar SweetAlert y marcar el error como manejado
+                await Swal.fire({
+                    title: 'Comprobantes Fiscales Requeridos',
+                    text: error.responseJSON.message,
+                    icon: 'warning',
+                    confirmButtonText: 'Entendido',
+                    confirmButtonColor: '#3085d6',
+                    allowOutsideClick: false
+                });
+
+                // Lanzar error especial para salir del flujo normal
+                throw {
+                    ...error,
+                    isCustomHandled: true,
+                    showWelcomeMessage: true // Bandera para mostrar mensaje de bienvenida
+                };
+            }
+
+            // Manejo de otros errores estándar
             if (attempts === options.retries ||
-                (error.status && [400, 401, 403, 404].includes(error.status))) {
+                (error.status && [401, 403, 404].includes(error.status))) {
 
                 switch (error.status) {
                     case 401:
@@ -117,13 +162,9 @@ async function ajaxRequest(config) {
                         return;
                     case 403:
                         const errorMessage = error.responseJSON?.error || 'No tiene permisos para realizar esta acción';
-
-                        // Solo mostrar alerta si suppressPermissionToasts es true
                         if (options.suppressPermissionToasts) {
-                            throw { ...error, message: 'Permiso denegado' }; // Lanzar error especial
+                            throw { ...error, message: 'Permiso denegado' };
                         }
-
-                        // Si no se suprime, mostrar ambos
                         showPermissionAlert(errorMessage);
                         showToast('Por favor contacte al administrador', 'error');
                         throw error;
@@ -321,8 +362,6 @@ $(document).on('click', '#confirmAnularBtn', async function () {
     }
 });
 
-
-
 async function mostrarDetallesCobro(idCobro) {
     console.log(`Requesting details for ID: ${idCobro}`);
     const url = `/TbCobros/Detalles/${idCobro}`;
@@ -385,6 +424,8 @@ async function mostrarDetallesCobro(idCobro) {
 
         $('#reciboTable').removeClass('dataTable');
 
+        aplicarMascarasNumericas();
+
     } catch (error) {
         console.error('Error al cargar los detalles del cobro:', error);
 
@@ -399,8 +440,6 @@ async function mostrarDetallesCobro(idCobro) {
         }
     }
 }
-
-
 
 // Modificar el evento click de los botones de detalles
 $(document).on('click', '.btn-detalles', function (e) {
@@ -422,18 +461,15 @@ function agregarInputOculto(cuotaId, monto, mora) {
     $(`#cuota_inputs_${cuotaId}`).remove();
 
     const inputHtml = `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <div id="cuota_inputs_${cuotaId}" class="mb-2">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <input type="hidden" name="cuotasSeleccionadas" value="${cuotaId}" />
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <input type="hidden" name="cuotas[${cuotaId}].Monto" id="cuota_monto_${cuotaId}" value="${monto}" />
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <input type="hidden" name="cuotas[${cuotaId}].Mora" id="cuota_mora_${cuotaId}" value="${mora}" />
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <input type="hidden" name="cuotas[${cuotaId}].Id" value="${cuotaId}" />
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        `;
-
+            <div id="cuota_inputs_${cuotaId}" class="mb-2">
+            <input type="hidden" name="cuotasSeleccionadas" value="${cuotaId}" />
+            <input type="hidden" name="cuotas[${cuotaId}].Monto" id="cuota_monto_${cuotaId}" value="${monto}" />
+            <input type="hidden" name="cuotas[${cuotaId}].Mora" id="cuota_mora_${cuotaId}" value="${mora}" />
+            <input type="hidden" name="cuotas[${cuotaId}].Id" value="${cuotaId}" />
+            </div> `;
     container.append(inputHtml);
     console.log(`Inputs ocultos creados para cuota ${cuotaId}:`, { monto, mora });
 }
-
 
 //////////////////////////// SOLICITUD PARA CREAR LOS COBROS UTILIZANDO AXIOS ///////////////////////////////////////
 
@@ -450,8 +486,13 @@ async function crearCobro() {
     }
 
     // Calcular el total realmente ingresado
-    const totalIngresado = parseFloat($('#totalIngresado').text()) || 0;
-    if (totalIngresado <= 0) {
+    let totalIngresado = parseFloat($('#totalIngresado').text()) || 0;
+    const montoRecibido = parseFloat($('#montoRecibido').val()) || 0;
+
+    // Si está en modo Cobro Rápido, usar montoRecibido como total
+    if (montoRecibido > 0) {
+        totalIngresado = montoRecibido;
+    } else if (totalIngresado <= 0) {
         alert('Debe ingresar al menos un monto en el desglose de pago.');
         return false;
     }
@@ -479,7 +520,8 @@ async function crearCobro() {
         fcheque: parseFloat($('#cheque').val()) || 0,
         fdeposito: parseFloat($('#deposito').val()) || 0,
         fdebitoAutomatico: parseFloat($('#debitoAutomatico').val()) || 0,
-        fnoNotaCredito: parseInt($('#FnoNotaCredito').val(), 10) || 0
+        fnoNotaCredito: parseInt($('#FnoNotaCredito').val(), 10) || 0,
+        comprobanteFiscalSeleccionado: $('#ComprobanteSeleccionado').val()
     };
 
     // Validación adicional en el cliente
@@ -497,32 +539,33 @@ async function crearCobro() {
 
     try {
         const response = await axios.post('/api/TbCobrosApi/create', cobroData, {
-
             headers: {
                 'Content-Type': 'application/json',
                 'X-Source': 'Web',
-                'RequestVerificationToken': document.getElementById('__RequestVerificationToken').value
+                'X-RequestVerificationToken': document.getElementById('__RequestVerificationToken').value
             }
-
         });
+
         console.log("Success:", response.data);
         if (response.data.success) {
             $('#FkidCobro').val(response.data.cobroId);
-            alert('Cobro registrado exitosamente');
 
-            $('#staticBackdrop').modal('hide');
+            // Mostrar toast de éxito
+            Toast.fire({
+                icon: 'success',
+                title: 'Cobro registrado exitosamente',
+                timer: 1000,
+                timerProgressBar: true,
+                didClose: () => {
+                    $('#staticBackdrop').modal('hide');
+                    generarTicket(null, response.data.cobroId, true); // Añadimos parámetro para imprimir
+                    // $('#ticketModal').modal('show');
+                    limpiarDatosTicket();
+                    cargarVistaCrearCobro();
+                }
+            });
 
-
-            // Generar el ticket
-            generarTicket(); // Asegúrate de que el servidor devuelva los datos del cobro
-            // Mostrar el modal del ticket
-            $('#ticketModal').modal('show');
-            limpiarDatosTicket();
-            cargarVistaCrearCobro();
             return true;
-        } else {
-            alert('Error: ' + response.data.message);
-            return false;
         }
     } catch (error) {
         console.error('Error completo:', error);
@@ -534,12 +577,20 @@ async function crearCobro() {
     }
 }
 
-
-// Función modificada para evitar la redeclaración de variables
-function generarTicket(cuentaIdParam, cobroIdParam) {
+// Modificamos la función generarTicket para aceptar un parámetro de impresión
+function generarTicket(cuentaIdParam, cobroIdParam, imprimir = false) {
+    // Limpiar el contenido del ticket antes de llenarlo (por si acaso)
+    $('#ticketContent').find('.nombre, .direccion, .telefono, .rnc, .cliente, .inmueble, .noCobro, .concepto, .subtotal, .cargos, .mora, .descuento, .total, .efectivo, .transferencia, .tarjeta, .cheque, .deposito, .montoNotaCredito, .noNotaCredito, .debitoAutomatico, .efectivo-recibido, .cambio, .resto, .qr, .fecha-hora').text('');
+    $('#ticketContent').find('.ncf, .fncf-vence').text('');
+    $('#ticketContent .logo-empresa-ticket').html('');
     // Obtener la fecha y hora actual
     const ahora = new Date();
-    const fecha = ahora.toLocaleDateString();
+    const formato = new Intl.DateTimeFormat('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    });
+    const fecha = formato.format(ahora).replace(/\//g, '/');
     const hora = ahora.toLocaleTimeString();
 
     // Usar los parámetros recibidos o obtener los valores de los campos
@@ -549,121 +600,204 @@ function generarTicket(cuentaIdParam, cobroIdParam) {
     // Obtener el concepto ingresado por el usuario (si lo hay)
     const conceptoUsuario = $('#Fconcepto').val();
 
-    // Hacer la llamada AJAX para obtener los datos del ticket
-    $.ajax({
-        url: '/TbCobros/GetDatosTicket',
-        type: 'GET',
-        data: {
-            cuentaId: cuentaId,
-            idCobro: cobroId,
-            esReimpresion: true
-        },
-        success: function (response) {
-            if (response.success) {
-                const datos = response.datos;
+    // Primero obtener la información de la empresa con el comprobante seleccionado
+    $.get('/Empresa/GetEmpresaInfo', function (empresaData) {
+        // Configurar los datos de la empresa antes de obtener los datos del ticket
+        configurarDatosEmpresa(empresaData);
 
-                // Obtener información de la empresa
-                $.get('/Empresa/GetEmpresaInfo', function (data) {
-                    // Logo
-                    var $titleElement = $('#ticketContent .header .title');
-                    var logoUrl = '/Empresa/Logo?' + new Date().getTime();
+        // Ahora hacer la llamada para obtener los datos del ticket
+        $.ajax({
+            url: '/Cobros/obtener-datos-ticket',
+            type: 'GET',
+            data: {
+                cuentaId: cuentaId,
+                idCobro: cobroId,
+                esReimpresion: true
+            },
+            success: function (response) {
+                if (response.success) {
+                    const datos = response.datos;
 
-                    if (data.tieneLogo) {
-                        $titleElement.html('<img src="' + logoUrl + '" alt="Logo" style="max-height: 100px; max-width: 100%;" onerror="this.onerror=null;this.src=\'/images/login.jpg\';" />');
+                    const $tipoComprobanteElement = $('.tipoComprobante');
+                    const sinComprobante = "00000000000";
+                    const isRecibo = (datos.comprobante === sinComprobante);
+
+                    // --- Configuración del tipo de comprobante (RECIBO/FACTURA) ---
+                    if (isRecibo) {
+                        $tipoComprobanteElement
+                            .text("RECIBO")
+                            .css({
+                                "text-align": "center",
+                                "width": "100%",
+                                "display": "block",
+                                "font-weight": "bold"
+                            });
                     } else {
-                        $titleElement.text(data.nombre);
+                        $tipoComprobanteElement
+                            .removeClass("comprobante-largo")
+                            .css({
+                                "justify-content": "center",
+                                "text-align": "center",
+                                "width": "100%",
+                                "display": "block",
+                                "font-size": "11px",
+                                "font-weight": "bold"
+                            });
+
+                        if (datos.tipoComprobante && datos.tipoComprobante.toLowerCase() !== "sin comprobante") {
+                            $tipoComprobanteElement
+                                .addClass("comprobante-largo")
+                                .text("FACTURA VÁLIDA PARA " + datos.tipoComprobante.toUpperCase());
+                        } else {
+                            $tipoComprobanteElement
+                                .text("COMPROBANTE NO ESPECIFICADO");
+                        }
                     }
 
-                    // Datos de la empresa
-                    $('#ticketContent .header .rnc').text(data.rnc || "RNC no configurado");
-                    $('#ticketContent .header .direccion').text(data.dir || "Dirección no configurada");
-
-                    // Teléfono
-                    const telefono = data.tel || "Teléfonos no configurados";
-                    $('#ticketContent .header .telefono').text(telefono);
-
-                }).fail(function () {
-                    $('#ticketContent .header .title').text("Nombre de Empresa");
-                    $('#ticketContent .header .rnc').text("RNC no configurado");
-                    $('#ticketContent .header .direccion').text("Dirección no configurada");
-                    $('#ticketContent .header .telefono').text("Teléfonos no configurados");
-                });
-
-                // Datos del ticket desde el backend
-                $('#ticketContent .fecha-hora').text(`${fecha} ${hora}`);
-                $('#ticketContent .cliente').text(datos.cliente);
-                $('#ticketContent .noCobro').text(datos.noCobro);
-                $('#ticketContent .concepto').text(conceptoUsuario || datos.concepto);
-                $('#ticketContent .direccion').text(datos.direccion);
-                $('#ticketContent .ubicacion').text(datos.ubicacion);
-                $('#ticketContent .telefono').text(datos.telefono);
-
-                // Datos numéricos formateados
-                const formatOptions = { minimumFractionDigits: 2, maximumFractionDigits: 2 };
-                $('#ticketContent .subtotal').text(datos.subtotal.toLocaleString('en-US', formatOptions));
-                $('#ticketContent .cargos').text('+' + datos.cargos.toLocaleString('en-US', formatOptions));
-                $('#ticketContent .mora').text('+' + datos.mora.toLocaleString('en-US', formatOptions));
-                $('#ticketContent .descuento').text('-' + datos.descuento.toLocaleString('en-US', formatOptions));
-                $('#ticketContent .total').text(datos.total.toLocaleString('en-US', formatOptions));
-
-                // Métodos de pago (mostrar solo los que tienen valor > 0)
-                const mostrarMetodoPago = (selector, valor) => {
-                    const element = $(`#ticketContent .${selector}`);
-                    if (valor > 0) {
-                        element.text(valor.toLocaleString('en-US', formatOptions));
-                        element.closest('.item-content').show();
+                    // --- Configuración unificada de cliente, NCF y vencimiento ---
+                    if (isRecibo) {
+                        // Caso RECIBO: Ocultar NCF y vencimiento, mostrar "RECIBO" en cliente
+                        $('#ticketContent .cliente').text("RECIBO");
+                        $('.ncf-container').hide();  // Oculta el NCF
+                        $('#ticketContent .item-content').has('.fncf-vence').hide();  // Oculta vencimiento
                     } else {
-                        element.closest('.item-content').hide();
+                        // Caso FACTURA: Mostrar NCF y vencimiento
+                        $('#ticketContent .cliente').text(datos.cliente || "");  // Restaura el cliente original
+                        $('.ncf-container').show();  // Muestra el contenedor del NCF
+                        $('#ticketContent .ncf').text(datos.comprobante || "NCF no configurado");
+                        $('#ticketContent .fncf-vence').text(datos.fncfVence || "N/A");
+                        $('#ticketContent .item-content').has('.fncf-vence').show();
                     }
-                };
 
-                mostrarMetodoPago('efectivo', datos.efectivo);
-                mostrarMetodoPago('transferencia', datos.transferencia);
-                mostrarMetodoPago('tarjeta', datos.tarjeta);
-                mostrarMetodoPago('cheque', datos.cheque);
-                mostrarMetodoPago('deposito', datos.deposito);
-                mostrarMetodoPago('montoNotaCredito', datos.montoNotaCredito);
-                mostrarMetodoPago('debitoAutomatico', datos.debitoAutomatico);
+                    $('#ticketContent .fecha-hora').text(`${fecha} ${hora}`);
+                    $('#ticketContent .cliente').text(datos.cliente || "Inquilino no encontrado");
+                    $('#ticketContent .inmueble').text(datos.inmueble || "Inmueble no encontrado");
 
-                // Mostrar número de nota crédito si aplica
-                if (datos.noNotaCredito > 0) {
-                    $('#ticketContent .noNotaCredito').text(datos.noNotaCredito);
-                    $('#ticketContent .noNotaCredito').closest('.item-content').show();
+                    $('#ticketContent .noCobro').text(datos.noCobro);
+                    $('#ticketContent .concepto').text(conceptoUsuario || datos.concepto);
+                    $('#ticketContent .direccion').text(datos.direccion);
+                    $('#ticketContent .ubicacion').text(datos.ubicacion);
+                    $('#ticketContent .telefono').text(datos.telefono);
+
+                    // Datos numéricos formateados
+                    const formatOptions = { minimumFractionDigits: 2, maximumFractionDigits: 2 };
+                    $('#ticketContent .subtotal').text(datos.subtotal.toLocaleString('en-US', formatOptions));
+                    $('#ticketContent .cargos').text('+' + datos.cargos.toLocaleString('en-US', formatOptions));
+                    $('#ticketContent .mora').text('+' + datos.mora.toLocaleString('en-US', formatOptions));
+                    $('#ticketContent .descuento').text('-' + datos.descuento.toLocaleString('en-US', formatOptions));
+                    $('#ticketContent .total').text(datos.total.toLocaleString('en-US', formatOptions));
+
+                    // Métodos de pago (mostrar solo los que tienen valor > 0)
+                    const mostrarMetodoPago = (selector, valor) => {
+                        const element = $(`#ticketContent .${selector}`);
+                        if (valor > 0) {
+                            element.text(valor.toLocaleString('en-US', formatOptions));
+                            element.closest('.item-content-number').show();
+                        } else {
+                            element.closest('.item-content-number').hide();
+                        }
+                    };
+
+                    mostrarMetodoPago('efectivo', datos.efectivo);
+                    mostrarMetodoPago('transferencia', datos.transferencia);
+                    mostrarMetodoPago('tarjeta', datos.tarjeta);
+                    mostrarMetodoPago('cheque', datos.cheque);
+                    mostrarMetodoPago('deposito', datos.deposito);
+                    mostrarMetodoPago('montoNotaCredito', datos.montoNotaCredito);
+                    mostrarMetodoPago('debitoAutomatico', datos.debitoAutomatico);
+
+                    // Ocultar/Mostrar sección de efectivo recibido y cambio
+                    if (datos.efectivo > 0) {
+                        $('#ticketContent .efectivo-recibido').text(datos.efectivoRecibido.toLocaleString('en-US', formatOptions));
+                        $('#ticketContent .cambio').text(datos.cambio.toLocaleString('en-US', formatOptions));
+                        $('#ticketContent .efectivo-recibido').closest('.item-content-number').show();
+                        $('#ticketContent .cambio').closest('.item-content-number').show();
+                    } else {
+                        $('#ticketContent .efectivo-recibido').closest('.item-content-number').hide();
+                        $('#ticketContent .cambio').closest('.item-content-number').hide();
+                    }
+
+                    // Mostrar número de nota crédito si aplica
+                    if (datos.noNotaCredito > 0) {
+                        $('#ticketContent .noNotaCredito').text(datos.noNotaCredito);
+                        $('#ticketContent .noNotaCredito').closest('.item-content-number').show();
+                    } else {
+                        $('#ticketContent .noNotaCredito').closest('.item-content-number').hide();
+                    }
+
+                    $('#ticketContent .resto').text("0.00");
+
+                    $('#ticketContent .usuario').text(datos.usuario);
+
+                    // QR Web
+                    $.get('/Empresa/HasQrWeb', function (hasQr) {
+                        if (hasQr) {
+                            var qrUrl = '/Empresa/QrWeb?' + new Date().getTime();
+                            $('#ticketContent .qr').html('<img src="' + qrUrl + '" alt="QR Web" style="max-height: 100px; max-width: 100%;" onerror="$(this).parent().text(\'CODIGO QR\')" />');
+                        } else {
+                            $('#ticketContent .qr').text('');
+                        }
+                    }).fail(function () {
+                        $('#ticketContent .qr').text('');
+                    });
+
+                    // Mostrar el modal del ticket
+                    $('#ticketModal').modal('show');
+                    // Si el parámetro imprimir es true, movemos el ticket al body, imprimimos y lo devolvemos
+                    if (imprimir) {
+                        setTimeout(() => {
+                            const ticket = document.getElementById('ticketContent');
+                            const originalParent = ticket.parentNode;
+                            const originalNext = ticket.nextSibling;
+                            document.body.appendChild(ticket);
+                            window.print();
+                            // Restaurar el ticket al modal después de imprimir
+                            if (originalNext) {
+                                originalParent.insertBefore(ticket, originalNext);
+                            } else {
+                                originalParent.appendChild(ticket);
+                            }
+                        }, 500);
+                    }
                 } else {
-                    $('#ticketContent .noNotaCredito').closest('.item-content').hide();
+                    console.error('Error del backend:', response.message);
+                    alert('Error al cargar los datos del ticket: ' + response.message);
                 }
-
-                // Efectivo recibido y cambio
-                $('#ticketContent .efectivo-recibido').text(datos.efectivoRecibido.toLocaleString('en-US', formatOptions));
-                $('#ticketContent .cambio').text(datos.cambio.toLocaleString('en-US', formatOptions));
-                $('#ticketContent .resto').text("0.00");
-
-                // QR Web - Modificado para evitar el error 404
-                $.get('/Empresa/HasQrWeb', function (hasQr) {
-                    if (hasQr) {
-                        var qrUrl = '/Empresa/QrWeb?' + new Date().getTime();
-                        $('#ticketContent .qr').html('<img src="' + qrUrl + '" alt="QR Web" style="max-height: 60px; max-width: 100%;" onerror="$(this).parent().text(\'CODIGO QR\')" />');
-                    } else {
-                        $('#ticketContent .qr').text('CODIGO QR');
-                    }
-                }).fail(function () {
-                    $('#ticketContent .qr').text('CODIGO QR');
-                });
-
-                // Mostrar el modal del ticket
-                $('#ticketModal').modal('show');
-
-            } else {
-                console.error('Error del backend:', response.message);
-                alert('Error al cargar los datos del ticket: ' + response.message);
+            },
+            error: function (xhr, status, error) {
+                console.error('Error en la llamada AJAX:', status, error);
+                alert('Error al comunicarse con el servidor');
             }
-        },
-        error: function (xhr, status, error) {
-            console.error('Error en la llamada AJAX:', status, error);
-            alert('Error al comunicarse con el servidor');
-        }
+        });
+    }).fail(function () {
+        // En caso de error al obtener datos de la empresa, usar valores por defecto
+        configurarDatosEmpresa({
+            nombre: "Nombre de Empresa",
+            rnc: "RNC no configurado",
+            dir: "Dirección no configurada",
+            tel: "Teléfonos no configurados",
+            tieneLogo: false,
+        });
+
+        // Mostrar mensaje de error (opcional)
+        console.error('Error al obtener datos de la empresa');
     });
 }
+
+// Asegúrate de que el botón de imprimir funcione correctamente
+$('#imprimirTicket').on('click', function () {
+    const ticket = document.getElementById('ticketContent');
+    const originalParent = ticket.parentNode;
+    const originalNext = ticket.nextSibling;
+    document.body.appendChild(ticket);
+    window.print();
+    // Restaurar el ticket al modal después de imprimir
+    if (originalNext) {
+        originalParent.insertBefore(ticket, originalNext);
+    } else {
+        originalParent.appendChild(ticket);
+    }
+});
 
 // Manejar clic en botón de reimprimir ticket
 $(document).on('click', '.btn-reimprimir', function () {
@@ -702,33 +836,55 @@ function limpiarDatosTicket() {
 }
 
 
-// Asegúrate de que el botón de imprimir funcione correctamente
-$('#imprimirTicket').on('click', function () {
-    window.print();
+// Configuración del toast (debes tener esto definido en algún lugar de tu código)
+const Toast = Swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 2000,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer);
+        toast.addEventListener('mouseleave', Swal.resumeTimer);
+    }
 });
 
+function configurarDatosEmpresa(data) {
+    // Logo
+    var $titleElement = $('.logo-empresa-ticket');
+    var logoUrl = '/Empresa/Logo?' + new Date().getTime();
 
-function validarDatosCobro() {
-    const requiredFields = [
-        { field: $('#busquedaCxC').val(), message: 'Seleccione una cuenta por cobrar' },
-        { field: $('#MontoTotal').val(), message: 'El monto total no puede ser cero' }
-    ];
-
-    for (const item of requiredFields) {
-        if (!item.field) {
-            alert(item.message);
-            return false;
-        }
+    if (data.tieneLogo) {
+        $titleElement.html('<img src="' + logoUrl + '" alt="Logo" style="max-height: 200px; max-width: 100%; margin-bottom: 20px;" onerror="this.onerror=null;this.src=\'/images/login.jpg\';" />');
+    } else {
+        $titleElement.text(data.nombre);
     }
-    return true;
+
+    // Datos de la empresa
+    $('.nombre').text(data.nombre || "Dirección no configurada");
+    $('.direccion').text(data.dir || "Dirección no configurada");
+    $('.telefono').text(data.tel || "Teléfonos no configurados");
+
+    // Manejar el campo RNC - ocultar si está vacío
+    if (!data.rnc || data.rnc.trim() === "") {
+        $('.rnc-container').hide(); // Oculta toda la línea del RNC
+    } else {
+        $('.rnc-container').show();
+        $('.rnc').text(data.rnc);
+    }
 }
 
-$('#loadCobro').on('click', function () {
+$('#loadCobros').on('click', function () {
     cargarTablaCobro();
 });
 
+
 $('#createCobro').on('click', function () {
-    cargarVistaCrearCobro();
+    cargarVistaCrearCobro(); // Detallado
+});
+
+$('#createCobroRapido').on('click', function () {
+    cargarVistaCrearCobroRapido(); // Rápido
 });
 
 // Función para cargar vista formulario Create (ajustada con manejo de errores)
@@ -739,7 +895,8 @@ async function cargarVistaCrearCobro() {
         const html = await ajaxRequest({
             url: '/TbCobros/Create',
             type: 'GET',
-            errorMessage: 'Error al cargar la vista de creación'
+            errorMessage: 'Error al cargar la vista de creación',
+            handleCustomErrors: true // Habilitar manejo personalizado de errores
         });
 
         $('#dataTableContainer').html(html).fadeIn();
@@ -780,16 +937,27 @@ async function cargarVistaCrearCobro() {
         $('#staticBackdrop').on('shown.bs.modal', function () {
             aplicarMascarasModal();
 
-            const montoTotal = $('#MontoTotal').val();
+            const montoTotal = parseFloat($('#MontoTotal').val()) || 0;
 
-            $('#modalMontoTotal').val(montoTotal);
-            $('#montoPendiente').text(montoTotal);
+            $('#modalMontoTotal').val(montoTotal.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }));
+
+            // Mostrar el monto pendiente formateado
+            const montoFormateado = montoTotal.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+
+            $('#montoPendiente').text(montoFormateado);
+            console.log("Monto pendiente después de formatear:", montoFormateado);
 
             $('.modal-body input[type="text"]:not(#modalMontoTotal)').val('0.00');
             $('#FnoNotaCredito').val('');
             $('#totalIngresado').text('0.00');
             $('#errorValidacion').addClass('d-none');
-            $('#finalizarCobro').prop('disabled', false);
+            $('#finalizarCobro').prop('disabled', true);
         });
 
         // Cálculo en tiempo real en el modal
@@ -818,6 +986,15 @@ async function cargarVistaCrearCobro() {
     } catch (error) {
         console.error('Error al cargar los cobros:', error);
 
+        // Si el error ya fue manejado (como el de comprobantes faltantes)
+        if (error.isCustomHandled) {
+            // Mostrar mensaje de bienvenida si está configurado
+            if (error.showWelcomeMessage) {
+                $('#welcomeMessage').fadeIn();
+            }
+            return;
+        }
+
         // Manejo específico para error de permisos (403)
         if (error.status === 403 || error.message === 'Permiso denegado') {
             const errorMsg = error.responseJSON?.error || 'No tiene permisos para ver la lista de inquilinos';
@@ -825,6 +1002,107 @@ async function cargarVistaCrearCobro() {
         }
         // Manejo de otros tipos de errores
         else {
+            showToast('Error al cargar la lista de cobros', 'error');
+        }
+    }
+}
+
+async function cargarVistaCrearCobroRapido() {
+    console.log('Iniciando carga de vista de creación...');
+
+    try {
+        const html = await ajaxRequest({
+            url: '/TbCobros/CreateCobroRapido',
+            type: 'GET',
+            errorMessage: 'Error al cargar la vista de creación',
+            handleCustomErrors: true
+        });
+
+        $('#dataTableContainer').html(html).fadeIn();
+        console.log('Formulario cargado con éxito en el contenedor');
+
+        // Inicialización de componentes
+        inicializarSelect2();
+        aplicarMascarasNumericas();
+        filtrarCuotasPorCxc();
+
+        // Eventos de cálculo
+        $('#Fmonto, #Fcargos, #Fdescuento').on('input change', calcularMontoTotal);
+        $('#Fdescuento').on('input change', calcularPorcentajeDescuento);
+        $('#FdescuentoPorcentaje').on('input change', calcularDescuentoAbsoluto);
+
+        // Validación y finalización directa sin modal
+        $('#finalizarCobroRapido').off('click').on('click', async function (e) {
+            e.preventDefault();
+
+            const cuotasSeleccionadas = $('input[name="cuotasSeleccionadas"]:checked');
+            if (cuotasSeleccionadas.length === 0) {
+                $('#cuotasError').show();
+                $('#tablaCobros').addClass('is-invalid');
+                return;
+            } else {
+                $('#cuotasError').hide();
+                $('#tablaCobros').removeClass('is-invalid');
+            }
+
+            const btn = this;
+            $(btn).html('Procesando...');
+            btn.disabled = true;
+
+            const fkidCxc = $('#busquedaCxC').val();
+            const fmonto = parseFloat($('#MontoTotal').val()) || 0;
+            const metodoPago = $('#MetodoPagoSeleccionado').val();
+
+            if (!fkidCxc || !fmonto || !metodoPago) {
+                alert('Complete los campos obligatorios');
+                $(btn).html('Terminar Pago');
+                btn.disabled = false;
+                return;
+            }
+
+            // Diccionario de métodos de pago y sus IDs
+            const metodos = {
+                'Efectivo': '#efectivo',
+                'Transferencia': '#transferencia',
+                'Tarjeta': '#tarjeta',
+                'Cheque': '#cheque',
+                'Depósito': '#deposito',
+                'NotaCredito': '#notaCredito',
+                'DébitoAutomático': '#debitoAutomatico'
+            };
+
+            // Resetear todos los métodos a 0.00
+            Object.values(metodos).forEach(id => $(id).val('0.00'));
+            $('#montoRecibido').val('0.00');
+
+            // Asignar el monto al método seleccionado
+            const campo = metodos[metodoPago];
+            if (campo) {
+                const formatted = fmonto.toFixed(2);
+                $(campo).val(formatted);
+                $('#montoRecibido').val(formatted); // <-- ahora aplica a todos los métodos
+            }
+
+
+            await crearCobro();
+            $(btn).html('Terminar Pago');
+            btn.disabled = false;
+        });
+
+    } catch (error) {
+        console.error('Error al cargar los cobros:', error);
+
+        if (error.isCustomHandled) {
+            if (error.showWelcomeMessage) {
+                $('#welcomeMessage').fadeIn();
+            }
+            return;
+        }
+
+        if (error.status === 403 || error.message === 'Permiso denegado') {
+            const errorMsg = error.responseJSON?.error || 'No tiene permisos para ver la lista de cobros';
+            showPermissionAlert(errorMsg);
+        } else {
             showToast('Error al cargar la lista de cobros', 'error');
         }
     }
@@ -865,15 +1143,36 @@ function filtrarCuotasPorCxc() {
                             $('#tablaCobros').DataTable({
                                 data: data.cuotas.filter(c => c.fstatus === 'N' || c.fstatus === 'V'), // Filtrar cuotas en el frontend
                                 lengthMenu: [12, 25, 50, 100],
+                                dom: 'tip',
+                                order: [[1, 'asc']],
+                                language: {
+                                    "lengthMenu": "Mostrar _MENU_ registros",
+                                    "emptyTable": "No hay datos disponibles en la tabla",
+                                    "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+                                    "infoEmpty": "Mostrando 0 a 0 de 0 registros",
+                                    "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                                    "search": "Buscar:",
+                                    "zeroRecords": "No se encontraron registros coincidentes",
+                                    "paginate": {
+                                        "first": "Primero",
+                                        "last": "Último",
+                                        "next": "Siguiente",
+                                        "previous": "Anterior"
+                                    },
+                                },
                                 columns: [
                                     {
                                         data: null,
                                         render: function (data, type, row) {
-                                            const cuotaId = row.fnumeroCuota; // Usar solo fnumeroCuota
+                                            const cuotaId = row.fnumeroCuota;
                                             return `<input type="checkbox" class="row-checkbox" name="cuotasSeleccionadas" value="${cuotaId}" />`;
-                                        }
+                                        },
+                                        className: "text-left"
                                     },
-                                    { data: 'fnumeroCuota' },
+                                    {
+                                        data: 'fnumeroCuota',
+                                        className: "text-left"
+                                    },
                                     {
                                         data: 'fvence',
                                         render: function (data) {
@@ -882,22 +1181,24 @@ function filtrarCuotasPorCxc() {
                                             const dia = String(fecha.getDate()).padStart(2, '0');
                                             const mes = String(fecha.getMonth() + 1).padStart(2, '0');
                                             const anio = fecha.getFullYear();
-                                            return `${dia}/${mes}/${anio}`; //Formato dd/mm/yyyy
-                                        }
+                                            return `${dia}/${mes}/${anio}`;
+                                        },
+                                        className: "text-left"
                                     },
                                     {
                                         data: 'fmonto',
                                         render: data => parseFloat(data).toFixed(2),
-                                        class: 'numeric-input'
+                                        class: 'numeric-input text-left'
                                     },
                                     {
                                         data: 'fsaldo',
                                         render: data => parseFloat(data).toFixed(2),
-                                        class: 'numeric-input'
+                                        class: 'numeric-input text-left'
                                     },
                                     {
                                         data: 'fmora',
-                                        render: data => `${data}%`
+                                        render: data => `${data}`,
+                                        class: 'numeric-input text-left'
                                     },
                                     {
                                         data: 'fstatus',
@@ -926,10 +1227,26 @@ function filtrarCuotasPorCxc() {
                                             }
 
                                             return `<span class="badge ${badgeClass}" style="background-color: ${bgColor}; color: ${textColor}; padding: 0.25em 0.4em; font-size: 75%; font-weight: 700; border-radius: 0.25rem;">${estadoTexto}</span>`;
-                                        }
+                                        },
+                                        className: "text-left"
                                     }
                                 ],
                                 responsive: true,
+                                // Para alinear también los encabezados a la izquierda
+                                headerCallback: function (thead, data, start, end, display) {
+                                    $(thead).find('th').css('text-align', 'left');
+                                },
+                                // Opcional: ajustar el ancho de las columnas
+                                autoWidth: false,
+                                columnDefs: [
+                                    { width: "5%", targets: 0 }, // checkbox
+                                    { width: "5%", targets: 1 }, // número de cuota
+                                    { width: "10%", targets: 2 }, // fecha
+                                    { width: "10%", targets: 3 }, // monto
+                                    { width: "10%", targets: 4 }, // saldo
+                                    { width: "10%", targets: 5 }, // mora
+                                    { width: "10%", targets: 6 }  // estado
+                                ],
                                 drawCallback: function () {
                                     console.log('DataTable dibujada - configurando checkboxes');
                                     manejarCheckboxes();
@@ -959,8 +1276,6 @@ function filtrarCuotasPorCxc() {
         }
     });
 }
-
-
 
 // ✅ Disparar evento change si ya hay una cuenta seleccionada
 const cuentaSeleccionada = $('#busquedaCxC').val();
@@ -1033,17 +1348,30 @@ function manejarCheckboxes() {
             });
         }
 
-        // Recalcular el total usando los SALDOS de las cuotas seleccionadas
+        // Recalcular el total usando los SALDOS y MORA de las cuotas seleccionadas en una sola pasada
         let totalSaldo = 0;
+        let totalMora = 0;
+
         $('input.row-checkbox:checked').each(function () {
             const row = $(this).closest('tr');
+
+            // Procesar saldo
             const saldo = parseFloat(row.find('td:nth-child(5)').text().replace(',', ''));
             if (!isNaN(saldo)) {
                 totalSaldo += saldo;
             }
+
+            // Procesar mora
+            const mora = parseFloat(row.find('td:nth-child(6)').text().replace(',', ''));
+            if (!isNaN(mora)) {
+                totalMora += mora;
+            }
         });
 
+        // Actualizar ambos campos
         $('#Fmonto').val(totalSaldo.toFixed(2)).trigger('input');
+        $('#Fmora').val(totalMora.toFixed(2)).trigger('input');
+
         calcularMontoTotal();
     });
 }
@@ -1162,11 +1490,12 @@ function aplicarMascarasNumericas() {
 
 /////// Funcion para inicializar Mascara Decimal ///////
 function aplicarMascarasModal() {
-    const $campos = $('#modalMontoTotal, #efectivo,#montoRecibido, #transferencia, #tarjeta, #notaCredito, #cheque, #deposito, #debitoAutomatico');
-    console.log("Aplicando máscaras a estos campos:", $campos.length);
+    // Eliminar máscaras previas
     $('.decimal-input').inputmask('remove');
+
+    // Configuración de la máscara
     const maskOptions = {
-        alias: "decimal",
+        alias: "numeric",
         groupSeparator: ",",
         autoGroup: true,
         digits: 2,
@@ -1178,7 +1507,21 @@ function aplicarMascarasModal() {
         removeMaskOnSubmit: true
     };
 
+    // Aplicar a todos los inputs con clase decimal-input
     $('.decimal-input').inputmask(maskOptions);
+
+    // Aplicar máscara especial para el monto total (solo lectura)
+    $('#modalMontoTotal').inputmask({
+        alias: "numeric",
+        groupSeparator: ",",
+        autoGroup: true,
+        digits: 2,
+        digitsOptional: false,
+        radixPoint: ".",
+        placeholder: "0.00",
+        rightAlign: false,
+        readonly: true
+    });
 }
 
 // Inicialización de DataTable
@@ -1192,25 +1535,8 @@ function inicializarDataTable() {
     });
 
     // Inicializar datepickers
-    var minDate = new DateTime($('#min'), {
-        format: 'DD/MM/YYYY',
-        i18n: {
-            previous: 'Anterior',
-            next: 'Siguiente',
-            months: moment.localeData('es').months(),
-            weekdays: moment.localeData('es').weekdaysShort()
-        }
-    });
-
-    var maxDate = new DateTime($('#max'), {
-        format: 'DD/MM/YYYY',
-        i18n: {
-            previous: 'Anterior',
-            next: 'Siguiente',
-            months: moment.localeData('es').months(),
-            weekdays: moment.localeData('es').weekdaysShort()
-        }
-    });
+    var minDate = new DateTime($('#min'), { format: 'DD/MM/YYYY' });
+    var maxDate = new DateTime($('#max'), { format: 'DD/MM/YYYY' });
 
     // Configuración de DataTable
     var table = $('#tablaCobros').DataTable({
@@ -1219,6 +1545,21 @@ function inicializarDataTable() {
         order: [[0, 'desc']],
         responsive: true,
         dom: '<"top"lf>Brt<"bottom"ip>',
+        language: {
+            "lengthMenu": "Mostrar _MENU_ registros",
+            "emptyTable": "No hay datos disponibles en la tabla",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+            "infoEmpty": "Mostrando 0 a 0 de 0 registros",
+            "infoFiltered": "(filtrado de _MAX_ registros totales)",
+            "search": "Buscar:",
+            "zeroRecords": "No se encontraron registros coincidentes",
+            "paginate": {
+                "first": "Primero",
+                "last": "Último",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            },
+        },
         buttons: [
             {
                 extend: 'pdfHtml5',
@@ -1228,7 +1569,7 @@ function inicializarDataTable() {
                 orientation: 'landscape',
                 pageSize: 'A4',
                 exportOptions: {
-                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
                     modifier: {
                         page: 'all'
                     }
@@ -1302,10 +1643,10 @@ function inicializarDataTable() {
                         const totalRow = new Array(columnsCount).fill('');
 
                         // Colocar "TOTAL:" en la columna correspondiente (índice 2)
-                        totalRow[2] = { text: 'TOTAL:', bold: true, alignment: 'right' };
+                        totalRow[4] = { text: 'TOTAL:', bold: true, alignment: 'right' };
 
                         // Colocar el monto total en la columna Monto (índice 3)
-                        totalRow[3] = { text: totalFormateado, bold: true, alignment: 'right' };
+                        totalRow[5] = { text: totalFormateado, bold: true, alignment: 'right' };
 
                         doc.content[2].table.body.push(totalRow);
                     }
@@ -1361,7 +1702,7 @@ function inicializarDataTable() {
                 titleAttr: 'Exportar a Excel',
                 className: 'btn btn-outline-success',
                 exportOptions: {
-                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8], // Exportar solo columnas visibles
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], // Exportar solo columnas visibles
                 }
             }
         ],
@@ -1371,31 +1712,53 @@ function inicializarDataTable() {
                 targets: 0    // Aplicar a la primera columna (ID)
             },
             {
-                targets: 1, // Columna de fecha
+                targets: 3, // Columna de fecha
                 type: 'date-euro',
                 render: function (data) {
                     return '<span class="badge bg-light text-dark">' + data + '</span>';
                 }
             },
             {
-                targets: [3, 4, 5], // Columnas numéricas
-                className: 'text-end'
+                targets: [5, 6, 7], // Columnas numéricas
             },
             {
-                targets: 7, // Columna Origen
+                targets: 9, // Columna Origen
+                visible: false,
                 render: function (data) {
                     return '<span class="badge bg-primary bg-opacity-10 text-primary">' + data + '</span>';
                 }
             },
             {
-                targets: 8, // Acciones
-                className: 'text-center',
+                targets: 10, // Acciones
                 orderable: false,
                 searchable: false
             }
         ],
         initComplete: function () {
+        },
+        footerCallback: function (row, data, start, end, display) {
+            var api = this.api();
+
+            // Total de inquilinos (filtrados)
+            var totalInquilinos = api.column(1, { search: 'applied' }).data().count();
+
+            // Total de montos (columna 5 = "Monto")
+            var totalMonto = api
+                .column(5, { search: 'applied' })
+                .data()
+                .reduce(function (a, b) {
+                    var x = typeof a === 'string' ? parseFloat(a.replace(/[^0-9.-]/g, '')) || 0 : a;
+                    var y = typeof b === 'string' ? parseFloat(b.replace(/[^0-9.-]/g, '')) || 0 : b;
+                    return x + y;
+                }, 0);
+
+            // Insertar en el footer con texto claro
+            $(api.column(1).footer()).html('<strong>Total Inquilinos:</strong> ' + totalInquilinos);
+            $(api.column(5).footer()).html(
+                '<strong>Monto Total :</strong> ' + totalMonto.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')
+            );
         }
+
     });
 
     // Eventos
@@ -1414,7 +1777,7 @@ function inicializarDataTable() {
 
         if (min || max) {
             $.fn.dataTable.ext.search.push(function (settings, data) {
-                var fechaTabla = moment(data[1], 'DD/MM/YYYY');
+                var fechaTabla = moment(data[3], 'DD/MM/YYYY');
                 var minDate = min ? moment(min, 'DD/MM/YYYY') : null;
                 var maxDate = max ? moment(max, 'DD/MM/YYYY') : null;
 
@@ -1439,6 +1802,7 @@ function inicializarDataTable() {
     return table;
 }
 
+
 // Función para mostrar alerta de permisos
 function showPermissionAlert(message) {
     // Cerrar cualquier toast abierto
@@ -1456,13 +1820,42 @@ function showPermissionAlert(message) {
     });
 }
 
+function initFormValidation(form) {
+    form.validate({
+        rules: {
+            busquedaCxC: {
+                required: true
+            },
+        },
+        messages: {
+            busquedaCxC: {
+                required: "Debe seleccionar una cuenta por cobrar"
+            },
+        },
+        errorClass: "is-invalid",
+        validClass: "is-valid",
+        errorPlacement: function (error, element) {
+            error.addClass('invalid-feedback'); inicializarDataTable
+            element.after(error);
+        },
+        highlight: function (element, errorClass, validClass) {
+            $(element).addClass(errorClass).removeClass(validClass);
+        },
+        unhighlight: function (element, errorClass, validClass) {
+            $(element).removeClass(errorClass).addClass(validClass);
+        }
+    });
+}
 
 $(document).ready(function () {
     // Configuración global de manejo de errores AJAX
-    $(document).ajaxError(function (event, jqxhr, settings, thrownError) {
+    $(document).ajaxError(function (jqxhr) {
+        // Verificar si es un error que ya fue manejado específicamente
+        if (jqxhr.responseJSON && jqxhr.responseJSON.errorType === "no_fiscal_documents") {
+            return; // No hacer nada, ya se manejó este error
+        }
+
+        // Mostrar solo para errores no manejados específicamente
         showToast('Ocurrió un error inesperado. Por favor intente nuevamente.');
     });
-
-    // Cargar tabla al inicio
-    cargarTablaCobro();
 });

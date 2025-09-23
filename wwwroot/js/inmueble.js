@@ -69,6 +69,19 @@ async function ajaxRequest(config) {
     }
 }
 
+// Configuración del toast (misma configuración que cobros.js)
+const Toast = Swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 2000,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer);
+        toast.addEventListener('mouseleave', Swal.resumeTimer);
+    }
+});
+
 // Función para mostrar toasts
 function showToast(message, type = 'error', duration = 3000) {
     const backgroundColor = type === 'error' ? 'red' : (type === 'success' ? 'green' : 'orange');
@@ -107,6 +120,21 @@ function initInmueblesDataTable() {
         autoWidth: false,
         responsive: true,
         dom: '<"top"lf>Brt<"bottom"ip>',
+        language: {
+            "lengthMenu": "Mostrar _MENU_ registros",
+            "emptyTable": "No hay datos disponibles en la tabla",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+            "infoEmpty": "Mostrando 0 a 0 de 0 registros",
+            "infoFiltered": "(filtrado de _MAX_ registros totales)",
+            "search": "Buscar:",
+            "zeroRecords": "No se encontraron registros coincidentes",
+            "paginate": {
+                "first": "Primero",
+                "last": "Último",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            },
+        },
         buttons: [
             {
                 extend: 'pdfHtml5',
@@ -116,7 +144,7 @@ function initInmueblesDataTable() {
                 orientation: 'landscape',
                 pageSize: 'LETTER',
                 exportOptions: {
-                    columns: [0, 1, 2, 3, 4, 5, 6], // Selecciona las columnas a exportar
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7], // Selecciona las columnas a exportar
                     modifier: {
                         page: 'all'
                     }
@@ -202,7 +230,7 @@ function initInmueblesDataTable() {
                 titleAttr: 'Exportar a Excel',
                 className: 'btn btn-outline-success',
                 exportOptions: {
-                    columns: [0, 1, 2, 3, 4, 5, 6], // Exportar solo columnas visibles
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7], // Exportar solo columnas visibles
                 }
             }
         ],
@@ -212,12 +240,12 @@ function initInmueblesDataTable() {
                 visible: false
             },
             {
-                targets: [6], // Columna de estado
+                targets: [7], // Columna de estado
                 orderable: false,
                 searchable: true
             },
             {
-                targets: [7], // Columna de acciones
+                targets: [8], // Columna de acciones
                 orderable: false,
                 searchable: false
             }
@@ -397,6 +425,10 @@ async function cargarTablaInmuebles() {
     }
 }
 
+// Manejador de eventos para el botón "Cargar Propietarios"
+$('#loadInmuebles').on('click', function () {
+    cargarTablaInmuebles();
+});
 
 // Manejador para crear nuevo inmueble
 $('#createInmueble').on('click', async function () {
@@ -436,37 +468,45 @@ $('#createInmueble').on('click', async function () {
     }
 });
 
+
 // Manejador de envío de formulario de creación
 $(document).on('submit', 'form[action$="/Create"]', async function (e) {
     e.preventDefault();
     const form = $(this);
+
     try {
         const data = await ajaxRequest({
             url: form.attr('action'),
             type: 'POST',
             data: form.serialize(),
             form: form,
+            dataType: 'json',
             errorMessage: 'Error al crear el inmueble'
         });
 
-        showToast('Inmueble creado correctamente', 'success');
-        if (data.includes('_InmueblesPartial')) {
-            await cargarTablaInmuebles();
-        } else {
-            $('#dataTableContainer').html(data);
-            inicializarSelect2();
-            aplicarMascaraPrecio();
-            initFormValidation(form);
+        if (data.success) {
+            Toast.fire({
+                icon: 'success',
+                title: 'Inmueble creado correctamente'
+            });
+            // 🚀 Recargar formulario limpio
+            await cargarVistaCrearInmueble();
+        } else if (data.errors) {
+            handleValidationErrors(form, data.errors);
         }
     } catch (error) {
         if (error.status === 403) {
             showPermissionAlert(error.responseJSON?.error || 'No tiene permisos para esta acción');
+        } else if (error.status === 400) {
+            const errors = error.responseJSON.errors;
+            handleValidationErrors(form, errors);
         } else {
-            console.error('Error al crear el inmueble:', error);
-            showToast('Error al crear el inmueble: ' + (error.responseJSON?.message || error.message), 'error');
+            console.error('Error al crear inmueble:', error);
+            showToast('Error al crear inmueble: ' + (error.responseJSON?.message || error.message), 'error');
         }
     }
 });
+
 
 // Manejador para editar inmueble
 $(document).on('click', '.editInmueble', async function () {
@@ -512,7 +552,10 @@ $(document).on('submit', 'form[action*="/Edit"]', async function (e) {
             form: form,
             errorMessage: 'Error al editar el inmueble'
         });
-        showToast('Inmueble actualizado correctamente', 'success');
+        Toast.fire({
+            icon: 'success',
+            title: 'Inmueble actualizado correctamente'
+        });
         if (data.includes('_InmueblesPartial')) {
             await cargarTablaInmuebles();
         } else {
@@ -540,7 +583,10 @@ $(document).on('submit', '.cambiarEstadoForm', async function (e) {
         });
 
         await cargarTablaInmuebles();
-        showToast('Estado del inmueble actualizado correctamente', 'success');
+        Toast.fire({
+            icon: 'success',
+            title: 'Estado del inmueble actualizado correctamente'
+        });
 
     } catch (error) {
         // Manejo específico para errores de permisos (403)
@@ -596,6 +642,9 @@ function initFormValidation(form) {
             }
         },
         messages: {
+            busquedaPropietario: {
+                required: "Debe seleccionar un propietario"
+            },
             Fdescripcion: {
                 required: "La descripción es obligatoria",
                 minlength: "La descripción debe tener al menos 10 caracteres"
@@ -611,9 +660,10 @@ function initFormValidation(form) {
                 number: "Debe ser un valor numérico",
                 min: "El precio debe ser mayor a 0"
             },
-            FkidPropietario: {
-                required: "Debe seleccionar un propietario"
+            FkidMoneda: {
+                required: "La moneda es obligatoria"
             }
+
         },
         errorClass: "is-invalid",
         validClass: "is-valid",
@@ -677,16 +727,60 @@ function updateMapLocation(coords) {
     document.getElementById('selectedLocation').textContent = lat + ", " + lng;
 }
 
+async function cargarVistaCrearInmueble() {
+    try {
+        const response = await ajaxRequest({
+            url: '/TbInmuebles/Create',
+            type: 'GET',
+            errorMessage: 'Error al cargar el formulario de creación',
+            suppressPermissionToasts: true
+        });
 
-$(document).ready(function () {
-    // Inicializar el mapa al cargar la página
+        if (response && response.success === false && response.error) {
+            showPermissionAlert(response.error);
+            return;
+        }
 
+        $('#dataTableContainer').html(response).fadeIn();
 
+        // Inicializar funcionalidades específicas del formulario de inmuebles
+        initMap();
+
+        // Cuando se abre el modal del mapa
+        $('#mapModal').on('show.bs.modal', function () {
+            var inputVal = $('#Fubicacion').val();
+            var coords = parseCoordinates(inputVal);
+            updateMapLocation(coords);
+
+            // Forzar actualización visual del mapa dentro del modal
+            setTimeout(function () {
+                map.invalidateSize();
+            }, 200);
+        });
+
+        inicializarSelect2();
+        aplicarMascaraPrecio();
+        initFormValidation($('#dataTableContainer').find('form'));
+    } catch (error) {
+        if (error.status === 403 || (error.responseJSON && error.responseJSON.error)) {
+            showPermissionAlert(error.responseJSON?.error || 'No tiene permisos para esta acción');
+        } else if (error.message !== 'Permiso denegado') {
+            console.error('Error al cargar formulario de creación:', error);
+            showToast('Error al cargar el formulario', 'error');
+        }
+    }
+}
+
+// Click en la opción "Lista inquilinos" del sidebar
+$(document).on('click', '#menuListaInmuebles', function (e) {
+    e.preventDefault();
+    cargarTablaInmuebles();
+});
+
+$(document).ready(async function () {
     // Configuración global de manejo de errores AJAX
     $(document).ajaxError(function (event, jqxhr, settings, thrownError) {
         showToast('Ocurrió un error inesperado. Por favor intente nuevamente.');
     });
 
-    // Cargar tabla al inicio
-    cargarTablaInmuebles();
 });

@@ -17,6 +17,7 @@ async function ajaxRequest(config) {
             }
 
             const response = await $.ajax({
+                dataType: options.dataType || undefined, // deja que GET traiga HTML, POST pida JSON si lo setean
                 ...options,
                 error: null
             });
@@ -48,11 +49,15 @@ async function ajaxRequest(config) {
                         showToast('Recurso no encontrado', 'error');
                         throw error;
                     default:
-                        if (error.responseJSON?.errors) {
-                            if (options.form) {
-                                handleValidationErrors($(options.form), error.responseJSON.errors);
-                            } else {
-                                showToast(Object.values(error.responseJSON.errors).flat().join(' '), 'error');
+                        if (error.responseJSON) {
+                            if (error.responseJSON.errors) {
+                                if (options.form) {
+                                    handleValidationErrors($(options.form), error.responseJSON.errors);
+                                } else {
+                                    showToast(Object.values(error.responseJSON.errors).flat().join(' '), 'error');
+                                }
+                            } else if (error.responseJSON.message) {
+                                showToast(error.responseJSON.message, 'error');
                             }
                         } else {
                             const userMessage = options.errorMessage || 'Error de comunicación con el servidor';
@@ -68,6 +73,19 @@ async function ajaxRequest(config) {
         }
     }
 }
+
+// Configuración del toast (misma configuración que cobros.js)
+const Toast = Swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 2000,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer);
+        toast.addEventListener('mouseleave', Swal.resumeTimer);
+    }
+});
 
 // Función para mostrar toasts
 function showToast(message, type = 'error', duration = 3000) {
@@ -106,6 +124,21 @@ function initInquilinosDataTable() {
         autoWidth: false,
         responsive: true,
         dom: '<"top"lf>Brt<"bottom"ip>',
+        language: {
+            "lengthMenu": "Mostrar _MENU_ registros",
+            "emptyTable": "No hay datos disponibles en la tabla",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+            "infoEmpty": "Mostrando 0 a 0 de 0 registros",
+            "infoFiltered": "(filtrado de _MAX_ registros totales)",
+            "search": "Buscar:",
+            "zeroRecords": "No se encontraron registros coincidentes",
+            "paginate": {
+                "first": "Primero",
+                "last": "Último",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            },
+        },
         buttons: [
             {
                 extend: 'pdfHtml5',
@@ -238,7 +271,6 @@ function initInquilinosDataTable() {
     applyPhoneMasks();
     return table;
 }
-
 
 function applyCustomFilters(table) {
     console.log('Inicializando filtros personalizados...');
@@ -447,7 +479,10 @@ $(document).on('submit', 'form[action*="/Edit"]', async function (e) {
             form: form,
             errorMessage: 'Error al editar los datos del inquilino'
         });
-        showToast('Inquilino editado correctamente.', 'success');
+        Toast.fire({
+            icon: 'success',
+            title: 'Inquilino editado correctamente'
+        });
         if (data.includes('_InquilinosPartial')) {
             await cargarTablaInquilinos();
         } else if (data.success === false && data.errors) {
@@ -493,7 +528,10 @@ $(document).on('submit', '.cambiarEstadoForm', async function (e) {
 
         // Si llegamos aquí, la operación fue exitosa
         await cargarTablaInquilinos();
-        showToast('Estado del inquilino actualizado correctamente.', 'success');
+        Toast.fire({
+            icon: 'success',
+            title: 'Estado del inquilino actualizado correctamente'
+        });
 
     } catch (error) {
         // Manejo específico para errores de permisos (403)
@@ -511,52 +549,43 @@ $(document).on('submit', '.cambiarEstadoForm', async function (e) {
 $(document).on('submit', 'form[action$="/Create"]', async function (e) {
     e.preventDefault();
     const form = $(this);
+    const token = $('input[name="__RequestVerificationToken"]').val();
     try {
         const data = await ajaxRequest({
             url: form.attr('action'),
             type: 'POST',
             data: form.serialize(),
             form: form,
+            dataType: 'json',
             errorMessage: 'Error al crear el inquilino',
-            suppressPermissionToasts: false
+            suppressPermissionToasts: false,
+            headers: {
+                'X-RequestVerificationToken': token
+            },
         });
 
-        // Mostrar toast en cualquier caso de éxito
-        showToast('Inquilino creado correctamente.', 'success');
-        if (data.includes('_InquilinosPartial')) {
-            await cargarTablaInquilinos();
-        } else {
-            $('#dataTableContainer').html(data);
-            applyCedulaMask();
-            applyPhoneMasks();
-            initFormValidation(form);
+        if (data.success) {
+            Toast.fire({
+                icon: 'success',
+                title: 'Inquilino creado correctamente'
+            });
+            // 🚀 Recargar vista de creación
+            await cargarVistaCrearInquilino();
+        } else if (data.errors) {
+            handleValidationErrors(form, data.errors);
         }
     } catch (error) {
         if (error.status === 403) {
             showPermissionAlert(error.responseJSON?.error || 'No tiene permisos para esta acción');
-        } else if (error.status === 400) { // Manejo de errores de validación
+        } else if (error.status === 400) {
             const errors = error.responseJSON.errors;
-            for (const key in errors) {
-                if (errors.hasOwnProperty(key)) {
-                    const errorMessage = errors[key];
-                    const input = form.find(`[name="${key}"]`);
-
-                    // Limpiar mensajes de error anteriores
-                    input.removeClass('is-invalid'); // Eliminar clase de error
-                    input.next('.invalid-feedback').remove(); // Eliminar mensaje de error anterior
-
-                    input.addClass('is-invalid'); // Agregar clase de error
-                    input.after(`<div class="invalid-feedback">${Array.isArray(errorMessage) ? errorMessage.join(' ') : errorMessage}</div>`); // Mostrar mensaje de error
-                }
-            }
+            handleValidationErrors(form, errors);
         } else {
             console.error('Error al crear inquilino:', error);
             showToast('Error al crear inquilino: ' + (error.responseJSON?.message || error.message), 'error');
         }
     }
 });
-
-
 
 
 // Función para mostrar alerta de permisos
@@ -575,7 +604,6 @@ function showPermissionAlert(message) {
         buttonsStyling: false
     });
 }
-
 
 // Función para inicializar validación del lado cliente
 function initFormValidation(form) {
@@ -600,14 +628,44 @@ function initFormValidation(form) {
     });
 }
 
+async function cargarVistaCrearInquilino() {
+    try {
+        const response = await ajaxRequest({
+            url: '/TbInquilinoes/Create',
+            type: 'GET',
+            errorMessage: 'Error al cargar el formulario de creación',
+            suppressPermissionToasts: true
+        });
 
+        if (response && response.success === false && response.error) {
+            showPermissionAlert(response.error);
+            return;
+        }
 
-$(document).ready(function () {
+        $('#dataTableContainer').html(response).fadeIn();
+        applyCedulaMask();
+        applyPhoneMasks();
+        initFormValidation($('#dataTableContainer').find('form'));
+    } catch (error) {
+        if (error.status === 403 || (error.responseJSON && error.responseJSON.error)) {
+            showPermissionAlert(error.responseJSON?.error || 'No tiene permisos para esta acción');
+        } else if (error.message !== 'Permiso denegado') {
+            console.error('Error al cargar formulario de creación:', error);
+            showToast('Error al cargar el formulario', 'error');
+        }
+    }
+}
+
+// Click en la opción "Lista inquilinos" del sidebar
+$(document).on('click', '#menuListaInquilinos', function (e) {
+    e.preventDefault();
+    cargarTablaInquilinos();
+});
+
+$(document).ready(async function () {
     // Configuración global de manejo de errores AJAX
     $(document).ajaxError(function (event, jqxhr, settings, thrownError) {
         showToast('Ocurrió un error inesperado. Por favor intente nuevamente.');
     });
-
-    // Cargar tabla al inicio
-    cargarTablaInquilinos();
+    
 });

@@ -69,6 +69,19 @@ async function ajaxRequest(config) {
     }
 }
 
+// Configuración del toast (misma configuración que cobros.js)
+const Toast = Swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 2000,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer);
+        toast.addEventListener('mouseleave', Swal.resumeTimer);
+    }
+});
+
 // Función para mostrar toasts (la misma que en inmuebles)
 function showToast(message, type = 'error', duration = 3000) {
     const backgroundColor = type === 'error' ? 'red' : (type === 'success' ? 'green' : 'orange');
@@ -114,6 +127,21 @@ function initCuentasPorCobrarDataTable() {
         order: [[0, 'desc']],
         responsive: true,
         dom: '<"top"lf>Brt<"bottom"ip>',
+        language: {
+            "lengthMenu": "Mostrar _MENU_ registros",
+            "emptyTable": "No hay datos disponibles en la tabla",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+            "infoEmpty": "Mostrando 0 a 0 de 0 registros",
+            "infoFiltered": "(filtrado de _MAX_ registros totales)",
+            "search": "Buscar:",
+            "zeroRecords": "No se encontraron registros coincidentes",
+            "paginate": {
+                "first": "Primero",
+                "last": "Último",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            },
+        },
         buttons: [
             {
                 extend: 'pdfHtml5',
@@ -123,7 +151,7 @@ function initCuentasPorCobrarDataTable() {
                 orientation: 'landscape',
                 pageSize: 'LETTER',
                 exportOptions: {
-                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11],
                     modifier: {
                         page: 'all'
                     }
@@ -176,7 +204,7 @@ function initCuentasPorCobrarDataTable() {
                     const totalFormateado = 'RD$ ' + formatoRD(totalMonto);
 
                     // Ajustar márgenes y centrar contenido
-                    doc.pageMargins = [40, 80, 40, 60];
+                    doc.pageMargins = [40, 40, 40, 80];
                     doc.defaultStyle.fontSize = 8;
                     doc.styles.tableHeader.fontSize = 9;
                     doc.styles.tableHeader.alignment = 'center';
@@ -197,10 +225,10 @@ function initCuentasPorCobrarDataTable() {
                         const totalRow = new Array(columnsCount).fill('');
 
                         // Colocar "TOTAL:" en la columna correspondiente (índice 2)
-                        totalRow[1] = { text: 'TOTAL:', bold: true, alignment: 'right' };
+                        totalRow[2] = { text: 'TOTAL:', bold: true, alignment: 'right' };
 
                         // Colocar el monto total en la columna Monto (índice 3)
-                        totalRow[2] = { text: totalFormateado, bold: true, alignment: 'right' };
+                        totalRow[3] = { text: totalFormateado, bold: true, alignment: 'right' };
 
                         doc.content[2].table.body.push(totalRow);
                     }
@@ -256,7 +284,7 @@ function initCuentasPorCobrarDataTable() {
                 titleAttr: 'Exportar a Excel',
                 className: 'btn btn-outline-success',
                 exportOptions: {
-                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], // Exportar solo columnas visibles
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11], // Exportar solo columnas visibles
                 }
             }
         ],
@@ -267,24 +295,23 @@ function initCuentasPorCobrarDataTable() {
                 visible: false
             },
             {
-                targets: [3, 4],  // Columnas Días de Gracia (4) y Tasa de Mora (5)
-                className: 'text-center'
+                targets: [4, 5],  // Columnas Días de Gracia (5) y Tasa de Mora (6)
             },
             {
-                targets: [5, 6, 7],
-                className: 'text-center',
+                targets: [6, 7, 8],
                 type: 'date-euro'
             },
             {
-                targets: [8],  // Columna de estado
+                targets: [9], // Columna de estado
                 orderable: false,
                 searchable: true,
                 visible: false
             },
             {
-                targets: [9],  // Columna de notas
+                targets: [10],
                 orderable: false,
-                searchable: true
+                searchable: true,
+                visible: true
             }
         ]
     });
@@ -379,6 +406,7 @@ function setupDateFilters(table) {
     let dateFilterFunction = null;
 
     // Configurar el botón "Aplicar Filtros" para el rango de fechas
+    // Configurar el botón "Aplicar Filtros" para el rango de fechas
     $('#btnAplicarFiltros').on('click', function () {
         // Remover el filtro anterior si existe
         if (dateFilterFunction) {
@@ -386,7 +414,13 @@ function setupDateFilters(table) {
         }
 
         // Obtener qué columna de fecha vamos a filtrar
-        const columnaFecha = $('#filtroTipoFecha').val();
+        const columnaFecha = parseInt($('#filtroTipoFecha').val());
+
+        // Validar que la columna sea correcta
+        if (isNaN(columnaFecha) || columnaFecha < 0) {
+            console.error('Columna de fecha no válida:', columnaFecha);
+            return;
+        }
 
         // Crear nuevo filtro
         dateFilterFunction = function (settings, data, dataIndex) {
@@ -418,7 +452,7 @@ function setupDateFilters(table) {
                     return true;
                 }
 
-                // Comparar fechas como timestamps para mayor precisión
+                // Comparar fechas
                 const fechaTablaTime = fechaTabla.getTime();
                 const minDateTime = minDate ? minDate.getTime() : null;
                 const maxDateTime = maxDate ? maxDate.getTime() : null;
@@ -454,14 +488,17 @@ function setupDateFilters(table) {
         if (!dateStr) return null;
 
         // Limpiar el string de cualquier tag HTML o clase
-        dateStr = dateStr.replace(/<[^>]*>/g, '').trim();
+        dateStr = dateStr.toString().replace(/<[^>]*>/g, '').trim();
 
         // Manejar el caso "N/A"
-        if (dateStr === 'N/A') return null;
+        if (dateStr === 'N/A' || dateStr === 'NULL') return null;
 
-        // Extraer solo la parte de la fecha (podría estar dentro de un span o badge)
+        // Extraer la fecha en formato DD/MM/YYYY
         const dateMatch = dateStr.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
-        if (!dateMatch) return null;
+        if (!dateMatch) {
+            console.warn('Formato de fecha no reconocido:', dateStr);
+            return null;
+        }
 
         const day = dateMatch[1].padStart(2, '0');
         const month = dateMatch[2].padStart(2, '0');
@@ -488,38 +525,46 @@ function setupDateFilters(table) {
 
 // Función para aplicar otros filtros personalizados
 function applyCustomFilters(table) {
-    // Filtro por estado (se sigue aplicando automáticamente)
+    // Filtro por estado
     $('#filtroEstado').on('change', function () {
         const value = $(this).val();
+
+        // Limpiar búsquedas previas
         table.search('').columns().search('').draw();
 
         if (value !== '') {
+            // Eliminar cualquier filtro previo
+            $.fn.dataTable.ext.search = [];
+
+            // Agregar nuevo filtro
             $.fn.dataTable.ext.search.push(
                 function (settings, data, dataIndex) {
-                    const row = table.row(dataIndex).node();
-                    const estadoText = $(row).find('td:eq(7)').text().trim();
+                    // La columna de Estado es la 9 (index 9)
+                    const estadoText = data[9].trim();
                     return (value === 'true' && estadoText === 'Activo') ||
                         (value === 'false' && estadoText === 'Inactivo');
                 }
             );
+
             table.draw();
-            $.fn.dataTable.ext.search.pop();
         } else {
+            // Si no hay valor seleccionado, eliminar todos los filtros
+            $.fn.dataTable.ext.search = [];
             table.draw();
         }
     });
 
-    // Filtro por inquilino (se sigue aplicando automáticamente)
+    // Filtro por inquilino (columna 1 - index 1)
     $('#filtroInquilino').on('keyup', function () {
         table.column(1).search(this.value).draw();
     });
 
-    // Filtro por período (se sigue aplicando automáticamente)
+    // Filtro por período (columna 7 - index 7)
     $('#filtroPeriodo').on('change', function () {
-        table.column(6).search(this.value).draw();
+        table.column(7).search(this.value).draw();
     });
 
-    // Botón reset (actualizado para limpiar todo correctamente)
+    // Botón reset
     $('#btnResetFiltros').on('click', function () {
         // Limpiar todos los filtros
         $.fn.dataTable.ext.search = [];
@@ -591,7 +636,7 @@ function inicializarSelect2() {
     });
 
     $selectInquilino.on('change', function () {
-        $('#FidInquilino').val($(this).val());
+        $('#FkidInquilino').val($(this).val());
     });
 
     $('#busquedaInmueble').on('change', function () {
@@ -643,7 +688,6 @@ function inicializarSelect2() {
     });
 }
 
-
 // Función para cargar la tabla de cuentas por cobrar (adaptada de inmuebles)
 async function cargarTablaCuentasPorCobrar() {
     try {
@@ -669,6 +713,11 @@ async function cargarTablaCuentasPorCobrar() {
         }
     }
 }
+
+// Manejador de eventos para el botón "Cargar Propietarios"
+$('#loadCuentasPorCobrar').on('click', function () {
+    cargarTablaCuentasPorCobrar();
+});
 
 // Manejador para crear nueva cuenta por cobrar
 $('#createCuentaPorCobrar').on('click', async function () {
@@ -698,6 +747,14 @@ $(document).on('submit', 'form[action$="/Create"]', async function (e) {
     e.preventDefault();
     const form = $(this);
 
+    // Inicializar validación
+    initFormValidation(form);
+
+    // Detener si el formulario es inválido
+    if (!form.valid()) {
+        return;
+    }
+
     // Crear FormData tradicional
     const formData = new FormData(form[0]);
 
@@ -720,14 +777,18 @@ $(document).on('submit', 'form[action$="/Create"]', async function (e) {
             contentType: false,
             headers: {
                 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val(),
-                'Accept': 'application/json' // Asegurar que esperamos JSON
+                'Accept': 'application/json'
             }
         });
 
         if (response.success) {
-            cargarTablaCuentasPorCobrar();
-            initCuentasPorCobrarDataTable();
-            showToast('Cuenta por cobrar creada correctamente.', 'success');
+            Toast.fire({
+                icon: 'success',
+                title: 'Cuenta por cobrar creada correctamente'
+            });
+            // 🚀 Recargar formulario limpio
+            await cargarVistaCrearCuentaPorCobrar();
+
         } else {
             const errorMsg = response.message ||
                 (response.errors ? response.errors.join(', ') : 'Error desconocido');
@@ -754,8 +815,6 @@ $(document).on('submit', 'form[action$="/Create"]', async function (e) {
         showToast('Error al crear la CxC: ' + errorMsg, 'error');
     }
 });
-
-
 
 // Manejador para editar cuenta por cobrar
 $(document).on('click', '.editCxC', async function () {
@@ -803,7 +862,10 @@ $(document).on('submit', 'form[action*="/Edit"]', async function (e) {
 
         cargarTablaCuentasPorCobrar();
         initCuentasPorCobrarDataTable();
-        showToast('Cuenta por cobrar actualizada correctamente', 'success');
+        Toast.fire({
+            icon: 'success',
+            title: 'Cuenta por cobrar actualizada correctamente'
+        });
 
     } catch (error) {
         if (error.status === 403) {
@@ -829,7 +891,10 @@ $(document).on('submit', '.cambiarEstadoForm', async function (e) {
         });
 
         await cargarTablaCuentasPorCobrar();
-        showToast('Estado de la cuenta por cobrar actualizado correctamente', 'success');
+        Toast.fire({
+            icon: 'success',
+            title: 'Estado de la cuenta por cobrar actualizado correctamente'
+        });
 
     } catch (error) {
         // Manejo específico para errores de permisos (403)
@@ -881,7 +946,6 @@ $(document).on('submit', '.cancelarCxCForm', function (e) {
         });
 });
 
-
 // Manejador para el botón de confirmación (usa delegación de eventos)
 $(document).on('click', '#confirmCancelarBtn', async function () {
     const btn = $(this);
@@ -899,7 +963,7 @@ $(document).on('click', '#confirmCancelarBtn', async function () {
 
     if (!motivo || !password) {
         showToast('Debe completar todos los campos', 'error');
-        btn.prop('disabled', false).html('<i class="fas fa-ban me-1"></i> Anular Cobro');
+        btn.prop('disabled', false).html('<i class="fas fa-ban me-1"></i> Anular CxC');
         return;
     }
 
@@ -941,7 +1005,10 @@ $(document).on('click', '#confirmCancelarBtn', async function () {
 
         if (response.success) {
             $('#confirmCancelarModal').modal('hide');
-            showToast(response.message, 'success');
+            Toast.fire({
+                icon: 'success',
+                title: response.message
+            });
             await cargarTablaCuentasPorCobrar();
         } else {
             showToast(response.message || 'Error al cancelar la CxC', 'error');
@@ -1006,10 +1073,10 @@ function showPermissionAlert(message) {
 function initFormValidation(form) {
     form.validate({
         rules: {
-            FidInquilino: {
+            FkidInquilino: {
                 required: true
             },
-            FkidInmueble: {
+            busquedaInmueble: {
                 required: true
             },
             Fmonto: {
@@ -1025,12 +1092,15 @@ function initFormValidation(form) {
                 number: true,
                 min: 0
             },
+            FkidPeriodoPago: {
+                required: true
+            }
         },
         messages: {
-            FidInquilino: {
+            FkidInquilino: {
                 required: "Debe seleccionar un inquilino"
             },
-            FkidInmueble: {
+            busquedaInmueble: {
                 required: "Debe seleccionar un inmueble"
             },
             Fmonto: {
@@ -1042,6 +1112,9 @@ function initFormValidation(form) {
                 required: "La fecha de inicio es obligatoria",
                 date: "Debe ser una fecha válida"
             },
+            FkidPeriodoPago: {
+                required: "Debe seleccionar un período de pago"
+            }
         },
         errorClass: "is-invalid",
         validClass: "is-valid",
@@ -1058,12 +1131,50 @@ function initFormValidation(form) {
     });
 }
 
-$(document).ready(function () {
+async function cargarVistaCrearCuentaPorCobrar() {
+    try {
+        const response = await ajaxRequest({
+            url: '/TbCuentasPorCobrar/Create',
+            type: 'GET',
+            errorMessage: 'Error al cargar el formulario de creación',
+            suppressPermissionToasts: true
+        });
+
+        if (response && response.success === false && response.error) {
+            showPermissionAlert(response.error);
+            return;
+        }
+
+        $('#dataTableContainer').html(response).fadeIn();
+
+        // Inicializar select2 (Inquilino + Inmueble)
+        inicializarSelect2();
+
+        // Aplicar máscara a monto
+        aplicarMascaraPrecio();
+
+        // Validación del formulario
+        initFormValidation($('#dataTableContainer').find('form'));
+    } catch (error) {
+        if (error.status === 403 || (error.responseJSON && error.responseJSON.error)) {
+            showPermissionAlert(error.responseJSON?.error || 'No tiene permisos para esta acción');
+        } else if (error.message !== 'Permiso denegado') {
+            console.error('Error al cargar formulario de creación:', error);
+            showToast('Error al cargar el formulario', 'error');
+        }
+    }
+}
+
+// Click en la opción "Lista inquilinos" del sidebar
+$(document).on('click', '#menuListaCxC', function (e) {
+    e.preventDefault();
+    cargarTablaCuentasPorCobrar();
+});
+
+$(document).ready(async function () {
     // Configuración global de manejo de errores AJAX
     $(document).ajaxError(function (event, jqxhr, settings, thrownError) {
         showToast('Ocurrió un error inesperado. Por favor intente nuevamente.');
     });
-
-    // Cargar tabla al inicio
-    cargarTablaCuentasPorCobrar();
+  
 });

@@ -65,6 +65,19 @@ async function ajaxRequest(config) {
     }
 }
 
+// Configuración del toast (misma configuración que cobros.js)
+const Toast = Swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 2000,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer);
+        toast.addEventListener('mouseleave', Swal.resumeTimer);
+    }
+});
+
 // Función para mostrar toasts (la misma que en inmuebles)
 function showToast(message, type = 'error', duration = 3000) {
     const backgroundColor = type === 'error' ? 'red' : (type === 'success' ? 'green' : 'orange');
@@ -95,7 +108,12 @@ async function cargarTablaCuotas() {
     }
 }
 
-// Manejador para crear nuevo inmueble
+// Manejador de eventos para el botón "Cargar Inquilinos"
+$('#loadCuotas').on('click', function () {
+    cargarTablaCuotas();
+});
+
+// Manejador para crear nueva cuota
 $('#createCuota').on('click', async function () {
     try {
         const data = await ajaxRequest({
@@ -204,7 +222,7 @@ $(document).on('click', '.delete-cuota', function (event) {
                     type: 'DELETE',
                     contentType: 'application/json',
                     headers: {
-                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                        'X-RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
                     }
                 });
 
@@ -404,7 +422,7 @@ $(document).on('submit', 'form[action$="/Create"]', async function (e) {
             data: JSON.stringify(formData),
             contentType: 'application/json', // Especificar que enviamos JSON
             headers: {
-                'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val(),
+                'X-RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val(),
                 'Accept': 'application/json' // Aceptar respuesta JSON
             }
         });
@@ -414,7 +432,10 @@ $(document).on('submit', 'form[action$="/Create"]', async function (e) {
         if (response.success) {
             // Cargar la tabla de cuotas y mostrar mensaje de éxito
             await cargarTablaCuotas(); // Cambiado de cargarTablaCuentasPorCobrar() a cargarTablaCuotas()
-            showToast(response.message || 'Cuota(s) creada(s) correctamente.', 'success');
+            Toast.fire({
+                icon: 'success',
+                title: response.message || 'Cuota(s) creada(s) correctamente.'
+            });
             form[0].reset();
             $('#busquedaCxC').val(null).trigger('change');
             $('#FNumeroCuota').val(response.nextCuotaNumber || '');
@@ -562,6 +583,21 @@ function inicializarDataTable() {
         order: [[0, 'desc']], // Ordenar por Inquilino por defecto
         responsive: true,
         dom: '<"top"lf>Brt<"bottom"ip>',
+        language: {
+            "lengthMenu": "Mostrar _MENU_ registros",
+            "emptyTable": "No hay datos disponibles en la tabla",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+            "infoEmpty": "Mostrando 0 a 0 de 0 registros",
+            "infoFiltered": "(filtrado de _MAX_ registros totales)",
+            "search": "Buscar:",
+            "zeroRecords": "No se encontraron registros coincidentes",
+            "paginate": {
+                "first": "Primero",
+                "last": "Último",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            },
+        },
         buttons: [
             {
                 extend: 'pdfHtml5',
@@ -775,7 +811,13 @@ function showPermissionAlert(message) {
 function initFormValidation(form) {
     form.validate({
         rules: {
+            FidCxc: {
+                required: true,
+            },
             CantidadCuotas: {
+                required: true,
+            },
+            Fvence: {
                 required: true,
             },
             Fmonto: {
@@ -783,9 +825,16 @@ function initFormValidation(form) {
             }
         },
         messages: {
+            FidCxc: {
+                required: 'Seleccione una cuenta por cobrar',
+            },
             CantidadCuotas: {
                 required: "La cantidad de cuotas es obligatorio",
                 number: "Debe ser un valor numérico mayor que cero",
+            },
+            Fvence: {
+                required: "La fecha de vencimiento es obligatoria",
+                date: "Debe ser una fecha válida"
             },
             Fmonto: {
                 required: "El monto es obligatorio"
@@ -806,12 +855,77 @@ function initFormValidation(form) {
     });
 }
 
+// ✅ Función para cargar el formulario de creación de cuotas
+async function cargarVistaCrearCuota() {
+    try {
+        const response = await ajaxRequest({
+            url: '/TbCuotas/Create',
+            type: 'GET',
+            errorMessage: 'Error al cargar el formulario de creación de cuotas',
+            suppressPermissionToasts: true
+        });
+
+        // Si el servidor devuelve un objeto JSON con error de permisos
+        if (response && response.success === false && response.error) {
+            showPermissionAlert(response.error);
+            return;
+        }
+
+        // Inyectar la vista en el contenedor
+        $('#dataTableContainer').html(response).fadeIn();
+
+        // Inicializar controles del formulario
+        inicializarSelect2();       // Select2 de CxC
+        aplicarMascaraPrecio();     // Máscara numérica
+        initFormValidation($('#dataTableContainer').find('form')); // Validación
+    } catch (error) {
+        if (error.status === 403 || (error.responseJSON && error.responseJSON.error)) {
+            showPermissionAlert(error.responseJSON?.error || 'No tiene permisos para esta acción');
+        } else if (error.message !== 'Permiso denegado') {
+            console.error('Error al cargar formulario de creación de cuota:', error);
+            showToast('Error al cargar el formulario de cuotas', 'error');
+        }
+    }
+}
+
+// ✅ Función para cargar la vista de eliminar cuotas
+async function cargarVistaEliminarCuota() {
+    try {
+        const response = await ajaxRequest({
+            url: '/TbCuotas/Delete',   // Acción GET que devuelve la vista parcial
+            type: 'GET',
+            errorMessage: 'Error al cargar la vista de eliminación de cuotas',
+            suppressPermissionToasts: true
+        });
+
+        // Si el backend devuelve JSON con error de permisos
+        if (response && response.success === false && response.error) {
+            showPermissionAlert(response.error);
+            return;
+        }
+
+        // Renderizar la vista dentro del contenedor
+        $('#dataTableContainer').html(response).fadeIn();
+
+        // Inicializar helpers necesarios
+        inicializarSelect2();       // Select2 para seleccionar CxC
+        aplicarMascaraPrecio();     // Máscara numérica para montos
+        filtrarCuotasPorCxc();      // Vincular cuotas a la CxC seleccionada
+        initFormValidation($('#dataTableContainer').find('form')); // Validación de formularios
+    } catch (error) {
+        if (error.status === 403 || (error.responseJSON && error.responseJSON.error)) {
+            showPermissionAlert(error.responseJSON?.error || 'No tiene permisos para esta acción');
+        } else if (error.message !== 'Permiso denegado') {
+            console.error('Error al cargar vista de eliminación de cuotas:', error);
+            showToast('Error al cargar la vista de eliminación', 'error');
+        }
+    }
+}
+
+
 $(document).ready(function () {
     // Configuración global de manejo de errores AJAX
     $(document).ajaxError(function (event, jqxhr, settings, thrownError) {
         showToast('Ocurrió un error inesperado. Por favor intente nuevamente.');
     });
-
-    // Cargar tabla al inicio
-    cargarTablaCuotas();
 });

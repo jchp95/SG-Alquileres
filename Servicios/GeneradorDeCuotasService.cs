@@ -41,21 +41,21 @@ public class GeneradorDeCuotasService
             foreach (var cuota in cuotasVencidas)
             {
                 var existeSiguiente = await _context.TbCxcCuota.AnyAsync(q =>
-                    q.FidCxc == cuota.FidCxc && q.FNumeroCuota == cuota.FNumeroCuota + 1);
+                    q.FkidCxc == cuota.FkidCxc && q.FNumeroCuota == cuota.FNumeroCuota + 1);
 
                 if (existeSiguiente) continue;
 
-                var cuenta = await _context.TbCxcs.FindAsync(cuota.FidCxc);
+                var cuenta = await _context.TbCxcs.FindAsync(cuota.FkidCxc);
                 if (cuenta == null) continue;
 
-                var periodo = await _context.PeriodosPagos.FindAsync(cuenta.FidPeriodoPago);
+                var periodo = await _context.PeriodosPagos.FindAsync(cuenta.FkidPeriodoPago);
                 if (periodo == null) continue;
 
-                var nuevaFechaVencimiento = cuota.Fvence.AddDays(periodo.Dias);
+                var nuevaFechaVencimiento = cuota.Fvence.AddDays(periodo.Fdias);
 
                 var nuevaCuota = new TbCxcCuotum
                 {
-                    FidCxc = cuenta.FidCuenta,
+                    FkidCxc = cuenta.FidCuenta,
                     FNumeroCuota = cuota.FNumeroCuota + 1,
                     Fvence = nuevaFechaVencimiento,
                     Fmonto = (int)cuenta.Fmonto,

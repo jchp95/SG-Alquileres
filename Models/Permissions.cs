@@ -53,9 +53,19 @@ namespace Alquileres.Models
         public static class Cobros
         {
             public const string Ver = "Permissions.Cobros.Ver";
+            public const string VerEstadoCobro = "Permissions.Cobros.VerEstadoCobro";
             public const string Crear = "Permissions.Cobros.Crear";
             public const string VerDetalles = "Permissions.Cobros.VerDetalles";
             public const string Anular = "Permissions.Cobros.Anular";
+        }
+
+        // Permisos para Cobros
+        public static class Gastos
+        {
+            public const string Ver = "Permissions.Gastos.Ver";
+            public const string Crear = "Permissions.Gastos.Crear";
+            public const string Editar = "Permissions.Gastos.Editar";
+            public const string Anular = "Permissions.Gastos.Anular";
         }
 
         // Permisos para Reportes
@@ -63,9 +73,20 @@ namespace Alquileres.Models
         {
             public const string Ver = "Permissions.Reportes.Ver";
         }
+
+        // Permisos para vista Home
         public static class Home
         {
             public const string Ver = "Permissions.Home.Ver";
+        }
+
+        // Permisos para vista Home
+        public static class Usuario
+        {
+            public const string Ver = "Permissions.Usuario.Ver";
+            public const string Crear = "Permissions.Usuario.Crear";
+            public const string Editar = "Permissions.Usuario.Editar";
+            public const string Anular = "Permissions.Usuario.Anular";
         }
 
         public static List<string> GetAllPermissions()
@@ -88,8 +109,10 @@ namespace Alquileres.Models
                 ["Inmuebles"] = new List<string> { Inmuebles.Ver, Inmuebles.Crear, Inmuebles.Editar, Inmuebles.Anular },
                 ["CuentaPorCobrar"] = new List<string> { CxC.Ver, CxC.Crear, CxC.Editar, CxC.Anular, CxC.Cancelar },
                 ["Cuotas"] = new List<string> { Cuotas.Ver, Cuotas.Crear, Cuotas.Eliminar },
-                ["Cobros"] = new List<string> { Cobros.Ver, Cobros.Crear, Cobros.VerDetalles, Cobros.Anular },
-                ["Reportes"] = new List<string> { Reportes.Ver }
+                ["Cobros"] = new List<string> { Cobros.Ver, Cobros.VerEstadoCobro, Cobros.Crear, Cobros.VerDetalles, Cobros.Anular },
+                ["Gastos"] = new List<string> { Gastos.Ver, Gastos.Crear, Gastos.Editar, Gastos.Anular },
+                ["Reportes"] = new List<string> { Reportes.Ver },
+                ["Usuarios"] = new List<string> { Usuario.Ver, Usuario.Crear, Usuario.Editar, Usuario.Anular }
             };
         }
 

@@ -7,60 +7,67 @@
     var token = Antiforgery.GetAndStoreTokens(Context).RequestToken;
 }
 
-<div class="mb-4">
-    <h3>Eliminar Cuotas para las CxC</h3>
-</div>
-<hr />
-<div class="row">
-    <div class="col-md-6 offset-md-3">
-        <form id="cuotaForm" asp-action="Create" method="post" data-ajax="true">
-            @Html.AntiForgeryToken()
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" id="__RequestVerificationToken" value="@token" />
+<div class="container-fluid">
+    <!-- Header -->
+    <div
+        class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+        <div>
+            <h2 class="mb-1"><i class="fas fa-trash-alt me-2 text-danger"></i>Eliminar Cuotas</h2>
+            <p class="text-muted mb-0">Gestión de eliminación de cuotas de cuentas por cobrar</p>
+        </div>
+    </div>
 
-            <!-- Select para Cuentas por cobrar (Campo requerido) -->
-            <div class="form-group">
-                <label class="control-label">Buscar Cuenta por cobrar</label>
-                <select id="busquedaCxC" class="form-control select2" name="FkidCxC" required
-                    data-placeholder="Buscar Cuenta por cobrar...">
-                    <option></option>
-                </select>
-                <div class="invalid-feedback">
-                    Por favor seleccione una cuenta por cobrar.
-                </div>
-            </div>
+    <!-- Card de Resultados -->
+    <div class="card border-0 shadow-sm px-4 py-4">
+        <div class="card-body p-0">
+            <form id="cuotaForm" asp-action="Create" method="post" data-ajax="true">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" id="__RequestVerificationToken" value="@token" />
 
-            <!-- Tabla de cuotas -->
-            <div class="form-group">
-                <label>
-                    <h5 class="mt-2">Listado de Cuotas</h5>
-                </label>
-                <table class="table" id="tablaCuotasPorCxC">
-                    <thead>
-                        <tr>
-                            <th>ID Cuota</th>
-                            <th>Número de Cuota</th>
-                            <th>Fecha de Vencimiento</th>
-                            <th>Monto</th>
-                            <th>Saldo</th>
-                            <th>Tasa de Mora</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Las filas de cuotas vencidas se agregan dinámicamente aquí -->
-                    </tbody>
-                </table>
-                <div id="cuotasError" class="invalid-feedback" style="display: none;">
-                    Por favor seleccione al menos una cuota.
+                <!-- Select para Cuentas por cobrar (Campo requerido) -->
+                <div class="form-group mb-4">
+                    <label class="control-label fw-bold">Buscar Cuenta por cobrar</label>
+                    <select id="busquedaCxC" class="form-control select2" name="FkidCxC" required
+                        data-placeholder="Buscar Cuenta por cobrar...">
+                        <option></option>
+                    </select>
+                    <div class="invalid-feedback">
+                        Por favor seleccione una cuenta por cobrar.
+                    </div>
                 </div>
-            </div>
-        </form>
+
+                <!-- Tabla de cuotas -->
+                <div class="form-group">
+                    <h5 class="mb-3"><i class="fas fa-list-ol me-2 text-primary"></i>Listado de Cuotas</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0" id="tablaCuotasPorCxC">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="text-center">ID Cuota</th>
+                                    <th class="text-center">Número</th>
+                                    <th class="text-center">Vencimiento</th>
+                                    <th class="text-end">Monto</th>
+                                    <th class="text-end">Saldo</th>
+                                    <th class="text-center">Tasa Mora</th>
+                                    <th class="text-center">Estado</th>
+                                    <th class="text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Las filas de cuotas vencidas se agregan dinámicamente aquí -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="cuotasError" class="invalid-feedback" style="display: none;">
+                        Por favor seleccione al menos una cuota.
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
 @section Scripts {
     @await Html.PartialAsync("_ValidationScriptsPartial")
-
 }

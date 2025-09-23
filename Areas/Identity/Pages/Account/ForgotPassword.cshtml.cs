@@ -45,42 +45,33 @@ namespace Alquileres.Areas.Identity.Pages.Account
             {
                 var user = await _userManager.FindByEmailAsync(Input.Email);
 
-                // Medida de seguridad: No revelar si el email existe o está confirmado
+                // Siempre mostrar confirmación (seguridad)
                 if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
                 {
-                    _logger.LogInformation($"Solicitud de restablecimiento para email no registrado: {Input.Email}");
-                    return RedirectToPage("./ForgotPasswordConfirmation");
+                    return RedirectToPage("./ForgotPasswordConfirmation", new { email = Input.Email });
                 }
 
-                try
+                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+
+                var callbackUrl = Url.Page(
+                    "/Account/ResetPassword",
+                    pageHandler: null,
+                    values: new { area = "Identity", code = token, email = Input.Email },
+                    protocol: Request.Scheme);
+
+                // En desarrollo, pasa el enlace a la página de confirmación
+                if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
                 {
-                    var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-                    token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
-
-                    var resetUrl = Url.Page(
-                        "/Account/ResetPassword",
-                        pageHandler: null,
-                        values: new { area = "Identity", code = token },
-                        protocol: Request.Scheme);
-
-                    await _emailSender.SendEmailAsync(
-                        Input.Email,
-                        "Restablecer contraseña - Alquileres",
-                        $"""
-                        <h3>Restablecimiento de contraseña</h3>
-                        <p>Para crear una nueva contraseña, <a href='{HtmlEncoder.Default.Encode(resetUrl)}'>haga clic aquí</a>.</p>
-                        <p>Si no solicitó este cambio, puede ignorar este mensaje.</p>
-                        <p><small>Enlace válido por 24 horas</small></p>
-                        """);
-
-                    _logger.LogInformation($"Enlace de restablecimiento enviado a: {Input.Email}");
-                    return RedirectToPage("./ForgotPasswordConfirmation");
+                    TempData["DebugResetLink"] = callbackUrl;
                 }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error al enviar email de restablecimiento");
-                    ModelState.AddModelError(string.Empty, "Ocurrió un error al procesar su solicitud.");
-                }
+
+                await _emailSender.SendEmailAsync(
+                    Input.Email,
+                    "Restablecer contraseña",
+                    $"Por favor restablece tu contraseña <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>haciendo clic aquí</a>.");
+
+                return RedirectToPage("./ForgotPasswordConfirmation", new { email = Input.Email });
             }
 
             return Page();

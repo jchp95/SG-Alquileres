@@ -3,11 +3,15 @@
 
 @{
     var tipoReporte = ViewData["TipoReporte"]?.ToString() ?? "CxC";
-    var tituloPagina = tipoReporte == "Cobros" ? "Reportes de Cobros" : "Reportes de Cuentas por Cobrar";
-    var textoBoton = tipoReporte == "Cobros" ? "Cargar Reporte Cobros" : "Cargar Reporte CxC";
+    var tituloPagina = tipoReporte == "Cobros" ? "Reportes de Cobros" :
+    tipoReporte == "Atrasos" ? "Reportes de Atrasos" :
+    tipoReporte == "EstadoCuenta" ? "Reportes Estado de Cuenta" :
+    tipoReporte == "EstadoGasto" ? "Reportes Estado de Gasto" :
+    "Reportes de Cuentas por Cobrar";
 
     ViewData["Title"] = tituloPagina;
 }
+
 <!-- Elemento oculto para exponer tipoReporte a JS -->
 <div id="tipoReporte" data-tiporeporte="@tipoReporte" hidden></div>
 
@@ -27,7 +31,11 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const tipoReporte = document.getElementById("tipoReporte")?.dataset.tiporeporte || "CxC";
-            if (tipoReporte === "Atrasos") {
+            if (tipoReporte === "EstadoGasto") {
+                cargarReporteEstadoGasto();
+            } else if (tipoReporte === "EstadoCuenta") {
+                cargarVistaReporteEstadoCuenta();
+            } else if (tipoReporte === "Atrasos") {
                 cargarReporteAtrasos();
             } else if (tipoReporte === "Cobros") {
                 cargarReporteCobros();

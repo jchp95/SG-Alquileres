@@ -1,0 +1,53 @@
+@model Alquileres.Models.UsuarioViewModel
+
+@{
+    ViewData["Title"] = "Editar Usuario";
+}
+
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="d-flex align-items-center mb-3">
+            <i class="fas fa-user-edit text-primary fs-4 me-2"></i>
+            <h4 class="mb-0">Editar Usuario</h4>
+        </div>
+        <form asp-action="Edit" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" name="FidUsuario" value="@Model.FidUsuario" />
+
+            <div class="form-group mb-3">
+                <label asp-for="Fnombre" class="form-label">Nombre completo</label>
+                <input asp-for="Fnombre" class="form-control" placeholder="Ingrese el nombre completo" />
+                <span asp-validation-for="Fnombre" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Fusuario" class="form-label">Usuario</label>
+                <input asp-for="Fusuario" class="form-control" placeholder="Ingrese el nombre de usuario"
+                    autocomplete="off" />
+                <span asp-validation-for="Fusuario" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Femail" class="form-label">Correo electrónico</label>
+                <input asp-for="Femail" class="form-control" placeholder="Ingrese el correo electrónico" />
+                <span asp-validation-for="Femail" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="SelectedRole" class="form-label">Rol</label>
+                <select asp-for="SelectedRole" asp-items="ViewBag.Roles" class="form-select"></select>
+                <span asp-validation-for="SelectedRole" class="text-danger"></span>
+            </div>
+
+            <div class="form-group-button mt-3">
+                <input type="submit" value="Guardar Cambios" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary">Volver a la Lista</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

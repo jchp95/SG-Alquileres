@@ -3,55 +3,55 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Alquileres.Models
 {
+    [Table("tb_empresa")]
     public class Empresa
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column("fid_empresa")]
-        public int IdEmpresa { get; set; } // Este campo no puede ser NULL, ya que es la clave primaria.
+        public int IdEmpresa { get; set; }
 
-        [Column("frnc")]
-        [StringLength(18)]
-        public string? Rnc { get; set; } // Nullable, ya que puede ser NULL en la base de datos.
+        [Column("frnc", TypeName = "varchar(18)")]
+        public string? Rnc { get; set; }
 
-        [Column("fnombre")]
-        [StringLength(250)]
-        public string? Nombre { get; set; } // Nullable.
+        [Column("fnombre", TypeName = "varchar(250)")]
+        public string? Nombre { get; set; }
 
-        [Column("fdireccion")]
-        [StringLength(250)]
-        public string? Direccion { get; set; } // Nullable.
+        [Column("fdireccion", TypeName = "varchar(250)")]
+        public string? Direccion { get; set; }
 
-        [Column("ftelefonos")]
-        [StringLength(14)]
-        public string? Telefonos { get; set; } // Nullable.
+        [Column("ftelefonos", TypeName = "varchar(14)")]
+        public string? Telefonos { get; set; }
 
-        [Column("festlogan")]
-        [StringLength(250)]
-        public string? Slogan { get; set; } // Nullable.
+        [Column("festlogan", TypeName = "varchar(250)")]
+        public string? Slogan { get; set; }
 
-        [Column("fmensaje")]
-        [StringLength(250)]
-        public string? Mensaje { get; set; } // Nullable.
+        [Column("fmensaje", TypeName = "varchar(250)")]
+        public string? Mensaje { get; set; }
 
         [Column("flogo")]
-        public byte[]? Logo { get; set; } // Nullable.
+        public byte[]? Logo { get; set; }
 
         [Column("ffondo")]
-        public byte[]? Fondo { get; set; } // Nullable.
+        public byte[]? Fondo { get; set; }
 
         [Column("fcodigoqr_web")]
-        public byte[]? CodigoQrWeb { get; set; } // Nullable.
+        public byte[]? CodigoQrWeb { get; set; }
 
         [Column("fcodigoqr_redes")]
-        public byte[]? CodigoQrRedes { get; set; } // Nullable.
+        public byte[]? CodigoQrRedes { get; set; }
 
-        [Column("femail")]
-        [StringLength(50)]
-        public string? Email { get; set; } // Nullable.
+        [Column("femail", TypeName = "varchar(50)")]
+        public string? Email { get; set; }
 
-        [Column("fcontraseña")]
-        [StringLength(100)]
-        public string? Contrasena { get; set; } // Nullable.
+        [Column("fcontraseña", TypeName = "varchar(100)")]
+        public string? Contrasena { get; set; }
+
+        [Column("factivar_cobro_rapido")]
+        public bool ActivarCobroRapido { get; set; } = true;
+
+        [NotMapped]
+        public int TipoComprobantePorDefecto { get; set; }
+       
     }
 }

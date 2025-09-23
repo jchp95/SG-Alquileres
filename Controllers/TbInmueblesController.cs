@@ -9,17 +9,18 @@ using Microsoft.EntityFrameworkCore;
 namespace Alquileres.Controllers
 {
     [Authorize]
-    public class TbInmueblesController : Controller
+    public class TbInmueblesController : BaseController
     {
-        private readonly ApplicationDbContext _context;
+
         private readonly ILogger<TbInmueblesController> _logger;
 
         private readonly UserManager<IdentityUser> _userManager;
 
         // Corrección: Usar el tipo correcto para el logger
-        public TbInmueblesController(ApplicationDbContext context, ILogger<TbInmueblesController> logger, UserManager<IdentityUser> userManager)
+        public TbInmueblesController(ApplicationDbContext context,
+        ILogger<TbInmueblesController> logger,
+        UserManager<IdentityUser> userManager) : base(context)
         {
-            _context = context;
             _logger = logger;
             _userManager = userManager;
         }
@@ -53,8 +54,9 @@ namespace Alquileres.Controllers
         }
 
         // GET: TbInmuebles
-        public IActionResult Index()
+        public IActionResult Index(string vista = "crear")
         {
+            ViewData["Vista"] = vista;
             return View();
         }
 
@@ -73,6 +75,10 @@ namespace Alquileres.Controllers
                     .Where(p => p.Factivo)
                     .ToDictionaryAsync(p => p.FidPropietario, p => $"{p.Fnombre} {p.Fapellidos}");
 
+                var monedas = await _context.TbMonedas
+                    .Where(p => p.Factivo)
+                    .ToDictionaryAsync(p => p.FidMoneda, p => $"{p.Fmoneda}");
+
                 var inmuebleViewModels = inmuebles.Select(i => new InmuebleViewModel
                 {
                     FidInmueble = i.FidInmueble,
@@ -81,7 +87,8 @@ namespace Alquileres.Controllers
                     Fubicacion = i.Fubicacion,
                     Fprecio = i.Fprecio,
                     Factivo = i.Factivo,
-                    PropietarioNombre = propietarios.GetValueOrDefault(i.FkidPropietario, "Desconocido")
+                    PropietarioNombre = propietarios.GetValueOrDefault(i.FkidPropietario, "Desconocido"),
+                    TipoMoneda = monedas.GetValueOrDefault(i.FkidMoneda, "Desconocido")
                 }).ToList();
 
                 return PartialView("_InmueblesPartial", inmuebleViewModels);
@@ -109,9 +116,9 @@ namespace Alquileres.Controllers
                     .ToListAsync();
 
                 var propietarioList = new List<SelectListItem>
-                {
-                    new SelectListItem { Value = "", Text = "Seleccionar propietario" }
-                };
+        {
+            new SelectListItem { Value = "", Text = "Seleccionar propietario" }
+        };
 
                 propietarioList.AddRange(propietarios.Select(p => new SelectListItem
                 {
@@ -120,6 +127,19 @@ namespace Alquileres.Controllers
                 }));
 
                 ViewBag.FkidPropietario = propietarioList;
+
+                // 🔽 Obtener las monedas activas
+                var monedas = await _context.TbMonedas
+                    .Where(m => m.Factivo)
+                    .Select(m => new SelectListItem
+                    {
+                        Value = m.FidMoneda.ToString(),
+                        Text = m.Fmoneda // puedes incluir símbolo también si quieres
+                    })
+                    .ToListAsync();
+
+                ViewBag.FkidMoneda = monedas;
+
                 return PartialView("_CreateInmueblePartial", new TbInmueble());
             }
             catch (Exception ex)
@@ -129,59 +149,67 @@ namespace Alquileres.Controllers
             }
         }
 
+
         [HttpPost]
         [Authorize(Policy = "Permissions.Inmuebles.Crear")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("FidInmueble,FkidPropietario,Fdescripcion,Fdireccion,Fubicacion,Fprecio,FkidUsuario")] TbInmueble tbInmueble)
+        public async Task<IActionResult> Create([Bind("FidInmueble,FkidPropietario,Fdescripcion,Fdireccion,Fubicacion,Fprecio,FkidMoneda,FkidUsuario")] TbInmueble tbInmueble)
         {
             try
             {
-                // Debugging - log all permissions
-                var claims = User.Claims.Where(c => c.Type == "Permission").ToList();
-                _logger.LogInformation("User  permissions: {@Permissions}", claims.Select(c => c.Value));
+                // Guardar cultura actual
+                var currentCulture = System.Threading.Thread.CurrentThread.CurrentCulture;
 
-                var identityId = _userManager.GetUserId(User);
-                if (string.IsNullOrEmpty(identityId))
-                    return BadRequest(new { success = false, message = "El usuario no está autenticado." });
-
-                var usuario = await _context.TbUsuarios.FirstOrDefaultAsync(u => u.IdentityId == identityId);
-                if (usuario == null)
-                    return BadRequest(new { success = false, message = $"No se encontró un usuario con el IdentityId: {identityId}" });
-
-
-                if (ModelState.IsValid)
+                try
                 {
-                    tbInmueble.FkidUsuario = usuario.FidUsuario;
+                    // Forzar cultura invariante para parseo numérico
+                    System.Threading.Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
 
-                    tbInmueble.FfechaRegistro = DateTime.Now; // ✅ Asignar fecha actual
-                    tbInmueble.Factivo = true; // (opcional) marcar como activo por defecto
+                    var identityId = _userManager.GetUserId(User);
+                    if (string.IsNullOrEmpty(identityId))
+                        return BadRequest(new { success = false, message = "El usuario no está autenticado." });
+
+                    var usuario = await _context.TbUsuarios.FirstOrDefaultAsync(u => u.IdentityId == identityId);
+                    if (usuario == null)
+                        return BadRequest(new { success = false, message = $"No se encontró un usuario con el IdentityId: {identityId}" });
+
+                    if (!ModelState.IsValid)
+                    {
+                        var errors = ModelState.ToDictionary(
+                            kvp => kvp.Key,
+                            kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
+                        );
+
+                        return BadRequest(new { success = false, errors });
+                    }
+
+                    tbInmueble.FkidUsuario = usuario.FidUsuario;
+                    tbInmueble.FfechaRegistro = DateTime.Now;
+                    tbInmueble.Factivo = true;
 
                     _context.Add(tbInmueble);
                     await _context.SaveChangesAsync();
 
-                    return await CargarInmuebles();
+                    // 🚀 Devolver JSON en vez de PartialView
+                    return Ok(new { success = true });
                 }
-
-                // Si hay errores, recargar la lista de propietarios
-                var propietarios = await _context.TbPropietarios
-                    .Where(p => p.Factivo)
-                    .Select(p => new
-                    {
-                        p.FidPropietario,
-                        NombreCompleto = $"{p.Fnombre} {p.Fapellidos}"
-                    })
-                    .ToListAsync();
-
-                ViewBag.FkidPropietario = new SelectList(propietarios, "FidPropietario", "NombreCompleto");
-                return PartialView("_CreateInmueblePartial", tbInmueble);
+                finally
+                {
+                    // Restaurar cultura original
+                    System.Threading.Thread.CurrentThread.CurrentCulture = currentCulture;
+                }
+            }
+            catch (DbUpdateException ex)
+            {
+                _logger.LogError(ex, "Error de base de datos al crear inmueble");
+                return StatusCode(500, new { success = false, message = "Error crítico en la base de datos. Contacte al administrador." });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al crear inmueble");
-                return StatusCode(500);
+                _logger.LogError(ex, "Error general al crear inmueble");
+                return StatusCode(500, new { success = false, message = "Error interno del servidor." });
             }
         }
-
 
         [HttpGet]
         [Authorize(Policy = "Permissions.Inmuebles.Editar")] // Corregido el nombre de la política
@@ -199,6 +227,20 @@ namespace Alquileres.Controllers
                     .Select(p => $"{p.Fnombre} {p.Fapellidos}")
                     .FirstOrDefaultAsync();
 
+                // Cargar los tipos de monedas desde la base de datos
+                var tipoMoneda = await _context.TbMonedas.ToListAsync();
+
+                // Crear una lista de opciones con los tipos de monedas
+                var opciones = tipoMoneda.Select(p => new SelectListItem
+                {
+                    Value = p.FidMoneda.ToString(),
+                    Text = p.Fmoneda,
+                    Selected = p.FidMoneda == tbInmueble.FkidMoneda // Seleccionar el periodo correspondiente
+                }).ToList();
+
+                // Crear el SelectList para el ViewBag
+                ViewBag.FkidMoneda = opciones;
+
                 ViewBag.PropietarioNombre = propietario ?? "Desconocido";
                 return PartialView("_EditInmueblePartial", tbInmueble);
             }
@@ -212,7 +254,7 @@ namespace Alquileres.Controllers
         [HttpPost]
         [Authorize(Policy = "Permissions.Inmuebles.Editar")] // Corregido el nombre de la política
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("FidInmueble,FkidPropietario,Fdescripcion,Fdireccion,Fubicacion,Fprecio")] TbInmueble tbInmueble)
+        public async Task<IActionResult> Edit(int id, [Bind("FidInmueble,FkidPropietario,Fdescripcion,Fdireccion,Fubicacion,Fprecio,FkidMoneda")] TbInmueble tbInmueble)
         {
             try
             {

@@ -3,6 +3,8 @@
 #nullable disable
 
 using System.ComponentModel.DataAnnotations;
+using System.Text;
+using System.Text.Encodings.Web;
 using Alquileres.Context;
 using Alquileres.Models;
 using Microsoft.AspNetCore.Authentication;
@@ -10,6 +12,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace Alquileres.Areas.Identity.Pages.Account
 {
@@ -49,12 +52,21 @@ namespace Alquileres.Areas.Identity.Pages.Account
 
         public class InputModel
         {
+            [Required(ErrorMessage = "El nombre es requerido")]
+            [Display(Name = "Nombre y Apellidos")]
+            public string Nombre { get; set; }
+
             [Required(ErrorMessage = "El nombre de usuario es requerido")]
             [Display(Name = "Nombre de usuario")]
             public string UserName { get; set; }
 
+            [Required(ErrorMessage = "El correo electrónico es requerido")]
+            [EmailAddress(ErrorMessage = "Ingrese un correo electrónico válido")]
+            [Display(Name = "Correo electrónico")]
+            public string Email { get; set; }
+
             [Required(ErrorMessage = "La contraseña es requerida")]
-            [StringLength(100, ErrorMessage = "La {0} debe tener al menos {2} y como máximo {1} caracteres.", MinimumLength = 6)]
+            [StringLength(100, ErrorMessage = "La {0} debe tener al menos {2} y como máximo {1} caracteres.", MinimumLength = 3)]
             [DataType(DataType.Password)]
             [Display(Name = "Contraseña")]
             public string Password { get; set; }
@@ -65,14 +77,6 @@ namespace Alquileres.Areas.Identity.Pages.Account
             public string ConfirmPassword { get; set; }
         }
 
-        public class NoOpEmailSender : IEmailSender
-        {
-            public Task SendEmailAsync(string email, string subject, string htmlMessage)
-            {
-                // Implementación vacía
-                return Task.CompletedTask;
-            }
-        }
 
         public async Task OnGetAsync(string returnUrl = null)
         {
@@ -90,23 +94,29 @@ namespace Alquileres.Areas.Identity.Pages.Account
                 var user = CreateUser();
 
                 await _userStore.SetUserNameAsync(user, Input.UserName, CancellationToken.None);
+                await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+
                 var result = await _userManager.CreateAsync(user, Input.Password);
 
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("Usuario creado exitosamente con contraseña.");
 
+                    // Marcar el email como confirmado automáticamente
+                    user.EmailConfirmed = true;
+                    await _userManager.UpdateAsync(user);
+
                     // Crear registro en TbUsuario
                     var nuevoUsuario = new TbUsuario
                     {
-                        Fnombre = Input.UserName,
+                        Fnombre = Input.Nombre,
                         Fusuario = Input.UserName,
+                        Femail = Input.Email,
                         Fpassword = user.PasswordHash,
-                        Fnivel = 2, // Nivel por defecto para usuarios normales
-                        Factivado = true,
-                        FkidSucursal = 1, // Ajustar según necesidad
-                        FestadoSync = "A",
-                        Factivo = true,
+                        Fnivel = 2,
+                        Factivado = true, // Activado directamente
+                        FkidSucursal = 1,
+                        Factivo = true, // Activo directamente
                         IdentityId = user.Id
                     };
 

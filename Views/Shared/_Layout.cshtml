@@ -35,72 +35,129 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Alquileres.styles.css" asp-append-version="true" />
 
+
     @await RenderSectionAsync("Styles", required: false)
 </head>
 
 <body>
-    <header class="div1">
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-none shadow">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    <img src="@Url.Action("GetLogo", "Empresa")" alt="Logo" style="height: 60px; width: auto;"
-                        onerror="this.onerror=null;this.src='/images/logo-default.png';" />
-                </a>
+    @* Obtener la cantidad de cuotas vencidas desde ViewData *@
+    @{
+        int cantidadCuotasVencidas = ViewData["CantidadCuotasVencidas"] != null
+        ? (int)ViewData["CantidadCuotasVencidas"]
+        : 0;
 
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
-                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+        var cuotasVencidas = ViewData["CuotasVencidas"] as List<TbCxcCuotum>;
+    }
+
+    <header class="div1">
+        <nav class="navbar navbar-expand-sm navbar-light bg-white shadow">
+            <div class="container-fluid justify-content-between align-items-center">
+
+                <!-- Grupo izquierdo (icono, logo, nombre) -->
+                <div class="d-flex align-items-center">
+                    <!-- Botón sidebar (solo móvil) -->
+                    <button class="sidebar-toggler btn me-2 d-sm-none" type="button" id="toggleSidebarMobile">
+                        <i class="fas fa-indent"></i>
+                    </button>
+
+                    <!-- Logo + Nombre empresa -->
+                    <a class="navbar-brand d-flex align-items-center gap-2" asp-area="" asp-controller="Home"
+                        asp-action="Index">
+                        <img id="logoEmpresa" src="@Url.Action("GetLogo", "Empresa")" alt="LOGO" class="logo-navbar"
+                            style="height: 60px; width: auto;"
+                            onerror="this.style.display='none'; document.getElementById('altLogo').style.display='inline';" />
+
+                        <span id="altLogo" class="fw-bold text-dark" style="display: none;">LOGO</span>
+                        <span class="fw-bold text-dark">@ViewData["NombreEmpresa"]</span>
+                    </a>
+                </div>
+
+                <!-- Grupo derecho (campana móvil + toggler general + login) -->
+                <div class="d-flex align-items-center">
+
+                    <!-- Campana SOLO en móvil -->
+                    <div class="dropdown d-sm-none me-2">
+                        <a class="nav-link text-dark position-relative" href="#" id="notificationsBellMobile"
+                            role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-bell fs-5"></i>
+                            @if (cantidadCuotasVencidas > 0)
+                            {
+                                <span
+                                    class="badge position-absolute top-0 start-100 translate-middle p-1 bg-danger rounded-circle">
+                                    @cantidadCuotasVencidas
+                                </span>
+                            }
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsBellMobile"
+                            id="notificationsDropdownMobile">
+                            <li><a class="dropdown-item" href="#">Cargando notificaciones...</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Toggler menú general -->
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                        data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent" aria-expanded="false"
+                        aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                </div>
+
+                <!-- Collapse para menú -->
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        @if (User.IsInRole("Administrator"))
+                        @if (User.Identity.IsAuthenticated)
                         {
-                            <!-- link que solo vera el Administrador -->
-                            @await Html.PartialAsync("_AdminActionsPartial")
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            </li>
                         }
+
                     </ul>
                     <ul class="navbar-nav ms-auto">
-                        @* Obtener la cantidad de cuotas vencidas desde ViewData *@
-                        @{
-                            int cantidadCuotasVencidas = ViewData["CantidadCuotasVencidas"] != null ?
-                            (int)ViewData["CantidadCuotasVencidas"] : 0;
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <!-- Campana en escritorio -->
+                            <li class="nav-item d-none d-sm-block">
+                                <div class="dropdown dropstart" data-toggle="tooltip" data-html="true"
+                                    data-placement="bottom" title="Notificaciones" data-bs-toggle="dropdown">
+                                    <a class="nav-link text-dark" href="#" id="notificationsBell" role="button"
+                                        aria-expanded="false">
+                                        <i class="fas fa-bell"></i>
+                                        @if (cantidadCuotasVencidas > 0)
+                                        {
+                                            <span class="badge badge-pulse bg-danger">@cantidadCuotasVencidas</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-pulse bg-danger d-none">0</span>
+                                        }
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsBell"
+                                        id="notificationsDropdown">
+                                        <li><a class="dropdown-item" href="#">Cargando notificaciones...</a></li>
+                                    </ul>
+                                </div>
+                            </li>
 
-                            var cuotasVencidas = ViewData["CuotasVencidas"] as List<TbCxcCuotum>;
+                            @await Html.PartialAsync("_AdminActionsPartial")
+
                         }
-                        <!-- Icono de la campanita -->
-                        <li class="nav-item">
-                            <div class="dropdown dropstart">
-                                <a class="nav-link text-dark" href="#" id="notificationsBell" role="button"
-                                    data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-bell"></i>
-                                    @if (cantidadCuotasVencidas > 0)
-                                    {
-                                        <span id="notificationBadge"
-                                            class="badge badge-pulse bg-danger">@cantidadCuotasVencidas</span>
-                                    }
-                                    else
-                                    {
-                                        <span id="notificationBadge" class="badge badge-pulse bg-danger d-none">0</span>
-                                    }
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsBell"
-                                    id="notificationsDropdown">
-                                    <li><a class="dropdown-item" href="#">Cargando notificaciones...</a></li>
-                                </ul>
-                            </div>
-                        </li>
+
+                        <!-- Login -->
                         @await Html.PartialAsync("_LoginPartial")
+
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
 
+
     <div class="parent">
-        @await Html.PartialAsync("_SidebarPartial")
+        @if (User.Identity.IsAuthenticated)
+        {
+            @await Html.PartialAsync("_SidebarPartial")
+        }
 
         <!-- Main Content -->
         <div class="div4"
@@ -144,7 +201,7 @@
 
     <!-- Moment.js (necesario para DateTime plugin de DataTables) -->
     <script src="~/lib/moment.js/moment.min.js"></script>
-  
+
 
     <!-- DataTables núcleo y bootstrap -->
     <script src="~/lib/datatables.net/datatables.min.js"></script>
@@ -162,11 +219,13 @@
     <script src="~/lib/datatables.net-buttons/js/buttons.html5.min.js"></script>
     <script src="~/lib/datatables.net-buttons/js/buttons.print.min.js"></script>
 
+
     <!-- leaflet -->
     <script src="~/lib/leaflet/leaflet.js"></script>
 
     <!-- Plugins adicionales DataTables -->
     <script src="~/lib/datatables-plugins/buttons/button.download.min.js"></script>
+    <script src="~/lib/datatables-plugins/i18n/es-es.js"></script>
     <script src="~/lib/datatables-plugins/i18n/es-es.min.js"></script>
 
     <!-- Font Awesome -->
@@ -175,12 +234,10 @@
     <!-- SweetAlert2 -->
     <script src="~/lib/sweetalert2/sweetalert2.min.js"></script>
 
-    <!-- Toastr -->
+    <!-- Toasts -->
     <script src="~/lib/toastr.js/toastr.min.js"></script>
 
-
     <script src="~/lib/intro.js/intro.min.js"></script>
-
 
     <!-- Scripts personalizados -->
     <script src="~/js/site.js"></script>
@@ -191,42 +248,122 @@
     <audio id="notificationSound" src="~/sounds/notificacion.mp3" preload="auto"></audio>
 
     <script>
-        // Alternar sidebar
+        // Alternar sidebar con animación
         document.getElementById('toggleSidebar').addEventListener('click', function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+
             const sidebar = document.getElementById('sidebar');
             sidebar.classList.toggle('collapsed');
-            event.stopPropagation();
+
+            // Agregar clase de animación
+            sidebar.classList.add('animating');
+            setTimeout(() => sidebar.classList.remove('animating'), 300);
         });
+
+        document.getElementById('toggleSidebarMobile').addEventListener('click', function (event) {
+            event.preventDefault();
+
+            const sidebar = document.getElementById('sidebar');
+
+            // Abrir sidebar
+            sidebar.classList.remove('collapsed');
+            sidebar.classList.add('expanded', 'mobile-sidebar');
+            document.body.classList.add('sidebar-open');
+
+            // Detectar clic fuera para cerrar
+            const closeSidebarOnClickOutside = function (e) {
+                const toggleBtn = document.getElementById('toggleSidebarMobile');
+                if (!sidebar.contains(e.target) && e.target !== toggleBtn && !toggleBtn.contains(e.target)) {
+                    sidebar.classList.remove('expanded');
+                    sidebar.classList.add('collapsed');
+
+                    // Esperar a que termine la transición para limpiar clases
+                    setTimeout(() => {
+                        sidebar.classList.remove('mobile-sidebar');
+                        document.body.classList.remove('sidebar-open');
+                    }, 300); // duración igual al transition: 0.3s
+
+                    document.removeEventListener('click', closeSidebarOnClickOutside);
+                }
+            };
+
+            document.addEventListener('click', closeSidebarOnClickOutside);
+        });
+
 
         // Cerrar sidebar al hacer clic fuera
         document.addEventListener('click', function (event) {
             const sidebar = document.getElementById('sidebar');
             const toggleButton = document.getElementById('toggleSidebar');
 
-            if (!sidebar.contains(event.target) && !toggleButton.contains(event.target)) {
+            if (!sidebar.contains(event.target) && !toggleButton.contains(event.target) && !sidebar.classList.contains('collapsed')) {
                 sidebar.classList.add('collapsed');
+                sidebar.classList.add('animating');
+                setTimeout(() => sidebar.classList.remove('animating'), 300);
             }
         });
-    </script>
-    <script>
+
         function toggleSubMenu(event, subMenuId) {
+            event.preventDefault();
+            event.stopPropagation();
+
             const subMenu = document.getElementById(subMenuId);
             const arrow = event.currentTarget.querySelector('.fa-chevron-down');
+            const dot = event.currentTarget.querySelector('.active-dot');
+            const wasOpen = subMenu.classList.contains('show');
 
-            // Alternar la visibilidad del submenú
-            if (subMenu.classList.contains('show')) {
+            // Cerrar todos los submenús y ocultar sus puntos
+            document.querySelectorAll('.list-group-flush.show').forEach(menu => {
+                if (menu.id !== subMenuId) {
+                    menu.classList.remove('show');
+                    const otherArrow = menu.previousElementSibling.querySelector('.fa-chevron-down');
+                    const otherDot = menu.previousElementSibling.querySelector('.active-dot');
+                    otherArrow.classList.remove('fa-rotate-180');
+                    if (otherDot) otherDot.classList.remove('visible');
+                }
+            });
+
+            // Ocultar todos los puntos excepto el actual (opcional, para mayor seguridad)
+            document.querySelectorAll('.active-dot.visible').forEach(d => {
+                if (d !== dot) d.classList.remove('visible');
+            });
+
+            // Alternar el submenú actual
+            if (wasOpen) {
                 subMenu.classList.remove('show');
-                arrow.classList.remove('fa-rotate-180'); // Rotar la flecha hacia abajo
+                arrow.classList.remove('fa-rotate-180');
+                if (dot) dot.classList.remove('visible');
             } else {
                 subMenu.classList.add('show');
-                arrow.classList.add('fa-rotate-180'); // Rotar la flecha hacia arriba
+                arrow.classList.add('fa-rotate-180');
+                if (dot) dot.classList.add('visible');
+
+                subMenu.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }
+
+            return false;
         }
+
+        // Mejorar accesibilidad con teclado
+        document.querySelectorAll('.nav-link[data-mdb-collapse-init]').forEach(link => {
+            link.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    const subMenuId = link.getAttribute('href').substring(1);
+                    toggleSubMenu(e, subMenuId);
+                }
+            });
+        });
     </script>
+
     <script>
         $(function () {
-            $('[data-toggle="tooltip"]').tooltip()
-        })
+            $('[data-toggle="tooltip"]').tooltip({
+                trigger: 'hover',
+                boundary: 'window'
+            });
+        });
     </script>
 
     <script>
@@ -234,43 +371,64 @@
         function cargarNotificaciones() {
             $.get('/Home/CheckCuotasVencidas', function (data) {
                 console.log(data);
-                const dropdown = $('#notificationsDropdown');
-                const badge = $('#notificationBadge');
 
-                // Limpiar dropdown
-                dropdown.empty();
+                // Elementos escritorio
+                const dropdownDesktop = $('#notificationsDropdown');
+                const badgeDesktop = $('#notificationBadge');
+
+                // Elementos móvil
+                const dropdownMobile = $('#notificationsDropdownMobile');
+                const badgeMobile = $('#notificationBadgeMobile');
+
+                // Limpiar ambos dropdowns
+                dropdownDesktop.empty();
+                dropdownMobile.empty();
 
                 if (data.tieneCuotasVencidas) {
-                    // Actualizar el badge
-                    badge.text(data.cantidad).removeClass('d-none');
+                    // Mostrar y actualizar ambos badges
+                    badgeDesktop.text(data.cantidad).removeClass('d-none');
+                    badgeMobile.text(data.cantidad).removeClass('d-none');
 
-                    // Agregar título
-                    dropdown.append(`<li><h6 class="dropdown-header">Tienes ${data.cantidad} cuota(s) vencida(s)</h6></li>`);
+                    const header = `<li><h6 class="dropdown-header">Tienes ${data.cantidad} cuota(s) vencida(s)</h6></li>`;
 
-                    // Agregar cada cuota vencida
+                    dropdownDesktop.append(header);
+                    dropdownMobile.append(header);
+
                     data.cuotas.forEach(function (cuota) {
-                        const fechaVencimiento = new Date(cuota.fvence).toLocaleDateString();
-                        dropdown.append(
-                            `<li>
-                                <a class="dropdown-item" href="#">
-                                    Cuota #${cuota.fNumeroCuota} - $${cuota.fmonto.toFixed(2)} 
-                                    <span class="text-danger">Vencido: ${fechaVencimiento}</span>
-                                </a>
-                            </li>`
-                        );
+                        const fecha = new Date(cuota.fvence).toLocaleDateString();
+                        const item = `
+                    <li>
+                        <a class="dropdown-item" href="#">
+                            Cuota #${cuota.fNumeroCuota} - $${cuota.fmonto.toFixed(2)}
+                            <span class="text-danger">Vencido: ${fecha}</span>
+                        </a>
+                    </li>`;
+
+                        dropdownDesktop.append(item);
+                        dropdownMobile.append(item);
                     });
 
-                    // Agregar enlace para ver todas
-                    dropdown.append(`<li><hr class="dropdown-divider"></li>`);
-                    dropdown.append(`<li><a class="dropdown-item text-center" href="/TbCuotas/Index">Ver todas</a></li>`);
+                    const divider = `<li><hr class="dropdown-divider"></li>`;
+                    const verTodas = `<li><a class="dropdown-item text-center" href="/TbCuotas/Index">Ver todas</a></li>`;
+
+                    dropdownDesktop.append(divider + verTodas);
+                    dropdownMobile.append(divider + verTodas);
+
                 } else {
-                    // No hay cuotas vencidas
-                    badge.addClass('d-none');
-                    dropdown.append(`<li><a class="dropdown-item" href="#">No tienes cuotas vencidas</a></li>`);
+                    // Ocultar ambos badges
+                    badgeDesktop.addClass('d-none');
+                    badgeMobile.addClass('d-none');
+
+                    const sinCuotas = `<li><a class="dropdown-item" href="#">No tienes cuotas vencidas</a></li>`;
+                    dropdownDesktop.append(sinCuotas);
+                    dropdownMobile.append(sinCuotas);
                 }
             }).fail(function (jqXHR, textStatus, errorThrown) {
                 console.error("Error al cargar notificaciones:", textStatus, errorThrown);
-                $('#notificationsDropdown').empty().append(`<li><a class="dropdown-item text-danger" href="#">Error al cargar notificaciones</a></li>`);
+
+                const errorItem = `<li><a class="dropdown-item text-danger" href="#">Error al cargar notificaciones</a></li>`;
+                $('#notificationsDropdown').empty().append(errorItem);
+                $('#notificationsDropdownMobile').empty().append(errorItem);
             });
         }
 
@@ -283,9 +441,8 @@
         });
 
         // Actualizar al hacer clic en la campana
-        $('#notificationsBell').click(function () {
-            cargarNotificaciones();
-        });
+        $('#notificationsBell').click(cargarNotificaciones);
+        $('#notificationsBellMobile').click(cargarNotificaciones);
     </script>
 
     <script>

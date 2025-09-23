@@ -1,23 +1,38 @@
-:root {
+ :root {
     /* Update font family variables */
     --font-primary: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
 
-    /* Updated color palette */
-    --color-primary: #4361ee;
-    /* More vibrant blue */
-    --color-primary-dark: #3a56d4;
-    --color-danger-dark: #870000;
-    --color-accent: #f72585;
-    /* Modern pink accent */
-    --color-secondary: #7209b7;
-    --color-success: #4cc9f0;
-    --color-danger: #c30000;
+/* Paleta ajustada - Azul, Naranja y Blanco */
+    --color-primary: #3a56d4;
+    /* Azul principal (más vibrante) */
+    --color-primary-dark: #2f4ac0;
+    /* Azul oscuro */
+    --color-secondary: #e67e22;
+    /* Naranja principal (moderno) */
+    --color-secondary-dark: #d35400;
+    /* Naranja oscuro (tono terroso) */
+    --color-accent: #f39c12;
+    /* Naranja claro (acento) */
+    --color-success: #27ae60;
+    /* Verde (para contraste en éxito) */
+    --color-success-dark: #219653;
+    /* Verde oscuro */
+    --color-danger: #e74c3c;
+    /* Rojo (para contraste en error) */
+    --color-danger-dark: #c0392b;
+    /* Rojo oscuro */
     --color-white: #ffffff;
-    --color-light: #f8f9fa;
-    --color-muted: #e9ecef;
-    --color-border: #dee2e6;
-    --color-text: #333;
-    --color-text-muted: #6c757d;
+    /* Blanco puro */
+    --color-light: #f5f5f5;
+    /* Gris muy claro */
+    --color-muted: #ecf0f1;
+    /* Gris claro (neutral) */
+    --color-border: #dfe6e9;
+    /* Borde grisáceo */
+    --color-text: #2c3e50;
+    /* Texto oscuro (azul-negro) */
+    --color-text-muted: #7f8c8d;
+    /* Texto gris */
 
     /* New design tokens */
     --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.08);
@@ -25,16 +40,18 @@
     --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-medium: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --sidebar-transition-time: 0.3s;
-        --sidebar-transition-easing: cubic-bezier(0.4, 0, 0.2, 1);
-        --header-height: 60px;
-        --footer-height: 60px;
+    --sidebar-transition-easing: cubic-bezier(0.4, 0, 0.2, 1);
+    --header-height: 60px;
+    --footer-height: 60px;
     --border-radius-sm: 0.375rem;
     --border-radius: 0.5rem;
     --border-radius-lg: 0.75rem;
     --sidebar-width: 280px;
     --sidebar-collapsed-width: 70px;
-
-
+      --sidebar-orange: #FFA000;        /* Base */
+  --sidebar-orange-hover: #FF8F00;  /* Hover */
+  --sidebar-orange-active: #FFB300; /* Active */
+  --sidebar-orange-bg: rgba(255,160,0,.12);
 }
 
 /* Base styles */
@@ -42,6 +59,8 @@ html {
     font-size: 14px;
     scroll-behavior: smooth;
     scroll-padding-top: 1rem;
+    overflow-x: hidden;
+    /* Prevenir desbordamiento horizontal */
 }
 
 @media (min-width: 768px) {
@@ -58,6 +77,8 @@ body {
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    /* Prevenir desbordamiento horizontal */
 }
 
 /* Typography */
@@ -96,6 +117,7 @@ h4 {
     padding: 5px;
     background-color: white;
 }
+
 
 .form-control-file {
     display: block;
@@ -154,6 +176,8 @@ h4 {
     padding: 0.75rem 1.5rem;
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
+    /* Permite que los elementos se envuelvan en móviles */
 }
 
 .navbar-brand {
@@ -174,6 +198,8 @@ h4 {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    flex-wrap: wrap;
+    /* Permite que los elementos se envuelvan en móviles */
 }
 
 .nav-item {
@@ -190,9 +216,10 @@ h4 {
     gap: 0.5rem;
 }
 
-.nav-link:hover,
-.nav-link:focus {
-    color: var(--color-primary);
+
+.nav-link:hover
+ {
+    color: var(--color-secondary);
 }
 
 .nav-link.active {
@@ -208,12 +235,14 @@ h4 {
 }
 
 /* Sidebar (div2) */
+
 .div2 {
     grid-column: 1;
     grid-row: 2;
-    background-color: var(--color-white);
+    background-image: url('./../images/bg-sidebar.png');
+    background-size: cover;
+        background-position: center;
     border-right: 1px solid var(--color-border);
-    height: calc(100vh - var(--header-height));
     position: sticky;
     top: var(--header-height);
     overflow-y: auto;
@@ -229,6 +258,34 @@ h4 {
 
 .div2.expanded {
     max-width: 250px;
+}
+
+.nav-link-sidebar {
+    color: rgba(255, 255, 255, 0.63);
+    
+}
+
+.nav-link-sidebar:hover {
+    color: white;
+
+}
+
+.nav-link-sidebar:focus {
+    color: white;
+
+}
+
+.subMenu {
+     color: var(--sidebar-orange);
+}
+
+.sidebar-divider {
+    border: none;
+    height: 1px;
+    background-color: rgba(255, 255, 255, 0.63);
+    /* Color blanco con transparencia */
+    margin: 0.5rem 1rem;
+    /* Margen vertical reducido */
 }
 
 .sidebar-content {
@@ -247,7 +304,7 @@ h4 {
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgb(255, 255, 255);
     z-index: 1039;
     opacity: 0;
     visibility: hidden;
@@ -260,7 +317,7 @@ h4 {
 }
 
 /* Estilos para los enlaces en la barra lateral */
- .sidebar-nav-item {
+.sidebar-nav-item {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -283,9 +340,7 @@ h4 {
 
 /* Efecto de hover para los elementos de la barra lateral */
 .div2 .sidebar-nav-item:hover {
-    background-color: #e9ecef;
     transform: translateY(-3px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Estilo para los textos dentro de los enlaces */
@@ -324,11 +379,11 @@ h4 {
 
 /* Estilo para los elementos de los submenús */
 .div2 .collapse .sidebar-nav-item {
+    color: var(--color-secondary);
     padding: 10px 20px;
     /* Añadir padding a los lados para diferenciar */
     justify-content: center;
     /* Centrar elementos en los submenús */
-    background-color: #f1f1f1;
     /* Color de fondo diferente para los submenús */
     border-radius: 5px;
     /* Bordes redondeados */
@@ -338,11 +393,9 @@ h4 {
 
 /* Estilo para los textos dentro de los submenús */
 .div2 .collapse .sidebar-nav-item .sidebar-text {
-    font-weight: 400;
+    font-weight: 700;
     /* Peso de la fuente diferente para los submenús */
 }
-
-
 
 /* Asegúrate de que los iconos de los submenús también tengan un estilo diferente si es necesario */
 .div2 .collapse .sidebar-nav-item i {
@@ -368,19 +421,151 @@ h4 {
     align-content: center;
 }
 
+/* Agrega esto a tu CSS */
+.active-dot {
+    display: none;
+    width: 5px;
+    height: 5px;
+    background-color: #ff7700;
+    border-radius: 50%;
+    position: absolute;
+    right: 30px;
+    animation: pulse 1.5s infinite;
+    filter: drop-shadow(0 0 5px #ff7700);
+}
+
+/* En su lugar, usa esta clase */
+.active-dot.visible {
+    display: inline-block;
+}
+
+/* Animación de parpadeo con transparencia progresiva */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        background-color: #ffffff;
+        /* Color sólido */
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.9);
+    }
+
+    25% {
+        transform: scale(1.3);
+        background-color: rgba(255, 255, 255, 0.7);
+        /* 70% opacidad */
+        box-shadow: 0 0 0 8px rgba(255, 255, 255, 0.5);
+    }
+
+    50% {
+        transform: scale(0.9);
+        background-color: rgba(255, 255, 255, 0.3);
+        /* 30% opacidad */
+        box-shadow: 0 0 0 15px rgba(255, 255, 255, 0);
+    }
+
+    75% {
+        transform: scale(1.2);
+        background-color: rgba(255, 255, 255, 0.6);
+        /* 60% opacidad */
+        box-shadow: 0 0 0 10px rgba(255, 255, 255, 0.2);
+    }
+
+    100% {
+        transform: scale(1);
+        background-color: #ffffff;
+        /* Color sólido */
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+    }
+}
+
+/* Ajuste de posición para sidebar colapsada */
+.div2.collapsed .active-dot {
+    right: 1px;
+    top: 5px;
+}
+
+#toggleSidebarMobile {
+    display: none;
+}
+
 /* Main content (div4) */
+/* Main content (div4) - Versión desktop */
 .div4 {
     grid-column: 2;
-    grid-row: 2;
-    padding: 1.5rem;
-    overflow-y: auto;
-    background-color: var(--color-light);
-    min-height: calc(100vh - var(--header-height) - var(--footer-height));
+        grid-row: 2;
+        padding: 2rem;
+        overflow-y: auto;
+        overflow-x: auto;
+            /* Solo activa scroll horizontal si es necesario */
+        background-color: var(--color-light);
+        min-height: calc(100vh - var(--header-height) - var(--footer-height));
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        width: 100%;
+        box-sizing: border-box;
 
-    /* Esto se reemplazará dinámicamente */
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+    /* Contenedor para el escalado */
+    transform-origin: top center;
+    transition: transform 0.3s ease;
+}
+
+/* Para pantallas grandes (superiores a 1024px) */
+@media (min-width: 1025px) {
+    .div4 {
+            /* Limitar el ancho máximo */
+            margin: 0 auto;
+            /* Centrar en pantallas grandes */
+            font-size: 0.9rem;
+            /* Reducir ligeramente el tamaño de fuente */
+        }
+    
+        /* Opcional: Ajustar el padding de las celdas */
+        .div4 table td,
+        .div4 table th {
+            padding: 0.5rem 0.75rem;
+            /* Más compacto que el default */
+        }
+}
+
+/* Tablet - pantallas medianas (768px a 1024px) */
+@media (max-width: 1024px) {
+    .div4 {
+        padding: 1rem;
+        transform: scale(0.95);
+    }
+
+    /* Ajustar el ancho para compensar el escalado */
+    .div4::after {
+        content: '';
+        display: block;
+        width: calc(100% / 0.95);
+        height: 0;
+    }
+}
+
+/* Móvil - pantallas pequeñas (hasta 767px) */
+@media (max-width: 767px) {
+    .div4 {
+        padding: 0.75rem;
+        transform: scale(0.9);
+        overflow-x: hidden;
+    }
+
+    .div4::after {
+        width: calc(100% / 0.9);
+    }
+}
+
+/* Pantallas muy pequeñas (menos de 400px) */
+@media (max-width: 400px) {
+    .div4 {
+        transform: scale(0.85);
+        padding: 0.5rem;
+    }
+
+    .div4::after {
+        width: calc(100% / 0.85);
+    }
 }
 
 .content-header {
@@ -388,16 +573,26 @@ h4 {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    /* Permite que los elementos se envuelvan en móviles */
+    gap: 1rem;
+    /* Espaciado entre elementos */
 }
 
 .content-title {
     font-size: 1.5rem;
     font-weight: 600;
+    flex: 1;
+    /* Permite que el título ocupe el espacio disponible */
+    min-width: 200px;
+    /* Ancho mínimo para evitar que se haga demasiado pequeño */
 }
 
 .content-actions {
     display: flex;
     gap: 0.75rem;
+    flex-wrap: wrap;
+    /* Permite que los botones se envuelvan */
 }
 
 /* Cards */
@@ -407,6 +602,8 @@ h4 {
     box-shadow: var(--shadow-soft);
     margin-bottom: 1.5rem;
     transition: var(--transition-medium);
+    overflow: hidden;
+    /* Evitar desbordamiento de contenido */
 }
 
 .card:hover {
@@ -424,10 +621,26 @@ h4 {
 .card-title {
     margin-bottom: 0;
     font-size: 1.25rem;
+    word-break: break-word;
+    /* Evitar que el título desborde */
 }
 
 .card-body {
     padding: 1.5rem;
+    overflow-x: auto;
+    /* Permitir desplazamiento horizontal si es necesario */
+}
+
+.card-body .REC {
+    background: linear-gradient(135deg, #3c00ffc9 0%, #dcdaffc8 100%);
+    color: white;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.card-body .resumen {
+    background: linear-gradient(135deg, #cf0000c8 0%, #ffdadac9 100%);
+    color: white;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
 
 /* Buttons */
@@ -441,6 +654,8 @@ h4 {
     gap: 0.5rem;
     border: none;
     box-shadow: var(--shadow-soft);
+    white-space: nowrap;
+    /* Evitar que el texto del botón se rompa */
 }
 
 .btn:hover {
@@ -461,6 +676,29 @@ h4 {
 
 .btn-primary:hover {
     background-color: var(--color-primary-dark);
+}
+
+.btn-secondary {
+    background-color: var(--color-secondary);
+    justify-content: center;
+    display: flex;
+    margin-bottom: 5px;
+    margin-left: 5px;
+}
+
+.btn-secondary:hover {
+    background-color: var(--color-secondary-dark);
+}
+
+.btn-success {
+    background-color: var(--color-success);
+    justify-content: center;
+    display: flex;
+    margin-bottom: 5px;
+}
+
+.btn-success:hover {
+    background-color: var(--color-success-dark);
 }
 
 .btn-danger {
@@ -521,6 +759,10 @@ h4 {
 .form-group {
     margin-bottom: 1.5rem;
     position: relative;
+}
+
+.form-group-button {
+    display: flex;
 }
 
 .form-label {
@@ -809,7 +1051,6 @@ h4 {
     }
 }
 
-
 /* DataTables */
 .dataTables_wrapper {
     background-color: var(--color-white);
@@ -817,6 +1058,9 @@ h4 {
     box-shadow: var(--shadow-soft);
     padding: 1.5rem;
     margin: 2rem 0;
+    overflow-x: auto;
+    text-align: left !important;
+    /* Permitir desplazamiento horizontal en tablas */
 }
 
 table.dataTable {
@@ -824,6 +1068,8 @@ table.dataTable {
     border-collapse: separate;
     border-spacing: 0;
     margin: 1rem 0;
+        /* min-width: 600px;
+Ancho mínimo para evitar que se haga demasiado pequeño */
 }
 
 /* Controles superiores */
@@ -930,6 +1176,21 @@ table.dataTable tbody tr:hover td {
     }
 }
 
+table.dataTable th.dt-type-numeric,
+table.dataTable th.dt-type-date,
+table.dataTable td.dt-type-numeric,
+table.dataTable td.dt-type-date {
+    text-align: left;
+}
+
+table.dataTable thead>tr>th.dt-orderable-asc,
+table.dataTable thead>tr>th.dt-orderable-desc,
+table.dataTable thead>tr>td.dt-orderable-asc,
+table.dataTable thead>tr>td.dt-orderable-desc {
+    cursor: pointer;
+    text-align: left;
+}
+
 /* Footer (div3) */
 .div3 {
     grid-column: 1 / -1;
@@ -1011,6 +1272,11 @@ table.dataTable tbody tr:hover td {
     border-radius: 50rem;
 }
 
+.bg-light {
+    --bs-bg-opacity: 1;
+    font-size: 14px;
+}
+
 .badge-pulse {
     animation: pulse 1.5s infinite;
 }
@@ -1040,7 +1306,7 @@ table.dataTable tbody tr:hover td {
 
     /* Ajustar el padding del contenido */
     .div4 {
-        padding: 1.5rem;
+        padding: 0.5rem;
     }
 }
 
@@ -1063,12 +1329,11 @@ table.dataTable tbody tr:hover td {
     .div2 {
         position: sticky;
         transform: translateX(0);
-        height: calc(100vh - var(--header-height));
     }
 
     /* Contenido principal */
     .div4 {
-        padding: 1.5rem;
+        padding: 0.5rem;
     }
 
     /* Sidebar items - comportamiento normal */
@@ -1108,20 +1373,20 @@ table.dataTable tbody tr:hover td {
         min-height: 100vh;
     }
 
-        .content-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 1rem;
-        }
-    
-        .dataTables_wrapper {
-            padding: 1rem;
-        }
-    
-        table.dataTable thead th,
-        table.dataTable tbody td {
-            padding: 0.75rem;
-        }
+    .content-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .dataTables_wrapper {
+        padding: 1rem;
+    }
+
+    table.dataTable thead th,
+    table.dataTable tbody td {
+        padding: 0.75rem;
+    }
 
     /* Navbar */
     .navbar {
@@ -1130,6 +1395,13 @@ table.dataTable tbody tr:hover td {
 
     .navbar-brand {
         font-size: 1.1rem;
+    }
+
+    .notifications-wrapper {
+        position: absolute;
+        top: 0.75rem;
+        right: 1rem;
+        z-index: 1050;
     }
 
     /* Sidebar - Oculto por defecto en móviles */
@@ -1154,6 +1426,8 @@ table.dataTable tbody tr:hover td {
     .div4 {
         padding: 1rem;
         min-height: calc(100vh - var(--header-height) - var(--footer-height));
+        grid-column: 1 / -1;
+        /* Ocupar toda la pantalla en móviles */
     }
 
     /* Encabezado del contenido */
@@ -1223,6 +1497,65 @@ label {
     color: #333;
 }
 
+#welcomeMessage {
+    transition: all 0.3s ease;
+}
+
+.overlay-spinner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* fondo semi-transparente */
+    z-index: 1050;
+    /* mayor que cards, botones, etc */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.small-card {
+    width: 160px;
+    /* Aumentamos un poco para que quepan textos como "Este Mes" */
+    min-height: 70px;
+    border-radius: 1rem;
+    white-space: nowrap;
+    /* Mantiene el texto en una sola línea */
+    overflow: hidden;
+    /* Evita que se desborde visualmente */
+    text-overflow: ellipsis;
+    /* (opcional) Agrega '...' si no cabe */
+}
+
+.bg-gradient-hoy {
+    background: linear-gradient(135deg, #28a745, #85e085);
+    /* Verde */
+}
+
+.bg-gradient-mes {
+    background: linear-gradient(135deg, #007bff, #66b2ff);
+    /* Azul */
+}
+
+.bg-gradient-pendientes {
+    background: linear-gradient(135deg, #ffc107, #ffe680);
+    /* Amarillo */
+}
+
+.bg-gradient-vencidos {
+    background: linear-gradient(135deg, #dc3545, #ff9999);
+    /* Rojo */
+}
+
+#todayAmount,
+#monthAmount,
+#pendingAmount,
+#overdueAmount {
+    color: white;
+}
+
 @media print {
     body * {
         visibility: hidden;
@@ -1272,4 +1605,146 @@ tr.processing::after {
     bottom: 0;
     background: rgba(255, 255, 255, 0.7);
     z-index: 1;
+}
+
+/* ================ */
+/* MEJORAS ADICIONALES */
+/* ================ */
+
+/* Prevenir desbordamiento en elementos flex */
+.flex-wrap {
+    flex-wrap: wrap;
+}
+
+/* Mejorar la visualización de imágenes en móviles */
+.preview-image {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Ajustar padding en móviles muy pequeños */
+@media (max-width: 480px) {
+    .div4 {
+        padding: 0.75rem;
+    }
+
+    .card-body {
+        padding: 1rem;
+    }
+
+    .btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+    }
+}
+
+/* Ajustar la altura del mapa en dispositivos móviles */
+@media (max-width: 767px) {
+    .map-container {
+        height: 300px;
+    }
+}
+
+/* Mejorar visualización de formularios en móviles */
+.form-row {
+    flex-direction: column;
+}
+
+.form-col {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+@media (min-width: 768px) {
+    .form-row {
+        flex-direction: row;
+    }
+
+    .form-col {
+        width: auto;
+        margin-bottom: 0;
+    }
+}
+
+/* Ajustar el ancho de la sidebar en móviles */
+@media (max-width: 767px) {
+    
+
+    .navbar>.container,
+        .navbar>.container-fluid,
+        .navbar>.container-lg,
+        .navbar>.container-md,
+        .navbar>.container-sm,
+        .navbar>.container-xl,
+        .navbar>.container-xxl {
+            display: flex;
+            /* flex-wrap: inherit; */
+            align-items: center;
+            justify-content: space-between;   }
+
+    #toggleSidebarMobile {
+        box-shadow: none;
+            display: flex;
+            max-width: 30px;
+            justify-content: center;
+        }
+
+        #toggleSidebar {
+            display: none;
+        }
+
+        #sidebar.mobile-sidebar {
+            width: 250px;
+            z-index: 1050;
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            background-color: #121212; /* tu fondo oscuro */
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+    
+        #sidebar.collapsed {
+            transform: translateX(-100%);
+            opacity: 0;
+        }
+    
+        #sidebar.expanded {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    
+        #sidebar.expanded .sidebar-text {
+            display: inline !important;
+        } 
+        
+        .logo-navbar {
+            height: 30px !important;
+            width: auto;
+        }
+        
+}
+
+
+/* Mejorar visualización de botones en grupos */
+.btn-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+/* Ajustar el tamaño de fuente en títulos para móviles */
+@media (max-width: 480px) {
+    h1 {
+        font-size: 2rem;
+    }
+
+    h2 {
+        font-size: 1.75rem;
+    }
+
+    h3 {
+        font-size: 1.5rem;
+    }
 }

@@ -12,14 +12,14 @@ using System.Linq.Expressions;
 namespace Alquileres.Controllers
 {
     [Authorize]
-    public class TbPropietariosController : Controller
+    public class TbPropietariosController : BaseController
     {
-        private readonly ApplicationDbContext _context;
+
         private readonly ILogger<GeneradorDeCuotasService> _logger; // Agregar logger
 
-        public TbPropietariosController(ApplicationDbContext context, ILogger<GeneradorDeCuotasService> logger)
+        public TbPropietariosController(ApplicationDbContext context,
+        ILogger<GeneradorDeCuotasService> logger) : base(context)
         {
-            _context = context;
             _logger = logger;
         }
 
@@ -43,10 +43,12 @@ namespace Alquileres.Controllers
         }
 
         // GET: TbPropietarios
-        public IActionResult Index()
+        public IActionResult Index(string vista = "crear")
         {
+            ViewData["Vista"] = vista;
             return View();
         }
+
 
         // GET: TbPropietarios/CargarPropietarios
         [HttpGet]
@@ -86,12 +88,12 @@ namespace Alquileres.Controllers
                     }
                 }
 
-                // Verificar si el modelo es válido
+                // Validación
                 if (!ModelState.IsValid)
                 {
                     var errors = ModelState.ToDictionary(
                         kvp => kvp.Key,
-                        kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray() // Asegúrate de que sea un array
+                        kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
                     );
 
                     return BadRequest(new
@@ -103,11 +105,12 @@ namespace Alquileres.Controllers
 
                 tbPropietario.FfechaRegistro = DateTime.Now;
                 tbPropietario.Factivo = true;
+
                 _context.Add(tbPropietario);
                 await _context.SaveChangesAsync();
 
-                var propietarios = await _context.TbPropietarios.ToListAsync();
-                return PartialView("_PropietariosPartial", propietarios);
+                // 🚀 En vez de PartialView devolvemos JSON
+                return Ok(new { success = true });
             }
             catch (DbUpdateException ex)
             {

@@ -1,0 +1,103 @@
+﻿@model IEnumerable<dynamic>
+
+@{
+    ViewData["Title"] = "Gestión de Gastos";
+}
+
+<div class="container-fluid mt-4">
+    <!-- Encabezado descriptivo unificado -->
+    <div class="row mb-4">
+        <div class="col-12 col-md-auto">
+            <div class="d-flex flex-column flex-md-row">
+                <div class="content" style="order: 1;">
+                    <!-- Aquí va el contenido que quieres que aparezca primero en móvil -->
+                </div>
+                <div class="buttons" style="order: 2;">
+                    <div class="btn-group mt-2 mt-md-0" role="group">
+                        <!--<button id="createGasto" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus me-1"></i> Nuevo Gasto
+                        </button>
+                        <button id="loadGastos" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-search me-1"></i> Consultas
+                        </button>
+                        <button id="createTipoGasto" class="btn btn-success btn-sm">
+                            <i class="fas fa-tag me-1"></i> Tipos de Gasto
+                        </button>-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="vistaSeleccionada" data-vista="@ViewData["Vista"]"></div>
+
+    <!-- Contenedor para toasts -->
+    <div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 11"></div>
+
+    <!-- Spinner superpuesto -->
+    <div id="loadingSpinner" class="overlay-spinner" style="display: none;">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+        <p class="mt-3 text-dark">Procesando su solicitud...</p>
+    </div>
+
+    <!-- Contenedor principal de datos -->
+    <div id="dataTableContainer" class="welcomeMessage" style="display: none;"></div>
+
+    <!-- Mensaje inicial cuando no hay datos visibles 
+    <div id="welcomeMessage" class="text-center py-5">
+        <i class="fas fa-wallet fa-4x text-muted mb-4"></i>
+        <h4 class="text-secondary">Gestión de Gastos</h4>
+       Descripción 
+        <p class="text-muted mb-2">
+            Este módulo le permite registrar, clasificar y analizar todos sus gastos.
+            Organice sus finanzas personales o empresariales de manera eficiente.
+        </p>
+    </div>-->
+</div>
+
+@section Styles {
+    <style>
+        #welcomeMessage {
+            transition: all 0.3s ease;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script src="~/js/gestionGastosTipos.js" asp-append-version="true"></script>
+    <script src="~/js/gestionGastos.js" asp-append-version="true"></script>
+    <script>
+        $(document).ready(function () {
+            // Oculta el mensaje de bienvenida cuando se hace clic en cualquier botón
+            $('.btn-group button').click(function () {
+                $('#welcomeMessage').fadeOut(300, function () {
+                    // Aquí puedes agregar lógica adicional si es necesario
+                });
+            });
+
+            // Si necesitas mostrar el mensaje de nuevo en algún caso
+            function showWelcomeMessage() {
+                $('#welcomeMessage').fadeIn(300);
+            }
+        });
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const vista = document.getElementById("vistaSeleccionada").dataset.vista;
+
+            if (vista === "lista") {
+                cargarTablaGasto();
+            } else if (vista === "crear") {
+                cargarVistaCrearGasto();
+            } else if (vista === "tipoGasto") {
+                cargarVistaCrearTipoGasto();   // 👈 aquí usamos la nueva función
+            } else {
+                // Vista por defecto -> muestra bienvenida
+                $('#welcomeMessage').fadeIn(300);
+            }
+        });
+    </script>
+
+}

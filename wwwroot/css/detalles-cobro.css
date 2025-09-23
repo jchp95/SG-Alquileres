@@ -132,14 +132,20 @@
     }
 }
 
-/* Estilos para el ticket de 80mm */
+/* Estilos generales */
 .ticket-80mm {
     width: 80mm;
     max-width: 80mm;
-    font-family: "Matrix Sans";
-    font-size: 12px;
+    font-family: "Courier New", Courier, monospace;
     padding: 5mm;
     margin: 0 auto;
+    box-sizing: border-box;
+}
+
+.ticket-80mm * {
+    box-sizing: border-box;
+    word-break: break-word;
+    white-space: normal;
 }
 
 .ticket-80mm .header {
@@ -150,11 +156,13 @@
 .ticket-80mm .header img {
     max-width: 50mm;
     max-height: 20mm;
+    display: block;
+    margin: 0 auto 4px;
 }
 
 .ticket-80mm .title {
     font-weight: bold;
-    font-size: 14px;
+    font-size: 16px;
     text-align: center;
     margin: 5px 0;
 }
@@ -164,70 +172,258 @@
     margin: 5px 0;
 }
 
-.item-title {
+.item-title,
+.item-content,
+.item-content-number,
+.item-content-large,
+.item-content-large-factura,
+.item-content-resto,
+.item-content-image {
+    display: flex;
+    margin: 3px 0;
+    padding: 0;
+}
+
+.item-content-cliente {
+    margin: 3px 0;
+        padding: 0;
+}
+
+.item-content-number {
+    justify-content: space-between;
+}
+
+.item-content-resto {
+    justify-content: flex-end;
+}
+
+.item-content-image {
+    justify-content: center;
+    margin-top: 5px;
+}
+
+.logo-empresa-ticket {
     display: flex;
     justify-content: center;
+    align-items: center;
+    margin-bottom: 4px;
 }
 
-.ticket-80mm .item-content {
+.header-info {
+    width: 100%;
+    margin-bottom: 5px;
+    padding: 0;
+}
+
+.info-row {
+    display: flex;
+    align-items: baseline;
+    margin-bottom: 5px;
+}
+
+.info-label {
     display: flex;
     justify-content: space-between;
-    margin: 3px 0;
-}
-
-.item-content-large {
-    display: flex;
-}
-
-.ticket-80mm .item .label {
+    min-width: 75px;
+    margin-right: 5px;
+    text-align: left;
     font-weight: bold;
+    font-size: 16px;
+    white-space: nowrap;
+}
+
+.info-value {
+    flex-grow: 1;
+    font-size: 14px;
 }
 
 .label {
-    font-weight: 800;
+    font-weight: bold;
+    font-size: 16px;
+    white-space: nowrap;
+}
+.concepto {
+    flex: 1;
+    word-break: break-word;
+    white-space: normal;
+    font-size: 16px;
 }
 
-.ticket-80mm .total {
+.label-concepto {
+    font-size: 14px !important;
+}
+
+.label-RZC {
+    font-size: 14px !important;
+}
+
+ .total .item-content-number {
     font-weight: bold;
-    font-size: 14px;
+    font-size: 14px !important;
     text-align: right;
     margin-top: 10px;
 }
 
-.item-content-resto {
-    display: flex;
-    justify-content: end;
-}
-
-.item-content-image {
-    display: flex;
-    justify-content: center;
-}
-
-.ticket-80mm .footer {
+.comprobante-largo {
+    word-break: break-word;
+    white-space: normal;
+    line-height: 1.3;
+    font-size: 14px;
+    display: block;
     text-align: center;
-    font-size: 10px;
-    margin-top: 15px;
+    width: 100%;
+    padding: 2px 0;
+}
+
+/* Utilidades */
+.ultra-compact {
+    margin: 1px 0 !important;
+}
+
+.no-margin {
+    margin: 0 !important;
+}
+
+.no-padding {
+    padding: 0 !important;
+}
+
+.no-print {
+    display: none !important;
 }
 
 @media print {
+    /* Oculta los modals y backdrop, pero deja visible el ticket aunque esté anidado */
+    .modal, .modal-backdrop {
+        display: none !important;
+    }
+    #ticketContent, .ticket-80mm {
+        margin: 0 !important;
+        padding: 0 !important;
+        page-break-after: avoid !important;
+        overflow: hidden !important;
+        width: 80mm !important;
+        max-width: 80mm !important;
+    }
+    @page {
+        size: 80mm auto !important;
+        margin: 0 !important;
+    }
+
+    html, body {
+        overflow: hidden !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        display: flex !important;
+        align-items: flex-start !important;
+        justify-content: flex-start !important;
+        background: white !important;
+    }
+
+    html,
+    body {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 80mm !important;
+    min-height: 1px !important;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 16px !important;
+    background: white !important;
+    }
+
     body * {
         visibility: hidden;
     }
 
     #ticketContent,
-    #ticketContent * {
+    .ticket-80mm,
+    .ticket-80mm * {
         visibility: visible;
+        font-size: 16px !important;
+        line-height: 1.4 !important;
     }
 
     #ticketContent {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 80mm;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: auto !important;
+    width: 80mm !important;
+    max-width: 80mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    background: white !important;
+    break-after: avoid-page !important;
+    break-before: avoid-page !important;
+    break-inside: avoid-page !important;
     }
 
-    .modal-footer {
-        display: none !important;
+    .ticket-80mm {
+        font-family: "Courier New", Courier, monospace;
+        width: 80mm !important;
+        max-width: 80mm !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        background: white !important;
+    }
+
+    .ticket-80mm .footer {
+        text-align: center;
+        font-size: 16px !important;
+        margin-top: 15px;
+    }
+
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+}
+
+.modal-content.scaled-modal {
+    transform: scale(0.9);
+    /* Ajusta según necesites (0.85, 0.8, etc.) */
+    transform-origin: center top;
+}
+
+@media (max-width: 767px) {
+
+    /* Permitir dos columnas también en móvil */
+    .modal-body .row .col-md-6 {
+        flex: 0 0 50%;
+        max-width: 50%;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .modal-backdrop.show {
+        opacity: 0 !important;
+        pointer-events: none !important;
+    } 
+
+    .card-wrapper .card {
+        flex: 0 0 48%;
+        max-width: 48%;
+    }
+
+    .form-floating>label {
+        position: absolute;
+        top: 0.5rem;
+        /* left: 1rem; */
+        height: auto;
+        padding: 0.25rem 0.5rem;
+        pointer-events: none;
+        border: 1px solid transparent;
+        transform-origin: 0 0;
+        transition: var(--transition-medium);
+        color: var(--color-text-muted);
+        background-color: transparent;
+        z-index: 2;
+    }
+    .form-floating>label {
+
+        left: 0 !important;
     }
 }

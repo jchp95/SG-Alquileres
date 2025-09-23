@@ -1,0 +1,110 @@
+@model IEnumerable<Alquileres.Models.GastoViewModel>
+
+<!-- Card de Filtros -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-4">
+        <div
+            class="d-flex flex-column flex-lg-row align-gastos-start align-gastos-lg-center justify-content-between gap-3 mb-3">
+            <h5 class="card-title mb-0"><i class="fas fa-filter me-2 text-primary"></i>Filtros de los gastos</h5>
+            <div class="d-flex gap-2 w-100 w-lg-auto">
+                <button id="btnResetFiltros" class="btn btn-outline-danger btn-sm" data-bs-toggle="tooltip"
+                    data-bs-placement="right" title="Limpiar todos los filtros">
+                    <i class="fas fa-broom me-2"></i> Limpiar filtros
+                </button>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <!-- Filtro por usuario -->
+            <div class="col-md-3">
+                <label for="busquedaUsuario" class="form-label small text-muted mb-1">Usuarios</label>
+                <select id="busquedaUsuario" class="form-select select2" style="width: 100%">
+                    <option></option>
+                </select>
+                <input type="hidden" id="NombreUsuario" name="NombreUsuario" />
+            </div>
+
+            <!-- Filtro por fecha inicial -->
+            <div class="col-md-3">
+                <label for="fechaInicioFiltro" class="form-label small text-muted mb-1">Fecha Inicial</label>
+                <input type="date" class="form-control" id="fechaInicioFiltro">
+            </div>
+
+            <!-- Filtro por fecha final -->
+            <div class="col-md-3">
+                <label for="fechaFinFiltro" class="form-label small text-muted mb-1">Fecha Final</label>
+                <input type="date" class="form-control" id="fechaFinFiltro">
+            </div>
+
+            <!-- Filtro por tipo de gasto -->
+            <div class="col-md-3">
+                <label for="tipoGasto" class="form-label small text-muted mb-1">Tipo de gastos</label>
+                <select id="tipoGasto" class="form-select select2" style="width: 100%">
+                    <option></option>
+                </select>
+                <input type="hidden" id="GastoTipo" name="GastoTipo" />
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm px-4 py-4">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table id="gastoTable" class="table table-hover align-middle mb-0 table-responsive">
+                <thead>
+                    <tr>
+                        <th style="display: none;">Usuario</th>
+                        <th>No.</th>
+                        <th>Tipo Gasto</th>
+                        <th>Monto</th>
+                        <th>Fecha</th>
+                        <th>Notas</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var gasto in Model)
+                    {
+                        <tr data-tipo-gasto="@gasto.FkidGastoTipo">
+                            <td style="display: none;">@gasto.NombreUsuario</td>
+                            <td>@gasto.FidGasto</td>
+                            <td>@gasto.TipoGasto</td>
+                            <td>@gasto.Fmonto.ToString("N2", new System.Globalization.CultureInfo("es-DO"))</td>
+                            <td>@gasto.Ffecha</td>
+                            <td>@gasto.Fdescripcion</td>
+                            <td class="text-center pe-4">
+                                <div class="d-flex justify-content-center gap-2">
+                                    @if (gasto.Factivo)
+                                    {
+                                        <a href="javascript:void(0);" class="btn btn-sm btn-outline-primary editGasto"
+                                            data-id="@gasto.FidGasto" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-sm btn-outline-primary" title="Editar (Inactivo)" disabled>
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    }
+
+                                    <form asp-action="CambiarEstado" method="post" class="d-inline cambiarEstadoForm">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@gasto.FidGasto" />
+                                        <button type="submit"
+                                            class="btn btn-sm @(gasto.Factivo ? "btn-outline-secondary" : "btn-outline-success")"
+                                            title="@(gasto.Factivo ? "Desactivar" : "Activar")">
+                                            <i class="fas @(gasto.Factivo ? "fa-ban" : "fa-undo")"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

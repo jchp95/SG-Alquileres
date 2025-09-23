@@ -9,25 +9,25 @@ using Alquileres.Models;
 using Microsoft.AspNetCore.Authorization;
 using Alquileres.Context;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Data.SqlClient;  // Necesario para [Authorize]
+using Microsoft.Data.SqlClient;
+using System.ComponentModel.DataAnnotations;  // Necesario para [Authorize]
 
 namespace Alquileres.Controllers
 {
     [Authorize] // Esto aplicará a todas las acciones del controlador, requiriendo que el usuario esté autenticado.
-    public class TbInquilinoesController : Controller
+    public class TbInquilinoesController : BaseController
     {
-        private readonly ApplicationDbContext _context;
         private readonly ILogger<GeneradorDeCuotasService> _logger; // Agregar logger
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IAuthorizationService _authorizationService;
 
-        public TbInquilinoesController(ApplicationDbContext context,
+        public TbInquilinoesController(
+             ApplicationDbContext context,
             ILogger<GeneradorDeCuotasService> logger,
             UserManager<IdentityUser> userManager,
-            IAuthorizationService authorizationService)
+            IAuthorizationService authorizationService) : base(context)
 
         {
-            _context = context;
             _logger = logger;
             _userManager = userManager; // Asignación del UserManager
             _authorizationService = authorizationService;
@@ -55,9 +55,10 @@ namespace Alquileres.Controllers
         }
 
         // GET: TbInquilinoes
-        public IActionResult Index()
+        public IActionResult Index(string vista = "crear")
         {
-            return View(); // Devuelve la vista principal
+            ViewData["Vista"] = vista;
+            return View();
         }
 
         [HttpGet]
@@ -86,72 +87,56 @@ namespace Alquileres.Controllers
         {
             try
             {
-                // Debugging - log all permissions
-                var claims = User.Claims.Where(c => c.Type == "Permission").ToList();
-                _logger.LogInformation("User  permissions: {@Permissions}", claims.Select(c => c.Value));
-
                 var identityId = _userManager.GetUserId(User);
                 if (string.IsNullOrEmpty(identityId))
-                    return BadRequest(new { success = false, message = "El usuario no está autenticado." });
+                    return BadRequest(new { success = false, errors = new { General = new[] { "El usuario no está autenticado." } } });
 
                 var usuario = await _context.TbUsuarios.FirstOrDefaultAsync(u => u.IdentityId == identityId);
                 if (usuario == null)
-                    return BadRequest(new { success = false, message = $"No se encontró un usuario con el IdentityId: {identityId}" });
+                    return BadRequest(new { success = false, errors = new { General = new[] { $"No se encontró un usuario con el IdentityId: {identityId}" } } });
 
                 tbInquilino.FkidUsuario = usuario.FidUsuario;
 
+                // Validación de cédula duplicada
                 if (!string.IsNullOrWhiteSpace(tbInquilino.Fcedula))
                 {
                     bool cedulaExiste = await _context.TbInquilinos
                         .AnyAsync(i => i.Fcedula.ToUpper() == tbInquilino.Fcedula.ToUpper());
 
                     if (cedulaExiste)
-                    {
                         ModelState.AddModelError("Fcedula", "Esta cédula ya está registrada");
-                    }
                 }
 
                 if (!ModelState.IsValid)
                 {
                     var errors = ModelState.ToDictionary(
                         kvp => kvp.Key,
-                        kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray() // Asegúrate de que sea un array
+                        kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
                     );
-
-                    return BadRequest(new
-                    {
-                        success = false,
-                        errors = errors
-                    });
+                    return BadRequest(new { success = false, errors });
                 }
 
+                // Guardar inquilino
                 tbInquilino.FfechaRegistro = DateTime.Now;
                 tbInquilino.Factivo = true;
                 _context.Add(tbInquilino);
                 await _context.SaveChangesAsync();
 
-                var inquilinos = await _context.TbInquilinos.ToListAsync();
-                return PartialView("_InquilinosPartial", inquilinos);
+                // 🚀 Éxito → devolver solo success
+                return Ok(new { success = true });
             }
             catch (DbUpdateException ex)
             {
                 _logger.LogError(ex, "Error de base de datos al crear inquilino");
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Error crítico en la base de datos. Contacte al administrador."
-                });
+                return StatusCode(500, new { success = false, errors = new { General = new[] { "Error crítico en la base de datos. Contacte al administrador." } } });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error general al crear inquilino");
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Error interno del servidor."
-                });
+                return StatusCode(500, new { success = false, errors = new { General = new[] { "Error interno del servidor." } } });
             }
         }
+
 
         [HttpGet]
         public async Task<IActionResult> VerificarCedula(string cedula)

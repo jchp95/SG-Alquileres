@@ -61,32 +61,55 @@
     <!-- Card de Resultados -->
     <div class="card border-0 shadow-sm px-4 py-4">
         <div class="card-body p-0">
+            <!-- Panel de Totales -->
+            <div class="row mb-3">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded">
+                        <div>
+                            <strong>Registros:</strong> <span id="totalRegistrosCobros">0</span>
+                        </div>
+                        <div>
+                            <strong>Total Cobros:</strong> <span id="totalCobros">RD$ 0.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <div class="table-responsive">
-                <table id="reporteCobrosTable" class="table table-hover align-middle mb-0 table-striped table-bordered">
+                <table id="reporteCobrosTable" class="table align-middle mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th>Nombre de Usuario</th>
-                            <th class="ps-4"># Cobro</th>
+                            <th style="display: none;">Usuario</th>
+                            <th># Cobro</th>
                             <th>Inquilino</th>
                             <th>Fecha Actual</th>
                             <th>Hora Actual</th>
                             <th>Monto</th>
                             <th>Concepto</th>
                             <th>Fecha Inicio</th>
+                            <th>Inmueble</th>
+                            <th>Estado</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var item in Model)
                         {
                             <tr>
-                                <td>@item.NombreUsuario</td>
+                                <td style="display: none;">@item.NombreUsuario</td>
                                 <td class="ps-4 fw-semibold">@item.FidCobro</td>
                                 <td>@item.NombreInquilino</td>
                                 <td>@item.FechaActual</td>
                                 <td>@item.HoraActual</td>
-                                <td>RD$ @item.Fmonto.ToString("N2", new System.Globalization.CultureInfo("es-DO"))</td>
-                                <td>RD$ @item.Fconcepto</td>
+                                <td>@item.Fmonto.ToString("N2", new System.Globalization.CultureInfo("es-DO"))</td>
+                                <td>@item.Fconcepto</td>
                                 <td>@item.FechaInicio</td>
+                                <td>@item.DescripcionInmueble</td>
+                                <td>
+                                    <span
+                                        class="badge @(item.Factivo ? "bg-success bg-opacity-10 text-success" : "bg-danger bg-opacity-10 text-danger")">
+                                        @(item.Factivo ? "Activo" : "Anulado")
+                                    </span>
+                                </td>
                             </tr>
                         }
                     </tbody>

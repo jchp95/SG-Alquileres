@@ -6,8 +6,9 @@
 
 @{
     // Podemos obtener el nombre del usuario directamente en la vista.
-    var userName = User.Identity?.Name;
+    var nombreUsuario = ViewBag.NombreUsuario as string ?? User.Identity?.Name;
 }
+
 
 @if (User.HasClaim("Permission", "Permissions.Home.Ver"))
 {
@@ -15,46 +16,32 @@
         <!-- Header con bienvenida y búsqueda -->
         <header class="dashboard-header">
             <div class="welcome-section">
-                <h1 class="welcome-title">Bienvenido, <span class="user-name">@(userName ?? "Usuario")</span></h1>
+                <h1 class="welcome-title">Bienvenido, <span class="user-name">@(nombreUsuario ?? "Usuario")</span></h1>
                 <p class="welcome-subtitle">Resumen de tu actividad de alquileres</p>
             </div>
         </header>
 
         <!-- Sección de métricas clave -->
         <section class="metrics-section">
-            <div class="metric-card secondary" data-intro="Datos estadísticos de inmuebles creados y en estado activo"
-                data-step="1">
+            <!-- Card 1: Cobros del día -->
+            <div class="metric-card secondary cobros-dia"
+                 data-intro="Datos estadísticos de cobros del día" data-step="1">
                 <div class="metric-content">
-                    <h3 class="metric-title">Propiedades Activas</h3>
-                    <p class="metric-value">
-                        @Model.InmueblesActivosCount</p>
-                    <p class="metric-change @Model.ClaseCambioInmuebles">
-                        @Model.TextoCambioInmuebles
-                    </p>
+                    <h3 class="metric-title-cobros-dia">Cobros del día</h3>
+                    <p class="metric-value">@Model.CobrosHoy.ToString("C", new System.Globalization.CultureInfo("es-DO"))</p>
                 </div>
-
-                <div class="metric-icon">
-                    <i class="fas fa-home"></i>
+                <div class="metric-icon-cobros-dia">
+                    <i class="fas fa-hand-holding-usd"></i>
                 </div>
             </div>
 
-            <div class="metric-card success" data-intro="Datos estadísticos de los pagos efectuados" data-step="2">
+            <!-- Card 2: Pagos atrasados -->
+            <div class="metric-card danger" data-intro="Cantidad de cuotas vencidas en el sistema" data-step="2">
                 <div class="metric-content">
-                    <h3 class="metric-title">Ingresos Mensuales</h3>
-                    <p class="metric-value">@Model.IngresosMensuales.ToString("C")</p>
-                    <p class="metric-change @Model.ClaseCambioIngresos">@Model.TextoCambioIngresos</p>
-                </div>
-                <div class="metric-icon">
-                    <i class="fas fa-chart-line"></i>
-                </div>
-            </div>
-
-            <div class="metric-card danger" data-intro="Cantidad de cuotas vencidas en el sistema" data-step="3">
-                <div class="metric-content">
-                    <h3 class="metric-title">Pagos Pendientes</h3>
+                    <h3 class="metric-title">Pagos Atrasados</h3>
                     <p class="metric-value">@Model.CuotasVencidasCount</p>
                     <p class="metric-change negative">
-                        @(Model.CuotasVencidasCount > 0 ? "Revisión requerida" : "Sin atrasos")
+                        @(Model.CuotasVencidasCount > 0 ? Model.MontoTotalCuotasVencidas.ToString("C") : "Sin atrasos")
                     </p>
                 </div>
                 <div class="metric-icon">
@@ -62,10 +49,40 @@
                 </div>
             </div>
 
+            <!-- Card 3: Propiedades Activas -->
+            <div class="metric-card secondary" data-intro="Datos estadísticos de inmuebles creados y en estado activo"
+                data-step="3">
+                <div class="metric-content">
+                    <h3 class="metric-title">Propiedades Activas</h3>
+                    <p class="metric-value">@Model.InmueblesActivosCount</p>
+                    <p class="metric-change @Model.ClaseCambioInmuebles">
+                        @Model.TextoCambioInmuebles
+                    </p>
+                </div>
+                <div class="metric-icon">
+                    <i class="fas fa-home"></i>
+                </div>
+            </div>
+
+            <!-- Card 4: Ingresos Mensuales -->
+            <div class="metric-card success" data-intro="Datos estadísticos de los pagos efectuados" data-step="4">
+                <div class="metric-content">
+                    <h3 class="metric-title">Ingresos Mensuales Esperados</h3>
+                    <p class="metric-value">@Model.IngresosMensuales.ToString("C")</p>
+                    <p class="metric-change @Model.ClaseCambioIngresos">
+                        @Model.TextoCambioIngresos<br />
+                        <small>Esperado: @Model.IngresosMensualesEsperados.ToString("C")</small>
+                    </p>
+                </div>
+                <div class="metric-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+            </div>
+
+            <!-- Card 5: Ocupación -->
             <div class="metric-card warning"
-                data-intro="Relación entre los inmuebles activos 
-                                                                    e inactivos. Donde los inmuebles activos representará los inmuebles rentados"
-                data-step="4">
+                data-intro="Relación entre los inmuebles activos e inactivos. Donde los inmuebles activos representará los inmuebles rentados"
+                data-step="5">
                 <div class="metric-content">
                     <h3 class="metric-title">Ocupación</h3>
                     <p class="metric-value">@Model.OcupacionActual.ToString("F0")%</p>
@@ -186,7 +203,7 @@ else
             </div>
 
             <div class="welcome-message">
-                <h1 class="welcome-title">Bienvenido <span class="user-name">@(userName ?? "Usuario")</span></h1>
+                <h1 class="welcome-title">Bienvenido <span class="user-name">@(nombreUsuario ?? "Usuario")</span></h1>
                 <h1>al Sistema de Gestión de Alquileres</h1>
                 <p class="lead">Actualmente no tienes acceso al dashboard principal.</p>
                 <p>Por favor, contacta al administrador del sistema si necesitas acceder a más funcionalidades.</p>
@@ -211,25 +228,34 @@ else
     <script>
         $(document).ready(function () {
             // Verificar si el usuario está autenticado antes de mostrar la alerta
-        @if (User.Identity.IsAuthenticated)
+        @if (User.Identity?.IsAuthenticated ?? false)
         {
             <text>
-                                                                                                                                                                                                                // Solo hacer la llamada AJAX si el usuario está autenticado
+                                                                                                                                                                                                                                                                                                                        // Solo hacer la llamada AJAX si el usuario está autenticado
                         $.get('@Url.Action("CheckCuotasVencidas", "Home")', function (data) {
-                                                                                                                                                                                                                    if (data.tieneCuotasVencidas) {
+                                                                                                                                                                                                                                                                                                                            if (data.tieneCuotasVencidas) {
+                            const montoFormateado = new Intl.NumberFormat('es-DO', {
+                                style: 'currency',
+                                currency: 'DOP'
+                            }).format(data.montoTotal);
+                            
                             Swal.fire({
                                 title: '¡Cuotas Vencidas!',
-                                html: `Tienes <b>${data.cantidad}</b> cuotas vencidas que requieren atención.`,
+                                html: `Tienes <b>${data.cantidad}</b> cuotas vencidas por un monto total de <b>${montoFormateado}</b> que requieren atención.`,
                                 icon: 'warning',
                                 confirmButtonText: 'Entendido',
                                 confirmButtonColor: '#3085d6',
-                                footer: '<a href="/TbCuotas/Index">Ir a gestión de cuotas</a>'
+                                footer: '<a href="/Reportes?tipoReporte=Atrasos">Ver reporte de atrasos</a>'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    window.location.href = '/Reportes?tipoReporte=Atrasos';
+                                }
                             });
-                                                                                                                                                                                                                    }
-                                                                                                                                                                                                                });
+                                                                                                                                                                                                                                                                                                                            }
+                                                                                                                                                                                                                                                                                                                        });
             </text>
         }
-                                                                                                        });
+                                                                                                                                                            });
     </script>
 
     @if (ViewBag.MostrarTutorial)

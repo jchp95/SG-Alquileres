@@ -4,13 +4,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Alquileres.Controllers
 {
-    public class TbAuditoriasController : Controller
+    public class TbAuditoriasController : BaseController
     {
-        private readonly ApplicationDbContext _context;
 
-        public TbAuditoriasController(ApplicationDbContext context)
+
+        public TbAuditoriasController(ApplicationDbContext context) : base(context)
         {
-            _context = context;
+
         }
 
         // Acción para cargar la vista inicial
@@ -31,7 +31,7 @@ namespace Alquileres.Controllers
                         Auditoria = auditoria,
                         NombreUsuario = usuario.Fusuario
                     })
-                .OrderByDescending(x => x.Auditoria.Fid)
+                .OrderByDescending(x => x.Auditoria.FidAuditoria)
                 .ToListAsync();
 
             return PartialView("_AuditoriaPartial", auditorias);

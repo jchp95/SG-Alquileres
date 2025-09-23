@@ -1,14 +1,6 @@
 ﻿@model IEnumerable<CobroViewModel>
 
-<div class="container-fluid px-4 py-4">
-    <!-- Header -->
-    <div
-        class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
-        <div>
-            <h2 class="mb-1"><i class="fas fa-receipt me-2 text-primary"></i>Registro de Cobros</h2>
-            <p class="text-muted mb-0">Gestión y consulta de transacciones</p>
-        </div>
-    </div>
+<div class="container-fluid">
 
     <!-- Card de Filtros -->
     <div class="card border-0 shadow-sm mb-4">
@@ -20,7 +12,7 @@
                     <button id="btnFiltrar" class="btn btn-primary flex-grow-1 flex-lg-grow-0">
                         <i class="fas fa-filter me-1"></i> Filtrar
                     </button>
-                    <button id="btnReset" class="btn btn-outline-secondary">
+                    <button id="btnReset" class="btn btn-success">
                         <i class="fas fa-undo"></i>
                     </button>
                 </div>
@@ -63,16 +55,18 @@
                 <table id="tablaCobros" class="table table-hover align-middle mb-0 table-responsive">
                     <thead class="table-light">
                         <tr>
-                            <th class="ps-4">ID</th>
+                            <th>ID</th>
+                            <th>Inquilino</th>
+                            <th>Inmueble</th>
                             <th>Fecha</th>
                             <th>Hora</th>
-                            <th class="text-end pe-3">Monto</th>
-                            <th class="text-end pe-3">Descuento</th>
-                            <th class="text-end pe-3">Cargos</th>
+                            <th>Monto</th>
+                            <th>Descuento</th>
+                            <th>Cargos</th>
                             <th>Concepto</th>
                             <th>Origen</th>
-                            <th class="text-center pe-4">Estado</th>
-                            <th class="text-center pe-4">Acciones</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -80,28 +74,25 @@
                         {
                             <tr>
                                 <td class="ps-4 fw-medium">#@item.FidCobro</td>
+                                <td>@item.NombreInquilino</td>
+                                <td>@item.DescripcionInmueble</td>
                                 <td>
-                                    <span class="badge bg-light text-dark">
-                                        @item.Ffecha.ToString("dd/MM/yyyy")
-                                    </span>
+                                    @item.Ffecha.ToString("dd/MM/yyyy")
                                 </td>
                                 <td>@item.Fhora.ToString("hh:mm:ss")</td>
-                                <td class="text-end pe-3 fw-bold">@item.Fmonto.ToString("N2", new
+                                <td class="fw-bold">@item.Fmonto.ToString("N2", new
                                 System.Globalization.CultureInfo("es-DO"))</td>
-                                <td class="text-end pe-3 text-danger">@item.Fdescuento.ToString("N2", new
+                                <td class="text-danger">@item.Fdescuento.ToString("N2", new
                                 System.Globalization.CultureInfo("es-DO"))</td>
-                                <td class="text-end pe-3 text-success">@item.Fcargos.ToString("N2", new
+                                <td class="text-success">@item.Fcargos.ToString("N2", new
                                 System.Globalization.CultureInfo("es-DO"))</td>
                                 <td>
-                                    <span class="d-inline-block text-truncate" style="max-width: 150px;"
-                                        title="@item.Fconcepto">
+                                    <span style="max-width: 150px;" title="@item.Fconcepto">
                                         @item.Fconcepto
                                     </span>
                                 </td>
                                 <td>
-                                    <span class="badge bg-primary bg-opacity-10 text-primary">
-                                        @item.NombreOrigen
-                                    </span>
+                                    @item.NombreOrigen
                                 </td>
                                 <td>
                                     <span
@@ -149,6 +140,15 @@
                             </tr>
                         }
                     </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="2" class="text-end">Totales:</th>
+                            <th id="totalInquilinos"></th>
+                            <th colspan="2"></th>
+                            <th id="totalMonto"></th>
+                            <th colspan="6"></th>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
         </div>

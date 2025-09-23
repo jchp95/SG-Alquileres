@@ -1,0 +1,142 @@
+@using Microsoft.AspNetCore.Antiforgery
+@inject IAntiforgery Antiforgery
+@model Alquileres.Models.CobroViewModel
+
+@{
+    ViewData["Title"] = "Crear Cobro R�pido";
+    var token = Antiforgery.GetAndStoreTokens(Context).RequestToken;
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="d-flex align-items-center mb-3">
+            <i class="fas fa-coins text-primary fs-4 me-2"></i>
+            <h4 class="mb-0">Cobro Rápido</h4>
+        </div>
+
+        <form id="cobroForm" class="needs-validation" novalidate>
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div id="errorContainer" class="text-danger" style="display: none;"></div>
+
+            <!-- Campos ocultos -->
+            <input type="hidden" id="__RequestVerificationToken" value="@token" />
+            <input type="hidden" id="FkidCobro" name="FkidCobro" />
+            <input type="hidden" id="selectedCuotas" name="SelectedCuotas" />
+            <input type="hidden" asp-for="Fconcepto" value="" />
+
+            <!-- Fila 1: Cuenta por cobrar, Monto, Mora, M�todo de Pago -->
+            <div class="row mb-3">
+                <div class="col-md-5">
+                    <div class="form-group">
+                        <label class="control-label">Buscar Cuenta por Cobrar *</label>
+                        <select id="busquedaCxC" class="form-control select2" name="FkidCxC" required data-placeholder="Buscar Cuenta por cobrar...">
+                            <option></option>
+                        </select>
+                        <div class="invalid-feedback">Por favor seleccione una cuenta por cobrar.</div>
+                    </div>
+                </div>
+
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label asp-for="Fmonto" class="control-label">@Html.DisplayNameFor(model => model.Fmonto) *</label>
+                        <input asp-for="Fmonto" id="Fmonto" class="form-control numeric-input" inputmode="decimal" placeholder="0.00" type="text" required />
+                        <span asp-validation-for="Fmonto" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label asp-for="Fmora" class="control-label">@Html.DisplayNameFor(model => model.Fmora)</label>
+                        <input asp-for="Fmora" id="Fmora" class="form-control numeric-input" inputmode="decimal" placeholder="0.00" type="text" disabled />
+                        <span asp-validation-for="Fmora" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label class="control-label">Método de Pago *</label>
+                        <select asp-for="MetodoPagoSeleccionado" class="form-control" asp-items="Model.MetodosPago">
+                            <option value="">Seleccione un m�todo</option>
+                        </select>
+                        <span asp-validation-for="MetodoPagoSeleccionado" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fila 2: Cargos, Descuentos, Monto Total -->
+            <div class="row mb-3">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label asp-for="Fcargos" class="control-label">@Html.DisplayNameFor(model => model.Fcargos)</label>
+                        <input asp-for="Fcargos" id="Fcargos" class="form-control numeric-input" placeholder="0.00" type="text" />
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label asp-for="Fdescuento" class="control-label">@Html.DisplayNameFor(model => model.Fdescuento) $</label>
+                        <input asp-for="Fdescuento" id="Fdescuento" class="form-control numeric-input" placeholder="0.00" inputmode="decimal" type="text" />
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label class="control-label">Descuento %</label>
+                        <input id="FdescuentoPorcentaje" name="FdescuentoPorcentaje" class="form-control" type="number" step="0.01" value="0" />
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label class="control-label">Monto Total</label>
+                        <input id="MontoTotal" class="form-control numeric-input" placeholder="0.00" type="text" readonly />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de cuotas -->
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label><h5 class="mt-2">Listado de Cuotas</h5></label>
+                        <div id="cuotasError" class="text-danger" style="display:none;">Debe seleccionar al menos una cuota.</div>
+                        <table class="table table-responsive" id="tablaCobros">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>No.</th>
+                                    <th>Vence</th>
+                                    <th>Monto</th>
+                                    <th>Saldo</th>
+                                    <th>Mora</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Cuotas agregadas din�micamente -->
+                            </tbody>
+                        </table>
+                        <div id="cuotasError" class="invalid-feedback" style="display: none;">Por favor seleccione al menos una cuota.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="form-group-button mt-3 d-flex gap-2">
+                <button type="submit" class="btn btn-primary" id="finalizarCobroRapido">Terminar Pago</button>
+            </div>
+
+            <input type="hidden" id="Fconcepto" name="Fconcepto" />
+            <input type="hidden" id="ComprobanteSeleccionado" name="ComprobanteSeleccionado" value="00000000001" />
+            <input type="hidden" id="efectivo" name="efectivo" />
+            <input type="hidden" id="transferencia" name="transferencia" />
+            <input type="hidden" id="tarjeta" name="tarjeta" />
+            <input type="hidden" id="cheque" name="cheque" />
+            <input type="hidden" id="deposito" name="deposito" />
+            <input type="hidden" id="notaCredito" name="notaCredito" />
+            <input type="hidden" id="debitoAutomatico" name="debitoAutomatico" />
+            <input type="hidden" id="montoRecibido" name="montoRecibido" />
+        </form>
+    </div>
+</div>

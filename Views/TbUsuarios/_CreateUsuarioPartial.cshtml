@@ -1,0 +1,158 @@
+<style>
+    /* Estilo para separar y asociar la descripción al switch */
+    .permission-item {
+        padding-bottom: 0.7rem;
+        border-bottom: 1px solid #f0f0f0;
+        margin-bottom: 1rem;
+    }
+
+    .permission-item:last-child {
+        border-bottom: none;
+    }
+
+    .permission-item .permission-description {
+        margin-top: 0.15rem;
+        margin-bottom: 0.1rem;
+        margin-left: 2.2rem;
+        font-size: 0.93em;
+        color: #6c757d;
+        background: #f8f9fa;
+        border-radius: 0.25rem;
+        padding: 0.25rem 0.75rem 0.25rem 0.75rem;
+        display: inline-block;
+        max-width: 95%;
+    }
+</style>
+@model Alquileres.Models.UsuarioViewModel
+@using Alquileres.Models
+@{
+    var categories = Permissions.GetPermissionsByCategory();
+}
+
+
+
+<div class="row g-4 align-items-stretch">
+    <!-- Columna izquierda: Formulario -->
+    <div class="col-md-6">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <i class="fas fa-user-plus text-success fs-4 me-2"></i>
+                    <h4 class="mb-0">Crear Usuario</h4>
+                </div>
+                <form asp-action="Create" method="post" id="createUsuarioForm">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="FidUsuario" />
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Fnombre" class="form-label">Nombre completo</label>
+                        <input asp-for="Fnombre" class="form-control" placeholder="Ingrese el nombre completo" />
+                        <span asp-validation-for="Fnombre" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Fusuario" class="form-label">Usuario</label>
+                        <input asp-for="Fusuario" class="form-control" placeholder="Ingrese el nombre de usuario"
+                            autocomplete="off" />
+                        <span asp-validation-for="Fusuario" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Femail" class="form-label">Correo electrónico</label>
+                        <input asp-for="Femail" class="form-control" placeholder="Ingrese el correo electrónico" />
+                        <span asp-validation-for="Femail" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="SelectedRole" class="form-label">Rol</label>
+                        <select asp-for="SelectedRole" asp-items="ViewBag.Roles" class="form-select">
+                            <option value="">Seleccione un rol</option>
+                        </select>
+                        <span asp-validation-for="SelectedRole" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Fpassword" class="form-label">Contraseña</label>
+                        <input asp-for="Fpassword" type="password" class="form-control"
+                            placeholder="Ingrese la contraseña" autocomplete="new-password" />
+                        <span asp-validation-for="Fpassword" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="FRepeatPassword" class="form-label">Confirmar contraseña</label>
+                        <input asp-for="FRepeatPassword" type="password" class="form-control"
+                            placeholder="Repita la contraseña" />
+                        <span asp-validation-for="FRepeatPassword" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group-button mt-3">
+                        <button type="submit" class="btn btn-primary me-2">Crear Usuario</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Columna derecha: Card de permisos -->
+    <div class="col-md-6">
+        <div class="card h-100 shadow-sm permissions-card-container" id="permissionsCardUsuario">
+            <div class="card-body d-flex flex-column">
+                <div class="mb-2">
+                    <div class="alert alert-info py-2 px-3 mb-2 small">
+                        Selecciona los permisos que tendrá el usuario. Puedes elegir uno o varios según las acciones que
+                        podrá realizar en el sistema.
+                    </div>
+                </div>
+                <div class="card-header bg-white border-0 px-0 pb-2 d-flex align-items-center justify-content-between">
+                    <div>
+                        <h5 class="card-title mb-0" id="permissionsCardTitleUsuario">
+                            Permisos para <span id="selectedUserNameUsuario"></span>
+                        </h5>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-primary ms-2 master-permission-btn-usuario"
+                        tabindex="-1">
+                        <i class="fas fa-check-double"></i> Seleccionar todos los permisos
+                    </button>
+                </div>
+                <div class="flex-grow-1">
+                    <ul class="nav nav-tabs mb-3" id="permissionsTabsUsuario" role="tablist">
+                        @{
+                            int tabIndex = 0;
+                        }
+                        @foreach (var category in categories)
+                        {
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link @(tabIndex == 0 ? "active" : "")"
+                                    id="@($"tab-usuario-{category.Key}")" data-bs-toggle="tab"
+                                    data-bs-target="@($"#content-usuario-{category.Key}")" type="button" role="tab">
+                                    @Permissions.GetCategoryDisplayName(category.Key)
+                                </button>
+                            </li>
+                            tabIndex++;
+                        }
+                    </ul>
+                    <div class="tab-content" id="permissionsTabContentUsuario">
+                        @{
+                            int tabIndex2 = 0;
+                        }
+                        @foreach (var category in categories)
+                        {
+                            <div class="tab-pane fade @(tabIndex2 == 0 ? "show active" : "")"
+                                id="@($"content-usuario-{category.Key}")" role="tabpanel">
+                                <div class="category-actions-usuario mb-2"></div>
+                                <div class="permission-items-container-usuario">
+                                    <!-- Contenido cargado via AJAX -->
+                                </div>
+                            </div>
+                            tabIndex2++;
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

@@ -1,0 +1,54 @@
+@model IEnumerable<Alquileres.Models.TbGastoTipo>
+
+<!--_CreateTipoGastoPartial.cshtml-->
+<div class="card mt-3">
+    <div class="card-header">
+        <h5>Crear Tipo de Gasto</h5>
+    </div>
+    <div class="card-body">
+        <div class="form-group row">
+            <div class="col-md-6">
+                <form id="gastoTipoForm" asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label class="control-label">Descripción</label>
+                        <input name="Fdescripcion" class="form-control"
+                            placeholder="Ingrese la descripción del tipo de gasto" id="Fdescripcion" />
+                        <span class="text-danger field-validation-valid" data-valmsg-for="Fdescripcion"
+                            data-valmsg-replace="true"></span>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Crear</button>
+                </form>
+            </div>
+            <div class="col-md-6">
+                <div class="table-responsive">
+                    <table id="gastoTipoTable" class="table table-hover align-middle mb-0 table-responsive">
+                        <thead>
+                            <tr>
+                                <th>No.</th>
+                                <th>Descripción</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.FidGastoTipo</td>
+                                    <td>@item.Fdescripcion</td>
+                                    <td>
+                                        <a href="javascript:void(0);"
+                                            class="btn btn-sm btn-outline-primary btn-editar-gasto-tipo"
+                                            data-id="@item.FidGastoTipo" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

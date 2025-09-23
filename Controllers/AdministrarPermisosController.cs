@@ -58,11 +58,18 @@ namespace Alquileres.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdatePermissions([FromBody] UpdatePermissionsRequest request)
         {
             try
             {
+                _logger.LogInformation("Payload recibido: {UserId} - {Perms}", request?.UserId, request?.SelectedPermissions?.Count);
+
+                if (request == null)
+                {
+                    _logger.LogWarning("El modelo no se pudo bindear (request es null)");
+                    return BadRequest(new { success = false, error = "Modelo inválido" });
+                }
+
                 if (!ModelState.IsValid)
                 {
                     return BadRequest(new
@@ -107,15 +114,5 @@ namespace Alquileres.Controllers
             }
         }
 
-    }
-
-
-
-    public class UpdatePermissionsRequest
-    {
-        [Required(ErrorMessage = "El ID de usuario es requerido")]
-        public string UserId { get; set; }
-
-        public List<string> SelectedPermissions { get; set; } = new List<string>();
     }
 }

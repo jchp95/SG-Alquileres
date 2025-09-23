@@ -132,11 +132,11 @@
                     </tr>
                     <tr>
                         <th>Teléfono</th>
-                        <td>@Model.Inquilino.Ftelefono</td>
+                        <td class="telefono-display">@Model.Inquilino.Ftelefono</td>
                     </tr>
                     <tr>
                         <th>Celular</th>
-                        <td>@Model.Inquilino.Fcelular</td>
+                        <td class="telefono-display">@Model.Inquilino.Fcelular</td>
                     </tr>
                 }
                 else
@@ -200,17 +200,17 @@
                         <!-- Detalles de la cuota -->
                         <tr>
                             <th class="ps-4 text-muted">Monto</th>
-                            <td>@detalle.Fmonto.ToString("C")</td>
+                            <td>@detalle.Fmonto.ToString("0.00")</td>
                         </tr>
                         <tr>
                             <th class="ps-4 text-muted">Saldo</th>
                             <td class="@(cuota?.Fsaldo > 0 ? "text-warning" : "text-success")">
-                                @(cuota?.Fsaldo.ToString("C") ?? "N/A")
+                                @(cuota?.Fsaldo.ToString("0.00") ?? "N/A")
                             </td>
                         </tr>
                         <tr>
                             <th class="ps-4 text-muted">Mora</th>
-                            <td>@detalle.Fmora.ToString("0.00")%</td>
+                            <td>@detalle.Fmora.ToString("0.00")</td>
                         </tr>
                         <tr>
                             <th class="ps-4 text-muted">Vencimiento</th>
@@ -250,4 +250,8 @@
             </tbody>
         </table>
     </div>
+    <div class="form-group-button mt-2">
+        <a asp-action="Index" class="btn btn-secondary">Volver a la Lista</a>
+    </div>
+
 </div>

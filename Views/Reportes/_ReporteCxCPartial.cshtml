@@ -54,10 +54,9 @@
                     <input type="text" class="form-control" id="filtroInquilino" placeholder="Nombre o Apellido">
                 </div>
 
-                <!-- Filtro por inmueble -->
                 <div class="col-md-3">
-                    <label for="filtroInmueble" class="form-label small text-muted mb-1">Dirección del Inmueble</label>
-                    <input type="text" class="form-control" id="filtroInmueble" placeholder="Dirección o ubicación">
+                    <label for="filtroInmueble" class="form-label small text-muted mb-1">Inmueble</label>
+                    <input type="text" class="form-control" id="filtroInmueble" placeholder="Descripción del inmueble">
                 </div>
             </div>
         </div>
@@ -66,13 +65,28 @@
     <!-- Card de Resultados -->
     <div class="card border-0 shadow-sm px-4 py-4">
         <div class="card-body p-0">
+            <!-- Panel de Totales -->
+            <div class="row mb-3">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded">
+                        <div>
+                            <strong>Registros:</strong> <span id="totalRegistrosCxC">0</span>
+                        </div>
+                        <div>
+                            <strong>Monto Total CxC:</strong> <span id="totalCxC">RD$ 0.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <div class="table-responsive">
-                <table id="reporteCxCTable" class="table table-hover align-middle mb-0 table-striped table-bordered">
+                <table id="reporteCxCTable" class="table align-middle mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th style="display: none;">Nombre de Usuario</th>
-                            <th class="ps-4"># Cuenta</th>
+                            <th style="display: none;">Usuario</th>
+                            <th># Cuenta</th>
                             <th>Inquilino</th>
+                            <th>Inmueble</th>
                             <th>Dirección</th>
                             <th>Ubicación</th>
                             <th>Fecha Actual</th>
@@ -88,6 +102,7 @@
                                 <td style="display: none;">@item.NombreUsuario</td>
                                 <td class="ps-4 fw-semibold">@item.FidCuenta</td>
                                 <td>@item.NombreInquilino</td>
+                                <td>@item.DescripcionInmueble</td>
                                 <td>
                                     <span class="d-inline-block text-truncate" style="max-width: 150px;"
                                         data-bs-toggle="tooltip" title="@item.DireccionInmueble">
@@ -97,7 +112,7 @@
                                 <td>@item.UbicacionInmueble</td>
                                 <td>@item.FechaActual</td>
                                 <td>@item.HoraActual</td>
-                                <td>RD$ @item.Fmonto.ToString("N2", new System.Globalization.CultureInfo("es-DO"))</td>
+                                <td>@item.Fmonto.ToString("N2", new System.Globalization.CultureInfo("es-DO"))</td>
                                 <td>@item.FechaInicio</td>
                             </tr>
                         }

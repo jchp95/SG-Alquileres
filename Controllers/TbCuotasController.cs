@@ -10,20 +10,21 @@ using Microsoft.EntityFrameworkCore;
 namespace Alquileres.Controllers
 {
     [Authorize] // Esto aplicará a todas las acciones del controlador, requiriendo que el usuario esté autenticado.
-    public class TbCuotasController : Controller
+    public class TbCuotasController : BaseController
     {
-        private readonly ApplicationDbContext _context;
         private readonly ILogger<TbInmueblesController> _logger;
         private readonly UserManager<IdentityUser> _userManager;
 
-        public TbCuotasController(ApplicationDbContext context, ILogger<TbInmueblesController> logger, UserManager<IdentityUser> userManager)
+        public TbCuotasController(ApplicationDbContext context,
+        ILogger<TbInmueblesController> logger,
+        UserManager<IdentityUser> userManager) : base(context)
         {
-            _context = context;
             _logger = logger;
             _userManager = userManager;
         }
-        public IActionResult Index()
+        public IActionResult Index(string vista = "crear")
         {
+            ViewData["Vista"] = vista;
             return View();
         }
 
@@ -54,20 +55,13 @@ namespace Alquileres.Controllers
                 // Validar el modelo
                 if (!ModelState.IsValid)
                 {
-                    // Log detallado de los errores
                     var errors = ModelState.Values
                         .SelectMany(v => v.Errors)
                         .Select(e => e.ErrorMessage)
                         .ToList();
 
                     _logger.LogWarning("Modelo no válido. Errores: {Errors}", string.Join(", ", errors));
-
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Datos inválidos",
-                        errors = errors
-                    });
+                    return BadRequest(new { success = false, message = "Datos inválidos", errors = errors });
                 }
 
                 // Obtener el usuario autenticado
@@ -90,53 +84,187 @@ namespace Alquileres.Controllers
                     return Json(new { success = false, message = "La cuenta por cobrar especificada no existe." });
                 }
 
-                // Obtener el último número de cuota para esta cuenta
-                int ultimoNumeroCuota = await _context.TbCxcCuota
-                    .Where(c => c.FidCxc == model.FidCxc)
-                    .MaxAsync(c => (int?)c.FNumeroCuota) ?? 0;
+                // Obtener TODAS las cuotas existentes para esta cuenta (ordenadas por fecha)
+                var cuotasExistentes = await _context.TbCxcCuota
+                    .Where(c => c.FkidCxc == model.FidCxc)
+                    .OrderBy(c => c.Fvence)
+                    .ToListAsync();
 
-                // Si se envió un número específico, usarlo como base (validando que sea mayor que el último existente)
-                int numeroCuotaBase = Math.Max(model.FNumeroCuota, ultimoNumeroCuota + 1);
+                // Determinar el día de vencimiento deseado (del modelo)
+                int diaVencimientoDeseado = model.Fvence.Day;
+                bool esUltimoDiaMes = diaVencimientoDeseado == DateTime.DaysInMonth(model.Fvence.Year, model.Fvence.Month);
 
-                // Crear las cuotas
-                var cuotasCreadas = new List<TbCxcCuotum>();
+                // Obtener fecha actual para comparación
+                DateTime fechaActual = DateTime.Now.Date;
 
-                for (int i = 0; i < model.CantidadCuotas; i++)
+                // 1. Actualizar fechas de vencimiento y estados de cuotas existentes si es necesario
+                foreach (var cuotaExistente in cuotasExistentes)
                 {
-                    var fechaVencimiento = model.Fvence.AddMonths(i + 1);
-                    var fechaProximoCalculo = fechaVencimiento.AddMonths(1);
-
-                    var nuevaCuota = new TbCxcCuotum
+                    // No modificar cuotas con estado 'S'
+                    if (cuotaExistente.Fstatus == 'S')
                     {
-                        FidCxc = model.FidCxc,
-                        FNumeroCuota = numeroCuotaBase + i, // Usar el número base calculado
-                        Fvence = fechaVencimiento,
-                        Fmonto = (int)model.Fmonto,
-                        Fmora = model.TasaMora,
-                        Fstatus = 'N',
-                        Factivo = true,
-                        FfechaUltCalculo = fechaProximoCalculo,
-                        Fsaldo = (int)model.Fmonto
-                    };
+                        _logger.LogInformation($"Saltando cuota #{cuotaExistente.FNumeroCuota} porque tiene estado 'S'");
+                        continue;
+                    }
 
-                    _context.Add(nuevaCuota);
-                    cuotasCreadas.Add(nuevaCuota);
+                    DateTime nuevaFechaVencimiento;
 
-                    _logger.LogInformation($"Creando cuota #{nuevaCuota.FNumeroCuota} para la cuenta {model.FidCxc}");
+                    if (esUltimoDiaMes)
+                    {
+                        // Usar último día del mes
+                        nuevaFechaVencimiento = new DateTime(
+                            cuotaExistente.Fvence.Year,
+                            cuotaExistente.Fvence.Month,
+                            DateTime.DaysInMonth(cuotaExistente.Fvence.Year, cuotaExistente.Fvence.Month)
+                        );
+                    }
+                    else
+                    {
+                        // Usar día deseado, ajustando si no existe en ese mes
+                        int ultimoDiaMes = DateTime.DaysInMonth(cuotaExistente.Fvence.Year, cuotaExistente.Fvence.Month);
+                        int dia = Math.Min(diaVencimientoDeseado, ultimoDiaMes);
+
+                        nuevaFechaVencimiento = new DateTime(
+                            cuotaExistente.Fvence.Year,
+                            cuotaExistente.Fvence.Month,
+                            dia
+                        );
+                    }
+
+                    // Determinar el estado basado en la nueva fecha de vencimiento
+                    char nuevoEstado = nuevaFechaVencimiento < fechaActual ? 'V' : 'N';
+
+                    if (cuotaExistente.Fvence != nuevaFechaVencimiento || cuotaExistente.Fstatus != nuevoEstado)
+                    {
+                        cuotaExistente.Fvence = nuevaFechaVencimiento;
+                        cuotaExistente.Fstatus = nuevoEstado;
+                        _context.Update(cuotaExistente);
+                        _logger.LogInformation($"Actualizando cuota #{cuotaExistente.FNumeroCuota} - fecha: {nuevaFechaVencimiento:dd/MM/yyyy}, estado: {nuevoEstado}");
+                    }
+                }
+
+                // 2. Generar nuevas cuotas que faltan
+                var cuotasCreadas = new List<TbCxcCuotum>();
+                DateTime fechaGeneracion = model.Fvence;
+                int cuotasGeneradas = 0;
+
+                // Primero determinamos todas las fechas de cuotas que deberían existir (existentes + nuevas)
+                var todasFechasCuotas = new List<DateTime>();
+
+                // Agregar fechas de cuotas existentes (ya actualizadas)
+                todasFechasCuotas.AddRange(cuotasExistentes.Select(c => c.Fvence));
+
+                // Agregar fechas de nuevas cuotas que necesitamos crear
+                DateTime fechaTemporal = model.Fvence;
+                while (cuotasGeneradas < model.CantidadCuotas)
+                {
+                    if (!todasFechasCuotas.Any(f => f.Year == fechaTemporal.Year && f.Month == fechaTemporal.Month))
+                    {
+                        DateTime fechaVencimiento;
+
+                        if (esUltimoDiaMes)
+                        {
+                            fechaVencimiento = new DateTime(
+                                fechaTemporal.Year,
+                                fechaTemporal.Month,
+                                DateTime.DaysInMonth(fechaTemporal.Year, fechaTemporal.Month)
+                            );
+                        }
+                        else
+                        {
+                            int ultimoDiaMes = DateTime.DaysInMonth(fechaTemporal.Year, fechaTemporal.Month);
+                            int dia = Math.Min(diaVencimientoDeseado, ultimoDiaMes);
+
+                            fechaVencimiento = new DateTime(
+                                fechaTemporal.Year,
+                                fechaTemporal.Month,
+                                dia
+                            );
+                        }
+
+                        todasFechasCuotas.Add(fechaVencimiento);
+                        cuotasGeneradas++;
+                    }
+                    fechaTemporal = fechaTemporal.AddMonths(1);
+                }
+
+                // Ordenar todas las fechas (existentes + nuevas)
+                todasFechasCuotas = todasFechasCuotas.OrderBy(f => f).ToList();
+
+                // 3. Renumerar TODAS las cuotas (existentes + nuevas) en orden cronológico
+                int numeroCuota = 1;
+                foreach (var fecha in todasFechasCuotas)
+                {
+                    // Buscar si ya existe una cuota para esta fecha
+                    var cuotaExistente = cuotasExistentes.FirstOrDefault(c => c.Fvence == fecha);
+
+                    if (cuotaExistente != null)
+                    {
+                        if (cuotaExistente.Fstatus == 'S')
+                        {
+                            // Si es pagada, mantener su número pero ajustar el contador para la siguiente
+                            _logger.LogInformation($"Manteniendo número de cuota {cuotaExistente.FNumeroCuota} para cuota con estado 'S'");
+                            numeroCuota = cuotaExistente.FNumeroCuota + 1; // Ajustar el contador
+                            continue;
+                        }
+
+                        // Actualizar número de cuota existente
+                        if (cuotaExistente.FNumeroCuota != numeroCuota)
+                        {
+                            cuotaExistente.FNumeroCuota = numeroCuota;
+                            _context.Update(cuotaExistente);
+                            _logger.LogInformation($"Reasignando número de cuota de {cuotaExistente.FNumeroCuota} a {numeroCuota} para vencimiento {fecha:dd/MM/yyyy}");
+                        }
+                    }
+                    else
+                    {
+                        // Determinar el estado basado en la fecha de vencimiento
+                        char estado = fecha < fechaActual ? 'V' : 'N';
+
+                        // Crear nueva cuota
+                        var nuevaCuota = new TbCxcCuotum
+                        {
+                            FkidCxc = model.FidCxc,
+                            FNumeroCuota = numeroCuota,
+                            Fvence = fecha,
+                            Fmonto = (int)model.Fmonto,
+                            Fmora = model.TasaMora,
+                            Fstatus = estado,
+                            Factivo = true,
+                            FfechaUltCalculo = fecha.AddMonths(1),
+                            Fsaldo = (int)model.Fmonto
+                        };
+
+                        _context.Add(nuevaCuota);
+                        cuotasCreadas.Add(nuevaCuota);
+                        _logger.LogInformation($"Creando cuota #{numeroCuota} con vencimiento {fecha:dd/MM/yyyy}, estado: {estado}");
+                    }
+
+                    numeroCuota++;
                 }
 
                 await _context.SaveChangesAsync();
 
+                // Actualizar fecha de próxima cuota en la cuenta
+                if (todasFechasCuotas.Any())
+                {
+                    cuentaPorCobrar.FfechaProxCuota = todasFechasCuotas.Last().AddMonths(1);
+                    _context.Update(cuentaPorCobrar);
+                    await _context.SaveChangesAsync();
+                }
+
                 return Json(new
                 {
                     success = true,
-                    message = $"{model.CantidadCuotas} cuotas creadas correctamente",
-                    cuotas = cuotasCreadas.Select(c => new
+                    message = $"{cuotasCreadas.Count} cuotas creadas correctamente (de {model.CantidadCuotas} solicitadas)",
+                    cuotasCreadas = cuotasCreadas.Select(c => new
                     {
                         NumeroCuota = c.FNumeroCuota,
-                        FechaVencimiento = c.Fvence.ToString("dd/MM/yyyy")
+                        FechaVencimiento = c.Fvence.ToString("dd/MM/yyyy"),
+                        Estado = c.Fstatus.ToString()
                     }).ToList(),
-                    nextCuotaNumber = numeroCuotaBase + model.CantidadCuotas // Devolver el próximo número disponible
+                    cuotasActualizadas = cuotasExistentes.Count(c => c.Fstatus != 'S'),
+                    nextCuotaNumber = numeroCuota
                 });
             }
             catch (Exception ex)
@@ -197,17 +325,19 @@ namespace Alquileres.Controllers
         {
             // Filtro inicial: cuentas activas y que no estén canceladas (estado != 'S')
             var query = from cxc in _context.TbCxcs.Where(c => c.Factivo == true && c.Fstatus != 'S')
-                        join inquilino in _context.TbInquilinos on cxc.FidInquilino equals inquilino.FidInquilino
-                        select new { cxc, inquilino };
+                        join inquilino in _context.TbInquilinos on cxc.FkidInquilino equals inquilino.FidInquilino
+                        join inmueble in _context.TbInmuebles on cxc.FkidInmueble equals inmueble.FidInmueble
+                        select new { cxc, inmueble, inquilino };
 
             if (!string.IsNullOrEmpty(searchTerm))
             {
                 query = query.Where(x => x.cxc.FidCuenta.ToString().Contains(searchTerm) ||
-                                         x.cxc.Fmonto.ToString().Contains(searchTerm) ||
-                                         x.cxc.FdiasGracia.ToString().Contains(searchTerm) ||
-                                         x.cxc.FtasaMora.ToString().Contains(searchTerm) ||
-                                         x.inquilino.Fnombre.Contains(searchTerm) ||
-                                         x.inquilino.Fapellidos.Contains(searchTerm));
+                                        x.cxc.Fmonto.ToString().Contains(searchTerm) ||
+                                        x.cxc.FdiasGracia.ToString().Contains(searchTerm) ||
+                                        x.cxc.FtasaMora.ToString().Contains(searchTerm) ||
+                                        x.inquilino.Fnombre.Contains(searchTerm) ||
+                                        x.inquilino.Fapellidos.Contains(searchTerm) ||
+                                        x.inmueble.Fdescripcion.Contains(searchTerm));
             }
 
             // Obtener el número máximo de cuotas por cuenta
@@ -215,6 +345,7 @@ namespace Alquileres.Controllers
                 .GroupBy(x => new
                 {
                     x.cxc.FidCuenta,
+                    x.inmueble.Fdescripcion,
                     x.inquilino.Fnombre,
                     x.inquilino.Fapellidos,
                     x.cxc.Fmonto,
@@ -226,21 +357,22 @@ namespace Alquileres.Controllers
                 {
                     Id = g.Key.FidCuenta,
                     Text = $"Cuenta #{g.Key.FidCuenta} - {g.Key.Fnombre} {g.Key.Fapellidos} - " +
+                           $"Inmueble: {g.Key.Fdescripcion} - " +
                            $"Monto: {g.Key.Fmonto:C} - Día de Gracia: {g.Key.FdiasGracia} días - Mora: {g.Key.FtasaMora}%",
                     Tipo = "cuenta por cobrar",
-                    NumeroCuota = _context.TbCxcCuota.Where(c => c.FidCxc == g.Key.FidCuenta).Max(c => c.FNumeroCuota),
+                    NumeroCuota = _context.TbCxcCuota.Where(c => c.FkidCxc == g.Key.FidCuenta).Max(c => c.FNumeroCuota),
                     FechaVencimiento = _context.TbCxcCuota
-                        .Where(c => c.FidCxc == g.Key.FidCuenta)
+                        .Where(c => c.FkidCxc == g.Key.FidCuenta)
                         .OrderByDescending(c => c.Fvence)
                         .Select(c => (DateTime)c.Fvence)
                         .FirstOrDefault(),
                     Monto = _context.TbCxcCuota
-                        .Where(c => c.FidCxc == g.Key.FidCuenta)
+                        .Where(c => c.FkidCxc == g.Key.FidCuenta)
                         .OrderByDescending(c => c.Fvence)
                         .Select(c => c.Fmonto)
                         .FirstOrDefault(),
                     Mora = _context.TbCxcCuota
-                        .Where(c => c.FidCxc == g.Key.FidCuenta)
+                        .Where(c => c.FkidCxc == g.Key.FidCuenta)
                         .OrderByDescending(c => c.Fvence)
                         .Select(c => c.Fmora)
                         .FirstOrDefault(),
@@ -268,7 +400,7 @@ namespace Alquileres.Controllers
                 }
 
                 var cuotas = await _context.TbCxcCuota
-                    .Where(c => c.FidCxc == cuenta.FidCuenta && (c.Fstatus == 'N')) // Filtrar por estado
+                    .Where(c => c.FkidCxc == cuenta.FidCuenta && (c.Fstatus == 'N')) // Filtrar por estado
                     .Select(c => new
                     {
                         fidCuota = c.FidCuota,

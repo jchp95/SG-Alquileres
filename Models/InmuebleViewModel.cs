@@ -10,6 +10,7 @@
         public bool Factivo { get; set; }
         public bool EsVencida { get; set; }
         public string PropietarioNombre { get; set; }
+        public string TipoMoneda { get; set; }
 
 
     }

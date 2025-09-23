@@ -108,37 +108,57 @@
 
 .metrics-section {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: 1fr 1fr 1fr; /* 3 columnas, la primera más ancha */
+    grid-template-rows: auto auto; /* dos filas */
     gap: 20px;
-    margin-bottom: 30px;
+}
+
+.metric-card.cobros-dia {
+    grid-row: span 2; /* ocupa dos filas */
 }
 
 .metric-card {
-    background: white;
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
     transition: transform 0.3s, box-shadow 0.3s;
+    position: relative;
+    overflow: hidden;
+    color: white;
 }
 
 .metric-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(-6px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.25);
 }
 
 .metric-card.success {
-    border-left: 4px solid var(--success-color);
+    background: linear-gradient(135deg, #4cc9f0, #3ab5db);
 }
 .metric-card.secondary {
-    border-left: 4px solid var(--secondary-color);
+    background: linear-gradient(135deg, #3f37c9, #4361ee);
 }
 .metric-card.danger {
-    border-left: 4px solid var(--danger-color);
+    background: linear-gradient(135deg, #f94144, #dc2f02);
 }
 .metric-card.warning {
-    border-left: 4px solid var(--warning-color);
+    background: linear-gradient(135deg, #f8961e, #f77f00);
+}
+
+/* Efecto decorativo en el fondo para todas las cards */
+.metric-card::after {
+    content: "";
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 150px;
+    height: 150px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    z-index: 0;
 }
 
 .introjs-tooltip.customTooltip {
@@ -222,49 +242,116 @@
 }
 
 
+.metric-card.cobros-dia {
+    grid-row: span 2; /* ocupa dos filas */
+}
+
+/* Contenido principal para todas las cards */
+.metric-content {
+    z-index: 1;
+    position: relative;
+}
+
+.metric-title-cobros-dia {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0;
+    color: #fff;
+    opacity: 0.9;
+    z-index: 1;
+    position: relative;
+}
+
+.metric-card.cobros-dia .metric-value {
+    font-size: 42px;
+    font-weight: 800;
+    margin: 15px 0 0;
+    color: #fff;
+    z-index: 1;
+    position: relative;
+}
+
+/* Ícono específico para cobros del día (más grande por ser card doble) */
+.metric-icon-cobros-dia {
+    position: absolute;
+    top: 50%;
+    left: 60%;
+    transform: translate(-50%, -50%);
+    font-size: 140px;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.08);
+    z-index: 0;
+    pointer-events: none;
+    transition: transform 0.4s ease, color 0.4s ease;
+}
+
+.metric-card.cobros-dia:hover .metric-icon-cobros-dia {
+    transform: scale(1.1) rotate(10deg);
+}
+
 .metric-title {
     margin: 0;
-    font-size: 14px;
-    color: var(--gray-color);
-    font-weight: 500;
+    font-size: 18px;
+    color: #fff;
+    font-weight: 600;
+    opacity: 0.9;
+    z-index: 1;
+    position: relative;
 }
 
 .metric-value {
-    margin: 10px 0 5px;
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--dark-color);
+    margin: 15px 0 10px;
+    font-size: 36px;
+    font-weight: 800;
+    color: #fff;
+    z-index: 1;
+    position: relative;
 }
 
 .metric-change {
     margin: 0;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 500;
+    color: rgba(255, 255, 255, 0.8);
+    z-index: 1;
+    position: relative;
 }
 
 .metric-change.positive {
-    color: var(--success-color);
+    color: rgba(255, 255, 255, 0.9);
 }
 
 .metric-change.negative {
-    color: var(--danger-color);
+    color: rgba(255, 255, 255, 0.9);
 }
 
 .metric-change.neutral {
-    color: var(--gray-color);
+    color: rgba(255, 255, 255, 0.8);
 }
 
 .metric-icon {
-    font-size: 24px;
-    color: var(--primary-color);
-    display: flex;
-    align-items: center;
+    position: absolute;
+    top: 50%;
+    left: 60%;
+    transform: translate(-50%, -50%);
+    font-size: 120px;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.08);
+    z-index: 0;
+    pointer-events: none;
+    transition: transform 0.4s ease, color 0.4s ease;
 }
+
+.metric-card:hover .metric-icon {
+    transform: scale(1.1) rotate(10deg);
+}
+
 
 .section-title {
     font-size: 20px;
     font-weight: 600;
     color: var(--dark-color);
+    margin-top: 20px;
     margin-bottom: 20px;
 }
 
@@ -544,6 +631,15 @@
 
     .btn {
         width: 100%;
+    }
+
+    .metrics-section {
+        grid-template-columns: 1fr; /* una sola columna */
+        grid-template-rows: auto;   /* las filas se ajustan automáticamente */
+    }
+
+    .metric-card.cobros-dia {
+        grid-row: auto; /* evita que intente ocupar dos filas en móvil */
     }
 }
 

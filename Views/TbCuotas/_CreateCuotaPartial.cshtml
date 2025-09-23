@@ -1,11 +1,11 @@
 @model Alquileres.Models.CuotaCreateViewModel
 
-<div class="mb-4">
-    <h3>Crear Cuotas para las CxC</h3>
-</div>
-<hr />
 <div class="row">
     <div class="col-md-6 offset-md-3">
+        <div class="d-flex align-items-center mb-3">
+            <i class="fas fa-file-invoice-dollar text-primary fs-4 me-2"></i>
+            <h4 class="mb-0">Crear cuotas</h4>
+        </div>
         <form id="cuotaForm" asp-action="Create" method="post" data-ajax="true">
             @Html.AntiForgeryToken()
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -51,13 +51,13 @@
             <div class="form-group">
                 <label class="control-label">Mora %</label>
                 <input asp-for="TasaMora" class="form-control numeric-input" inputmode="decimal"
-                    placeholder="Tasa mora %" id="Fmora" required />
+                    placeholder="Tasa mora %" id="Fmora" />
                 <span asp-validation-for="TasaMora" class="text-danger"></span>
             </div>
 
-            <div class="form-group mt-2">
+            <div class="form-group-button mt-2">
                 <button type="submit" class="btn btn-primary">Crear</button>
-                <a asp-action="Index" class="btn btn-secondary ml-2">Volver a la Lista</a>
+                <a asp-action="Index" class="btn btn-secondary">Volver a la Lista</a>
             </div>
         </form>
     </div>

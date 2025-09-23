@@ -11,30 +11,27 @@ using Alquileres.Services; // Añade este using para usar Entity Framework
 
 namespace Alquileres.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly ApplicationDbContext _context;
-        private readonly UserManager<IdentityUser> _userManager; // Mantén IdentityUser
+        private readonly UserManager<IdentityUser> _userManager;
 
         public HomeController(
             ILogger<HomeController> logger,
             ApplicationDbContext context,
-            UserManager<IdentityUser> userManager
-            )
+            UserManager<IdentityUser> userManager)
+            : base(context) // ← necesario para pasar ApplicationDbContext a BaseController
         {
             _logger = logger;
-            _context = context;
             _userManager = userManager;
-
         }
 
         [HttpGet]
         public IActionResult CheckCuotasVencidas()
         {
-            if (!User.Identity.IsAuthenticated)
+            if (!User.Identity?.IsAuthenticated ?? true)
             {
-                return Json(new { tieneCuotasVencidas = false, cantidad = 0 });
+                return Json(new { tieneCuotasVencidas = false, cantidad = 0, montoTotal = 0 });
             }
 
             var cuotasVencidas = _context.TbCxcCuota
@@ -48,10 +45,13 @@ namespace Alquileres.Controllers
                 })
                 .ToList();
 
+            var montoTotal = cuotasVencidas.Sum(c => c.Fmonto);
+
             return Json(new
             {
                 tieneCuotasVencidas = cuotasVencidas.Count > 0,
                 cantidad = cuotasVencidas.Count,
+                montoTotal = montoTotal,
                 cuotas = cuotasVencidas
             });
         }
@@ -60,12 +60,20 @@ namespace Alquileres.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
+            // Detectar si es móvil y el usuario no está autenticado
+            if (!(User.Identity?.IsAuthenticated ?? false) && IsMobileDevice())
+            {
+                return RedirectToPage("/Account/Login", new { area = "Identity" });
+            }
+
             var hoy = DateTime.Now;
             var inicioMesActual = new DateTime(hoy.Year, hoy.Month, 1);
             var inicioMesAnterior = inicioMesActual.AddMonths(-1);
             var finMesAnterior = inicioMesActual.AddDays(-1);
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var nombreUsuario = string.Empty;
+
             bool tutorialVisto = false;
 
             if (!string.IsNullOrEmpty(userId))
@@ -74,9 +82,11 @@ namespace Alquileres.Controllers
                 var usuario = await _context.TbUsuarios
                     .FirstOrDefaultAsync(u => u.IdentityId == userId);
 
+                nombreUsuario = usuario?.Fnombre ?? User.Identity?.Name;
                 tutorialVisto = usuario?.FTutorialVisto ?? false;
             }
 
+            ViewBag.NombreUsuario = nombreUsuario;
             ViewBag.MostrarTutorial = !tutorialVisto;
 
             // Total de inmuebles
@@ -122,7 +132,18 @@ namespace Alquileres.Controllers
             }
 
             // Cuotas vencidas
-            int cuotasVencidasCount = _context.TbCxcCuota.Count(c => c.Fstatus == 'V');
+            var cuotasVencidasData = _context.TbCxcCuota
+                .Where(c => c.Fstatus == 'V')
+                .Select(c => new { c.Fmonto })
+                .ToList();
+            
+            int cuotasVencidasCount = cuotasVencidasData.Count;
+            decimal montoTotalVencidas = cuotasVencidasData.Sum(c => c.Fmonto);
+
+            // Cobros del día
+            decimal cobrosHoy = _context.TbCobros
+                .Where(c => c.Ffecha == DateOnly.FromDateTime(DateTime.Today) && c.Factivo)
+                .Sum(c => (decimal?)c.Fmonto) ?? 0;
 
             // Ingresos actuales
             decimal ingresosActual = _context.TbCobros
@@ -138,6 +159,11 @@ namespace Alquileres.Controllers
                     var fecha = new DateTime(c.Ffecha.Year, c.Ffecha.Month, c.Ffecha.Day);
                     return fecha >= inicioMesAnterior && fecha < inicioMesActual && c.Factivo;
                 })
+                .Sum(c => (decimal?)c.Fmonto) ?? 0;
+
+            // Ingresos mensuales esperados (suma de todas las CxC activas)
+            decimal ingresosMensualesEsperados = _context.TbCxcs
+                .Where(c => c.Factivo)
                 .Sum(c => (decimal?)c.Fmonto) ?? 0;
 
             // Cambio en ingresos
@@ -205,15 +231,18 @@ namespace Alquileres.Controllers
                     _context.TbInmuebles,
                     cxc => cxc.FkidInmueble,
                     inmueble => inmueble.FidInmueble,
-                    (cxc, inmueble) => new ActividadReciente
-                    {
-                        Tipo = "CxC",
-                        Descripcion = $"Cuenta por cobrar: Monto: {cxc.Fmonto.ToString("C")}",
-                        Fecha = cxc.FfechaInicio,
-                        DetalleAdicional = $"Inmueble: {inmueble.Fdescripcion ?? "Sin descripción"}, Fecha próxima cuota: {cxc.FfechaProxCuota.ToShortDateString()}",
-                        EsUrgente = (cxc.FfechaProxCuota - DateTime.Now).Days <= 3
-                    })
+                    (cxc, inmueble) => new { cxc, inmueble })
+                .AsEnumerable() // <-- fuerza evaluación en memoria
+                .Select(x => new ActividadReciente
+                {
+                    Tipo = "CxC",
+                    Descripcion = $"Cuenta por cobrar: Monto: {x.cxc.Fmonto.ToString("C")}",
+                    Fecha = x.cxc.FfechaInicio,
+                    DetalleAdicional = $"Inmueble: {x.inmueble.Fdescripcion ?? "Sin descripción"}, Fecha próxima cuota: {x.cxc.FfechaProxCuota.ToShortDateString()}",
+                    EsUrgente = (x.cxc.FfechaProxCuota - DateTime.Now).Days <= 3
+                })
                 .ToList();
+
 
             var cobrosRecientes = _context.TbCobros
                 .Where(i => i.Factivo)
@@ -251,15 +280,18 @@ namespace Alquileres.Controllers
                 ClaseCambioInmuebles = claseCambioOcupacion,
                 InmueblesActivos = inmueblesActivosActual,
                 CuotasVencidasCount = cuotasVencidasCount,
+                MontoTotalCuotasVencidas = montoTotalVencidas,
                 OcupacionActual = ocupacionActual,
                 OcupacionMesPasado = ocupacionMesPasado,
                 TotalInmuebles = totalInmuebles,
                 IngresosMensuales = ingresosActual,
                 IngresosMesAnterior = ingresosAnterior,
+                IngresosMensualesEsperados = ingresosMensualesEsperados,
                 CambioIngresos = cambioIngresos,
                 TextoCambioIngresos = textoCambioIngresos,
                 ClaseCambioIngresos = claseCambioIngresos,
-                ActividadesRecientes = actividadesOrdenadas
+                ActividadesRecientes = actividadesOrdenadas,
+                CobrosHoy = cobrosHoy
             };
 
             return View(viewModel);
@@ -317,7 +349,7 @@ namespace Alquileres.Controllers
                         Descripcion = $"Cuenta por cobrar: Monto: {cxc.Fmonto.ToString("C")}",
                         Fecha = cxc.FfechaInicio,
                         DetalleAdicional = $"Inmueble: {inmueble.Fdescripcion ?? "Sin descripción"}, Fecha próxima cuota: {cxc.FfechaProxCuota.ToShortDateString()}",
-                        EsUrgente = (cxc.FfechaProxCuota - DateTime.Now).Days <= 3
+                        EsUrgente = EF.Functions.DateDiffDay(DateTime.Now, cxc.FfechaProxCuota) <= 3
                     });
 
             var cobrosRecientes = _context.TbCobros
@@ -393,6 +425,20 @@ namespace Alquileres.Controllers
                 _logger.LogError(ex, "Error inesperado al marcar tutorial como visto");
                 return StatusCode(500, new { success = false, message = "Error interno del servidor" });
             }
+        }
+
+        // Método para detectar si el dispositivo es móvil
+        private bool IsMobileDevice()
+        {
+            var userAgent = Request.Headers["User-Agent"].ToString().ToLower();
+            
+            string[] mobileKeywords = { 
+                "mobile", "android", "iphone", "ipad", "ipod", 
+                "blackberry", "windows phone", "opera mini", 
+                "iemobile", "webos", "palm"
+            };
+            
+            return mobileKeywords.Any(keyword => userAgent.Contains(keyword));
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

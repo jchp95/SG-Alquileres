@@ -5,17 +5,21 @@
     var successMessage = TempData["SuccessMessage"] as string;
 }
 
+
 @if (!string.IsNullOrEmpty(successMessage))
 {
-    <div class="alert alert-success">
+    <div class="alert alert-success" id="successMessage">
         @successMessage
     </div>
+    // Limpiar el mensaje después de mostrarlo (TempData ya lo hace, pero por si acaso)
+    TempData["SuccessMessage"] = null;
 }
 
 
 <form id="empresaForm" asp-action="GuardarDatosEmpresa" method="post" enctype="multipart/form-data">
     @Html.AntiForgeryToken()
-    <div class="row">
+    <div class="row justify-content-center m-0 p-0">
+        <input type="hidden" name="IdEmpresa" value="@Model.IdEmpresa" />
         <!-- Información básica -->
         <div class="col-md-6">
             <div class="form-group">
@@ -43,74 +47,77 @@
                 <input asp-for="Telefonos" class="form-control telefono-input" maxlength="14" />
                 <span asp-validation-for="Telefonos" class="text-danger"></span>
             </div>
+            <!-- Select para Comprobantes -->
+            <div class="form-group">
+                <label class="control-label">Tipos de comprobantes</label>
+                <select asp-for="TipoComprobantePorDefecto" class="form-control"
+                    asp-items="ViewBag.TipoComprobantePorDefecto"></select>
+                <span asp-validation-for="TipoComprobantePorDefecto" class="text-danger"></span>
+            </div>
+
+
+            <div class="form-group form-switch">
+                <input asp-for="ActivarCobroRapido" class="form-check-input" id="ActivarCobroRapido" />
+                <label class="form-check-label" for="ActivarCobroRapido">Activar cobro rápido</label>
+            </div>
+
+            <div>
+             <button type="submit" class="btn btn-primary">Guardar Información</button>
+            </div>
         </div>
 
-        <!-- Campos de imágenes en tarjetas -->
         <div class="col-md-6">
             <div class="card mb-3">
                 <div class="card-header">
-                    <h5>Imágenes de la Empresa</h5>
+                <h5 class="mb-0">Imágenes de la Empresa</h5>
                 </div>
-                <div class="card-body">
-                    <div class="form-group-image">
-                        <label>Logo de la Empresa</label>
-                        <input type="file" name="logoFile" class="form-control-file" accept="image/png, image/jpeg"
-                            onchange="previewImage(event, 'logoPreview')" />
-                        <img id="logoPreview" class="img-thumbnail mt-2" style="max-height: 100px; display: none;" />
-                        @if (Model?.Logo != null && Model.Logo.Length > 0)
-                        {
-                            <img src="@Url.Action("GetLogo", "Empresa")?v=@DateTime.Now.Ticks" class="img-thumbnail mt-2"
-                                style="max-height: 100px;" />
-                        }
-                        <span class="text-danger" id="logoFileError"></span>
-                    </div>
+            <div class="card-body">
 
-                    <div class="form-group-image">
-                        <label>Imagen de Fondo</label>
-                        <input type="file" name="fondoFile" class="form-control-file" accept="image/png, image/jpeg"
-                            onchange="previewImage(event, 'fondoPreview')" />
-                        <img id="fondoPreview" class="img-thumbnail mt-2" style="max-height: 100px; display: none;" />
-                        @if (Model?.Fondo != null && Model.Fondo.Length > 0)
+                    <!-- Componente reutilizable -->
+                    @* Puedes convertir este bloque en un partial si gustas *@
+                    @{
+                        var imagenes = new[]
                         {
-                            <img src="@Url.Action("GetFondo", "Empresa")?v=@DateTime.Now.Ticks" class="img-thumbnail mt-2"
-                                style="max-height: 100px;" />
-                        }
-                        <span class="text-danger" id="fondoFileError"></span>
-                    </div>
+                            new { Id = "logo", Label = "Logo de la Empresa", ModelProp = Model?.Logo, UrlAction = "GetLogo" },
+                            new { Id = "fondo", Label = "Imagen de Fondo", ModelProp = Model?.Fondo, UrlAction = "GetFondo" },
+                            new { Id = "qrRedes", Label = "QR Redes Sociales", ModelProp = Model?.CodigoQrRedes, UrlAction = "GetQrRedes" },
+                            new { Id = "qrWeb", Label = "QR Sitio Web", ModelProp = Model?.CodigoQrWeb, UrlAction = "GetQrWeb" }
+                        };
+                    }
 
-                    <div class="form-group-image">
-                        <label>QR Redes Sociales</label>
-                        <input type="file" name="qrRedesFile" class="form-control-file" accept="image/png, image/jpeg"
-                            onchange="previewImage(event, 'qrRedesPreview')" />
-                        <img id="qrRedesPreview" class="img-thumbnail mt-2" style="max-height: 100px; display: none;" />
-                        @if (Model?.CodigoQrRedes != null && Model.CodigoQrRedes.Length > 0)
-                        {
-                            <img src="@Url.Action("GetQrRedes", "Empresa")?v=@DateTime.Now.Ticks" class="img-thumbnail mt-2"
-                                style="max-height: 100px;" />
-                        }
-                        <span class="text-danger" id="qrRedesFileError"></span>
-                    </div>
-
-                    <div class="form-group-image">
-                        <label>QR Sitio Web</label>
-                        <input type="file" name="qrWebFile" class="form-control-file" accept="image/png, image/jpeg"
-                            onchange="previewImage(event, 'qrWebPreview')" />
-                        <img id="qrWebPreview" class="img-thumbnail mt-2" style="max-height: 100px; display: none;" />
-                        @if (Model?.CodigoQrWeb != null && Model.CodigoQrWeb.Length > 0)
-                        {
-                            <img src="@Url.Action("GetQrWeb", "Empresa")?v=@DateTime.Now.Ticks" class="img-thumbnail mt-2"
-                                style="max-height: 100px;" />
-                        }
-                        <span class="text-danger" id="qrWebFileError"></span>
-                    </div>
+                    @foreach (var img in imagenes)
+                    {
+            <div class="mb-4">
+              <label class="form-label fw-semibold">@img.Label</label>
+              <div class="row g-2 align-items-center">
+                <div class="col-12 col-sm-8">
+                  <input type="file" id="@($"{img.Id}File")" name="@($"{img.Id}File")" class="form-control"
+                         accept="image/png, image/jpeg" onchange="previewImage(event, '@($"{img.Id}Preview")')" />
+                  <button type="button" class="btn btn-outline-danger btn-sm mt-2"
+                          onclick="clearImage('@($"{img.Id}File")', '@($"{img.Id}Preview")', '@($"{img.Id}Actual")')">
+                    Quitar Imagen
+                  </button>
+                  <span class="text-danger d-block mt-1" id="@($"{img.Id}FileError")"></span>
                 </div>
+                <div class="col-12 col-sm-4 text-center m-0">
+                  <img id="@($"{img.Id}Preview")" class="img-thumbnail mt-2" style="max-height: 100px; display: none;" />
+                                    @if (img.ModelProp != null && ((byte[])img.ModelProp).Length > 0)
+                                    {
+                        <img src="@Url.Action(img.UrlAction, "Empresa")?v=@DateTime.Now.Ticks"
+                             class="img-thumbnail mt-2" style="max-height: 100px;" id="@($"{img.Id}Actual")" />
+                                    }
+                </div>
+              </div>
             </div>
+                    }
         </div>
     </div>
+</div>
+
 
     <div id="formErrors" class="text-danger mb-3"></div>
 
-    <button type="submit" class="btn btn-primary">Guardar Información</button>
+    
     <div id="loadingIndicator" class="spinner-border text-primary d-none" role="status">
         <span class="sr-only">Cargando...</span>
     </div>
@@ -148,80 +155,36 @@
             });
         }
 
+
         $(document).ready(function () {
             applyPhoneMasks();
-
-            $('#empresaForm').on('submit', function (e) {
-                e.preventDefault();
-
-                // Reset messages
-                $('.text-danger').text('');
-                $('#formErrors').text('');
-                $('#successMessage').addClass('d-none');
-                $('#loadingIndicator').removeClass('d-none');
-
-                var formData = new FormData(this);
-                console.log('Form data prepared:', formData);
-
-                $.ajax({
-                    url: $(this).attr('action'),
-                    type: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    headers: {
-                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
-                    },
-                    success: function (response) {
-                        $('#loadingIndicator').addClass('d-none');
-                        console.log('Response received:', response);
-
-                        if (response.success) {
-                            $('#successMessage').removeClass('d-none');
-                            console.log('Form submitted successfully.');
-
-                            // Redirigir a la misma página para recargar
-                            window.location.reload(); // Recargar la página actual
-                        } else {
-                            // Display validation errors
-                            if (response.errors) {
-                                $.each(response.errors, function (key, value) {
-                                    var errorElement = $('#' + key + 'Error');
-                                    if (errorElement.length) {
-                                        errorElement.text(value);
-                                    } else {
-                                        $('[data-valmsg-for="' + key + '"]').text(value);
-                                    }
-                                    console.log('Validation error for', key, ':', value);
-                                });
-                            }
-
-                            $('#formErrors').text(response.message || 'Error al guardar los datos.');
-                            console.log('Error message:', response.message);
-                        }
-                    },
-                    error: function (xhr) {
-                        $('#loadingIndicator').addClass('d-none');
-                        var errorMsg = 'Ocurrió un error al procesar la solicitud.';
-                        console.error('AJAX error:', xhr);
-
-                        try {
-                            var jsonResponse = JSON.parse(xhr.responseText);
-                            if (jsonResponse && jsonResponse.message) {
-                                errorMsg = jsonResponse.message;
-                                if (jsonResponse.errorDetails) {
-                                    console.error('Detalles del error:', jsonResponse.errorDetails);
-                                }
-                            }
-                        } catch (e) {
-                            console.error('Error parsing response:', e);
-                        }
-
-                        $('#formErrors').text(errorMsg);
-                        console.error('Error completo:', xhr.responseText);
-                    }
-                });
-            });
+            // No forzar el switch, dejar que el valor lo determine el modelo
         });
+
+        function clearImage(fileInputId, previewImgId, actualImgId = null) {
+            const fileInput = document.getElementById(fileInputId);
+            const previewImg = document.getElementById(previewImgId);
+            const actualImg = actualImgId ? document.getElementById(actualImgId) : null;
+
+            if (fileInput) fileInput.value = '';
+            if (previewImg) {
+                previewImg.src = '';
+                previewImg.style.display = 'none';
+           
+            if (actualImg) actualImg.style.display = 'none';
+
+            // Opcional: agregar input oculto para indicar eliminación al backend
+            let hiddenInputId = 'delete_' + fileInputId;
+            let hiddenInput = document.getElementById(hiddenInputId);
+            if (!hiddenInput) {
+                hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = hiddenInputId;
+                hiddenInput.id = hiddenInputId;
+                hiddenInput.value = 'true';
+                document.getElementById('empresaForm').appendChild(hiddenInput);
+            }
+        }
+
     </script>
 }

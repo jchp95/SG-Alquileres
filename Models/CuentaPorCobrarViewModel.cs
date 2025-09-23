@@ -17,6 +17,8 @@ namespace Alquileres.Models
         public string NombrePeriodoPago { get; set; }
         public DateTime? FfechaProxCuota { get; set; }
 
+        public string Fdescripcion { get; set; }
+
         public string EstadoDescripcion
         {
             get

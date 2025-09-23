@@ -4,29 +4,30 @@
     ViewData["Title"] = "Crear Cuenta por Cobrar";
 }
 
-<div class="mb-4">
-    <h3>Registrar Cuenta por Cobrar</h3>
-</div>
-<hr />
 <div class="row">
     <div class="col-md-6 offset-md-3">
+        <div class="d-flex align-items-center mb-3">
+            <i class="fas fa-file-invoice text-primary fs-4 me-2"></i>
+            <h4 class="mb-0">Crear Cuenta por Cobrar</h4>
+        </div>
         <form asp-action="Create" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div id="errorContainer" class="text-danger" style="display: none;"></div>
             <!-- Select para Inquilino -->
             <div class="form-group">
                 <label class="control-label">Buscar Inquilino</label>
-                <select id="busquedaInquilino" class="form-control select2" name="busquedaInquilino"
+                <!-- Por esto: -->
+                <select asp-for="FkidInquilino" id="busquedaInquilino" class="form-control select2" required
                     data-placeholder="Buscar inquilino...">
-                    <option></option> <!-- Opción vacía para el placeholder -->
+                    <option></option>
                 </select>
-                <input type="hidden" id="FidInquilino" name="FidInquilino" />
+                <input type="hidden" id="FkidInquilino" name="FkidInquilino" />
             </div>
 
             <!-- Select para Inmueble -->
             <div class="form-group">
                 <label class="control-label">Buscar Inmueble</label>
-                <select id="busquedaInmueble" class="form-control select2" name="busquedaInmueble"
+                <select id="busquedaInmueble" class="form-control select2" name="busquedaInmueble" required
                     data-placeholder="Buscar inmueble...">
                     <option></option> <!-- Opción vacía para el placeholder -->
                 </select>
@@ -66,14 +67,15 @@
                 <span asp-validation-for="Fnota" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label class="control-label">@Html.DisplayNameFor(model => model.FidPeriodoPago)</label>
-                <select asp-for="FidPeriodoPago" class="form-control" asp-items="ViewBag.FidPeriodoPago"></select>
-                <span asp-validation-for="FidPeriodoPago" class="text-danger"></span>
+                <label class="control-label">@Html.DisplayNameFor(model => model.FkidPeriodoPago)</label>
+                <select asp-for="FkidPeriodoPago" class="form-control" asp-items="ViewBag.FidPeriodoPago"
+                    required></select>
+                <span asp-validation-for="FkidPeriodoPago" class="text-danger"></span>
             </div>
 
-            <div class="form-group mt-2">
+            <div class="form-group-button mt-2">
                 <input type="submit" value="Crear" class="btn btn-primary" />
-                <a asp-action="Index" class="btn btn-secondary ml-2">Volver a la Lista</a>
+                <!--<a asp-action="Index" class="btn btn-secondary ml-2">Volver a la Lista</a>-->
             </div>
         </form>
     </div>

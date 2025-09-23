@@ -27,19 +27,36 @@
             </div>
 
             <div class="row g-3">
-                <!-- Filtro por usuario -->
-                <div class="col-md-3">
-                    <label for="busquedaUsuario" class="form-label small text-muted mb-1">Usuarios</label>
-                    <select id="busquedaUsuario" class="form-select select2" style="width: 100%">
-                        <option></option>
-                    </select>
-                    <input type="hidden" id="NombreUsuario" name="NombreUsuario" />
+                <!-- Filtro por inquilino -->
+                <div class="col-xl-3 col-lg-4 col-md-6 col-12">
+                    <label for="busquedaInquilino" class="form-label small text-muted mb-1">Inquilinos</label>
+                    <div class="input-group">
+                        <select id="busquedaInquilino" class="form-select select2">
+                            <option></option>
+                        </select>
+                        <input type="hidden" id="FidInquilino" name="FidInquilino" />
+                    </div>
                 </div>
 
-                <!-- Filtro por inquilino -->
-                <div class="col-md-3">
-                    <label for="filtroInquilino" class="form-label small text-muted mb-1">Inquilino</label>
-                    <input type="text" class="form-control" id="filtroInquilino" placeholder="Nombre o Apellido">
+                <!-- Filtro por inmueble -->
+                <div class="col-xl-3 col-lg-4 col-md-6 col-12">
+                    <label for="busquedaInmueble" class="form-label small text-muted mb-1">Inmuebles</label>
+                    <div class="input-group">
+                        <select id="busquedaInmueble" class="form-select select2">
+                            <option></option>
+                        </select>
+                        <input type="hidden" id="FidInmueble" name="FidInmueble" />
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-lg-4 col-md-6 col-12">
+                    <label for="cuotasMin" class="form-label small text-muted mb-1">Cuotas atrasadas (Mín)</label>
+                    <input type="number" id="cuotasMin" class="form-control" placeholder="Mínimo" min="0">
+                </div>
+
+                <div class="col-xl-3 col-lg-4 col-md-6 col-12">
+                    <label for="cuotasMax" class="form-label small text-muted mb-1">Cuotas atrasadas (Máx)</label>
+                    <input type="number" id="cuotasMax" class="form-control" placeholder="Máximo" min="0">
                 </div>
             </div>
         </div>
@@ -48,18 +65,37 @@
     <!-- Card de Resultados -->
     <div class="card border-0 shadow-sm px-4 py-4">
         <div class="card-body p-0">
+            <!-- Panel de Totales -->
+            <div class="row mb-3">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded">
+                        <div>
+                            <strong>Registros:</strong> <span id="totalRegistros">0</span>
+                        </div>
+                        <div>
+                            <strong>Total Atrasos:</strong> <span id="totalAtrasos">RD$ 0.00</span>
+                        </div>
+                        <div>
+                            <strong>Total Mora:</strong> <span id="totalMora">RD$ 0.00</span>
+                        </div>
+                        <div>
+                            <strong>Gran Total:</strong> <span id="granTotal">RD$ 0.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <div class="table-responsive">
-                <table id="reporteAtrasosTable"
-                    class="table table-hover align-middle mb-0 table-striped table-bordered">
+                <table id="reporteAtrasosTable" class="table align-middle mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th>Nombre de Usuario</th>
+                            <th>Usuario</th>
                             <th>Inquilino</th>
-                            <th>Dirección Inmueble</th>
-                            <th>Ubicación Inmueble</th>
+                            <th>Inmueble</th>
+                            <th>Dirección</th>
                             <th>Cant. Cuotas Atrasadas</th>
                             <th>Monto Total Atraso</th>
-                            <th>Mora (%)</th>
+                            <th>Mora</th>
                             <th>Total</th>
                         </tr>
                     </thead>
@@ -72,10 +108,10 @@
                                 <td>@item.DireccionInmueble</td>
                                 <td>@item.UbicacionInmueble</td>
                                 <td>@item.CantCuotasAtrasadas</td>
-                                <td>RD$ @item.MontoTotalAtraso.ToString("N2", new System.Globalization.CultureInfo("es-DO"))
+                                <td>@item.MontoTotalAtraso.ToString("N2", new System.Globalization.CultureInfo("es-DO"))
                                 </td>
-                                <td>@item.Mora.ToString("N2")</td>
-                                <td>RD$ @item.Total.ToString("N2", new System.Globalization.CultureInfo("es-DO"))</td>
+                                <td>@item.MoraTotal.ToString("N2")</td>
+                                <td>@item.Total.ToString("N2", new System.Globalization.CultureInfo("es-DO"))</td>
                             </tr>
                         }
                     </tbody>

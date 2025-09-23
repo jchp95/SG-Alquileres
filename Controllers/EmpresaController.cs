@@ -8,16 +8,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using System.IO;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Alquileres.Controllers;
 
-public class EmpresaController : Controller
+public class EmpresaController : BaseController
 {
-    private readonly ApplicationDbContext _context;
     private readonly IWebHostEnvironment _env;
+    private readonly ILogger<EmpresaController> _logger;
 
-    public EmpresaController(ApplicationDbContext context, IWebHostEnvironment env)
+    public EmpresaController(ApplicationDbContext context,
+    IWebHostEnvironment env,
+    ILogger<EmpresaController> logger) : base(context)
     {
-        _context = context;
         _env = env;
+        _logger = logger;
     }
 
     public async Task<IActionResult> Index()
@@ -25,8 +29,26 @@ public class EmpresaController : Controller
         var empresa = await _context.Empresas.FirstOrDefaultAsync();
         if (empresa == null)
         {
-            empresa = new Empresa();
+            empresa = new Empresa
+            {
+                ActivarCobroRapido = true // Por defecto seleccionado
+            };
         }
+
+        // Cargar los comprobantes desde la base de datos
+        var comprobantes = await _context.TbComprobantesFiscales.ToListAsync();
+
+        // Crear una lista de opciones con los comprobantes
+        var opciones = comprobantes?.Select(p => new SelectListItem
+        {
+            Value = p.FidComprobante.ToString(),
+            Text = p.FtipoComprobante
+        }).ToList() ?? new List<SelectListItem>();
+
+        // Crear el SelectList para el ViewBag
+        ViewBag.TipoComprobantePorDefecto = new SelectList(opciones, "Value", "Text", empresa.TipoComprobantePorDefecto);
+
+        // Retornar la vista con el modelo
         return View(empresa);
     }
 
@@ -41,6 +63,7 @@ public class EmpresaController : Controller
     {
         try
         {
+            _logger.LogInformation($"[Empresa] GuardarDatosEmpresa POST iniciado. Valor ActivarCobroRapido recibido: {empresaData.ActivarCobroRapido}");
             // 1. Validación de archivos (solo si se proporcionan)
             var fileErrors = new Dictionary<string, string>();
             const int maxFileSize = 2 * 1024 * 1024; // 2MB
@@ -52,6 +75,8 @@ public class EmpresaController : Controller
 
             if (fileErrors.Any())
             {
+                _logger.LogWarning("[Empresa] Errores de archivo: {@fileErrors}", fileErrors);
+                // Solo para errores, devolver JSON
                 return Json(new { success = false, errors = fileErrors });
             }
 
@@ -67,6 +92,8 @@ public class EmpresaController : Controller
                     kvp => kvp.Key,
                     kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).FirstOrDefault()
                 );
+                _logger.LogWarning("[Empresa] ModelState inválido: {@errors}", errors);
+                // Solo para errores, devolver JSON
                 return Json(new { success = false, errors = errors });
             }
 
@@ -77,11 +104,25 @@ public class EmpresaController : Controller
             {
                 empresa = new Empresa();
                 _context.Empresas.Add(empresa);
+                _logger.LogInformation("[Empresa] Nueva empresa creada");
             }
             // Si existe, se actualizarán sus datos
 
             // 4. Actualizar datos básicos
             UpdateBasicInfo(empresa, empresaData);
+
+            // 5. Eliminar imágenes si se indicó en el form
+            if (Request.Form["delete_logoFile"] == "true")
+                empresa.Logo = null;
+
+            if (Request.Form["delete_fondoFile"] == "true")
+                empresa.Fondo = null;
+
+            if (Request.Form["delete_qrRedesFile"] == "true")
+                empresa.CodigoQrRedes = null;
+
+            if (Request.Form["delete_qrWebFile"] == "true")
+                empresa.CodigoQrWeb = null;
 
             // 5. Procesar imágenes (solo actualiza si se proporciona un archivo)
             await ProcessImageFile(logoFile, bytes => empresa.Logo = bytes);
@@ -93,11 +134,15 @@ public class EmpresaController : Controller
             await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "Los datos de la empresa se han guardado correctamente.";
-            return Json(new { success = true, redirectUrl = Url.Action("Index") });
+            _logger.LogInformation("[Empresa] Guardado exitoso. Redirigiendo a Index.");
+            // Redirigir a Index para renderizar la vista
+            return RedirectToAction("Index");
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "[Empresa] Error al guardar empresa: {Message}", ex.Message);
             Console.WriteLine($"Error al guardar empresa: {ex.Message}");
+            // Solo para errores, devolver JSON
             return Json(new
             {
                 success = false,
@@ -127,6 +172,8 @@ public class EmpresaController : Controller
         empresa.Fondo = newData.Fondo ?? empresa.Fondo;
         empresa.CodigoQrWeb = newData.CodigoQrWeb ?? empresa.CodigoQrWeb;
         empresa.CodigoQrRedes = newData.CodigoQrRedes ?? empresa.CodigoQrRedes;
+        empresa.TipoComprobantePorDefecto = newData.TipoComprobantePorDefecto;
+        empresa.ActivarCobroRapido = newData.ActivarCobroRapido;
 
     }
 
@@ -214,17 +261,30 @@ public class EmpresaController : Controller
                 rnc = "RNC no configurado",
                 dir = "Direccion de la empresa",
                 tel = "Teléfonos no configurados",
-                tieneLogo = false
+                tieneLogo = false,
             });
         }
 
-        return Json(new
+        // Preparar el objeto base con la condición para el RNC
+        var baseResult = new
         {
             nombre = empresa.Nombre ?? "Nombre de Empresa",
-            rnc = empresa.Rnc ?? "RNC no configurado",
+            rnc = (empresa.Rnc == null || empresa.Rnc.Length < 8) ? "" : empresa.Rnc,
             dir = empresa.Direccion ?? "Dirección no configurada",
             tel = empresa.Telefonos ?? "Teléfonos no configurados",
-            tieneLogo = empresa.Logo != null && empresa.Logo.Length > 0
+            tieneLogo = empresa.Logo != null && empresa.Logo.Length > 0,
+        };
+
+        // Retornar el objeto sin ncf si no hay comprobante
+        return Json(new
+        {
+            nombre = baseResult.nombre,
+            rnc = baseResult.rnc,
+            dir = baseResult.dir,
+            tel = baseResult.tel,
+            tieneLogo = baseResult.tieneLogo,
+            mostrarNcf = false,
+            tipoComprobante = ""
         });
     }
 }

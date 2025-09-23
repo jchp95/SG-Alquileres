@@ -4,5 +4,8 @@
     {
         // Roles existentes
         public const string AdministratorRole = "Administrator";
+       
+        public const string UserRole = "Usuario";
+
     }
 }

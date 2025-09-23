@@ -1,52 +1,41 @@
 @model IEnumerable<Alquileres.Models.CuentaPorCobrarViewModel>
 
-<div class="container-fluid px-4 py-4">
-    <!-- Header -->
-    <div
-        class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
-        <div>
-            <h2 class="mb-1"><i class="fas fa-file-invoice-dollar me-2 text-primary"></i>Cuentas por Cobrar</h2>
-            <p class="text-muted mb-0">Gestión de cuentas pendientes de cobro</p>
-        </div>
-    </div>
-
-    <!-- Card de Filtros -->
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body p-4">
+<div class="container-fluid">
+    <!-- Card de Filtros (compacta) -->
+    <div class="card border-0 shadow-sm mb-3">
+        <div class="card-body p-3">
             <div
-                class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-3 mb-3">
-                <h5 class="card-title mb-0"><i class="fas fa-filter me-2 text-primary"></i>Filtros Avanzados</h5>
+                class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-2 mb-2">
+                <h6 class="card-title mb-0"><i class="fas fa-filter me-2 text-primary"></i>Filtros Avanzados</h6>
                 <div class="d-flex gap-2 w-100 w-lg-auto">
-                    <button id="btnAplicarFiltros" class="btn btn-primary flex-grow-1 flex-lg-grow-0">
+                    <button id="btnAplicarFiltros" class="btn btn-primary btn-sm flex-grow-1 flex-lg-grow-0">
                         <i class="fas fa-filter me-1"></i> Filtrar
                     </button>
-                    <button id="btnResetFiltros" class="btn btn-outline-secondary">
+                    <button id="btnResetFiltros" class="btn btn-success btn-sm">
                         <i class="fas fa-undo"></i>
                     </button>
                 </div>
             </div>
 
-            <div class="row g-3">
-                <!-- Filtro por inquilino -->
+            <div class="row g-2">
                 <div class="col-md-3">
                     <label for="filtroInquilino" class="form-label small text-muted mb-1">Inquilino</label>
-                    <input type="text" id="filtroInquilino" class="form-control" placeholder="Buscar por inquilino">
+                    <input type="text" id="filtroInquilino" class="form-control form-control-sm"
+                        placeholder="Buscar por inquilino">
                 </div>
 
-                <!-- Filtro por estado -->
                 <div class="col-md-3">
                     <label for="filtroEstado" class="form-label small text-muted mb-1">Estado</label>
-                    <select class="form-select" id="filtroEstado">
+                    <select class="form-select form-select-sm" id="filtroEstado">
                         <option value="" selected>Todos</option>
                         <option value="true">Activo</option>
                         <option value="false">Inactivo</option>
                     </select>
                 </div>
 
-                <!-- Filtro por período -->
                 <div class="col-md-3">
                     <label for="filtroPeriodo" class="form-label small text-muted mb-1">Período</label>
-                    <select id="filtroPeriodo" class="form-select">
+                    <select id="filtroPeriodo" class="form-select form-select-sm">
                         <option value="">Todos</option>
                         <option value="Mensual">Mensual</option>
                         <option value="Quincenal">Quincenal</option>
@@ -55,38 +44,35 @@
                     </select>
                 </div>
 
-                <!-- Filtro por tipo de fecha -->
                 <div class="col-md-3">
                     <label for="filtroTipoFecha" class="form-label small text-muted mb-1">Tipo de Fecha</label>
-                    <select id="filtroTipoFecha" class="form-select">
-                        <option value="5">Fecha Inicio</option>
-                        <option value="7">Próxima Cuota</option>
+                    <select id="filtroTipoFecha" class="form-select form-select-sm">
+                        <option value="6">Fecha Inicio</option>
+                        <option value="8">Próxima Cuota</option>
                     </select>
                 </div>
 
-                <!-- Filtro por fecha desde -->
                 <div class="col-md-6">
                     <label for="min" class="form-label small text-muted mb-1">Fecha desde</label>
-                    <div class="input-group">
+                    <div class="input-group input-group-sm">
                         <span class="input-group-text bg-transparent">
                             <i class="far fa-calendar text-muted"></i>
                         </span>
                         <input type="text" class="form-control" id="min" placeholder="DD/MM/AAAA">
-                        <button class="btn btn-outline-secondary" type="button" id="min-clear">
+                        <button class="btn btn-outline-secondary btn-sm" type="button" id="min-clear">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
                 </div>
 
-                <!-- Filtro por fecha hasta -->
                 <div class="col-md-6">
                     <label for="max" class="form-label small text-muted mb-1">Fecha hasta</label>
-                    <div class="input-group">
+                    <div class="input-group input-group-sm">
                         <span class="input-group-text bg-transparent">
                             <i class="far fa-calendar text-muted"></i>
                         </span>
                         <input type="text" class="form-control" id="max" placeholder="DD/MM/AAAA">
-                        <button class="btn btn-outline-secondary" type="button" id="max-clear">
+                        <button class="btn btn-outline-secondary btn-sm" type="button" id="max-clear">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
@@ -95,6 +81,7 @@
         </div>
     </div>
 
+
     <!-- Card de Resultados -->
     <div class="card border-0 shadow-sm px-4 py-4">
         <div class="card-body p-0">
@@ -102,18 +89,19 @@
                 <table id="cuentasPorCobrarTable" class="table table-hover align-middle mb-0 table-responsive">
                     <thead class="table-light">
                         <tr>
-                            <th class="text-center">Id CxC</th>
-                            <th class="ps-4">Inquilino</th>
-                            <th class="text-end pe-3">Monto</th>
-                            <th class="text-center">Días de Gracia</th>
-                            <th class="text-center">Tasa de Mora</th>
-                            <th class="text-center">Fecha Inicio</th>
-                            <th class="text-center">Período</th>
-                            <th class="text-center">Próxima Cuota</th>
-                            <th class="text-center">Estado</th>
+                            <th>Id CxC</th>
+                            <th>Inquilino</th>
+                            <th>Inmueble</th>
+                            <th>Monto</th>
+                            <th>Días de Gracia</th>
+                            <th>Mora</th>
+                            <th>Fecha Inicio</th>
+                            <th>Período</th>
+                            <th>Próxima Cuota</th>
+                            <th>Estado</th>
                             <th class="text-center">Notas</th>
-                            <th class="text-center">Estado CxC</th>
-                            <th class="text-center">Acciones</th>
+                            <th>Estado CxC</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -129,6 +117,9 @@
                                             <p class="fw-bold mb-0">@item.InquilinoNombre</p>
                                         </div>
                                     </div>
+                                </td>
+                                <td class="text-center">
+                                    @item.Fdescripcion
                                 </td>
                                 <td class="text-end pe-3 fw-bold">
                                     @item.Fmonto.ToString("N2", new System.Globalization.CultureInfo("es-DO"))

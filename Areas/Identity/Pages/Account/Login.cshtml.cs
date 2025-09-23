@@ -18,17 +18,20 @@ namespace Alquileres.Areas.Identity.Pages.Account
         private readonly ILogger<LoginModel> _logger;
         private readonly GeneradorDeCuotasService _cuotasService;
         private readonly ChequeaCxCVencidasServices _cxCService;
+        private readonly ActualizadorMoraService _moraService;
 
         public LoginModel(
             SignInManager<IdentityUser> signInManager,
             ILogger<LoginModel> logger,
             GeneradorDeCuotasService cuotasService,
-            ChequeaCxCVencidasServices cxCService)
+            ChequeaCxCVencidasServices cxCService,
+            ActualizadorMoraService moraService)
         {
             _signInManager = signInManager;
             _logger = logger;
             _cuotasService = cuotasService;
             _cxCService = cxCService;
+            _moraService = moraService;
         }
 
         [BindProperty]
@@ -89,6 +92,7 @@ namespace Alquileres.Areas.Identity.Pages.Account
                         // Verificar cuotas vencidas después de login exitoso
                         await _cuotasService.VerificarCuotasVencidasAsync();
                         await _cxCService.VerificarCxCVencidasAsync();
+                        await _moraService.ActualizarMorasAsync();
                         _logger.LogInformation("Verificación de cuotas vencidas completada.");
                     }
                     catch (Exception ex)

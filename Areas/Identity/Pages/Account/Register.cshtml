@@ -20,8 +20,11 @@
                     <div class="col-md-6 bg-white d-flex align-items-center">
                         <div class="p-5 w-100">
                             <div class="text-center mb-4">
-                                <img src="~/favicon_io/android-chrome-192x192.png" alt="logo"
-                                    style="height: 200px; width: auto;" class="img-fluid" />
+                                <img id="logoEmpresa" src="@Url.Action("GetLogo", "Empresa")" alt="LOGO"
+                                    class="logo-navbar" style="height: 60px; width: auto;"
+                                    onerror="this.style.display='none'; document.getElementById('altLogo').style.display='inline';" />
+
+                                <span id="altLogo" class="fw-bold text-dark" style="display: none;">LOGO</span>
                                 <h3 class="fw-bold mb-2" style="color: #0077cc;">Crear cuenta</h3>
                                 <p class="text-muted">Regístrate para comenzar</p>
                             </div>
@@ -30,10 +33,26 @@
                                 <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
 
                                 <div class="mb-3">
+                                    <label asp-for="Input.Nombre" class="form-label fw-semibold">Nombre y
+                                        Apellidos</label>
+                                    <input asp-for="Input.Nombre" class="form-control form-control-lg"
+                                        autocomplete="nombre" aria-required="true" />
+                                    <span asp-validation-for="Input.Nombre" class="text-danger"></span>
+                                </div>
+
+                                <div class="mb-3">
                                     <label asp-for="Input.UserName" class="form-label fw-semibold">Usuario</label>
                                     <input asp-for="Input.UserName" class="form-control form-control-lg"
                                         autocomplete="username" aria-required="true" />
                                     <span asp-validation-for="Input.UserName" class="text-danger"></span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="Input.Email" class="form-label fw-semibold">Correo
+                                        electrónico</label>
+                                    <input asp-for="Input.Email" class="form-control form-control-lg"
+                                        autocomplete="email" aria-required="true" />
+                                    <span asp-validation-for="Input.Email" class="text-danger"></span>
                                 </div>
 
                                 <div class="mb-3">

@@ -25,8 +25,15 @@ namespace Alquileres.Migrations
             modelBuilder.Entity("Alquileres.Models.Empresa", b =>
                 {
                     b.Property<int>("IdEmpresa")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasColumnName("fid_empresa");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdEmpresa"));
+
+                    b.Property<bool>("ActivarCobroRapido")
+                        .HasColumnType("bit")
+                        .HasColumnName("factivar_cobro_rapido");
 
                     b.Property<byte[]>("CodigoQrRedes")
                         .HasColumnType("varbinary(max)")
@@ -37,20 +44,14 @@ namespace Alquileres.Migrations
                         .HasColumnName("fcodigoqr_web");
 
                     b.Property<string>("Contrasena")
-                        .HasMaxLength(100)
-                        .IsUnicode(false)
                         .HasColumnType("varchar(100)")
                         .HasColumnName("fcontraseña");
 
                     b.Property<string>("Direccion")
-                        .HasMaxLength(250)
-                        .IsUnicode(false)
                         .HasColumnType("varchar(250)")
                         .HasColumnName("fdireccion");
 
                     b.Property<string>("Email")
-                        .HasMaxLength(50)
-                        .IsUnicode(false)
                         .HasColumnType("varchar(50)")
                         .HasColumnName("femail");
 
@@ -63,32 +64,22 @@ namespace Alquileres.Migrations
                         .HasColumnName("flogo");
 
                     b.Property<string>("Mensaje")
-                        .HasMaxLength(250)
-                        .IsUnicode(false)
                         .HasColumnType("varchar(250)")
                         .HasColumnName("fmensaje");
 
                     b.Property<string>("Nombre")
-                        .HasMaxLength(250)
-                        .IsUnicode(false)
                         .HasColumnType("varchar(250)")
                         .HasColumnName("fnombre");
 
                     b.Property<string>("Rnc")
-                        .HasMaxLength(18)
-                        .IsUnicode(false)
                         .HasColumnType("varchar(18)")
                         .HasColumnName("frnc");
 
                     b.Property<string>("Slogan")
-                        .HasMaxLength(250)
-                        .IsUnicode(false)
                         .HasColumnType("varchar(250)")
                         .HasColumnName("festlogan");
 
                     b.Property<string>("Telefonos")
-                        .HasMaxLength(14)
-                        .IsUnicode(false)
                         .HasColumnType("varchar(14)")
                         .HasColumnName("ftelefonos");
 
@@ -100,29 +91,25 @@ namespace Alquileres.Migrations
 
             modelBuilder.Entity("Alquileres.Models.TbAuditorium", b =>
                 {
-                    b.Property<int>("Fid")
+                    b.Property<int>("FidAuditoria")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasColumnName("fid");
+                        .HasColumnName("fid_auditoria");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Fid"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FidAuditoria"));
 
                     b.Property<string>("Faccion")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .IsUnicode(false)
                         .HasColumnType("varchar(50)")
                         .HasColumnName("faccion");
 
                     b.Property<DateTime>("Ffecha")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("Date")
                         .HasColumnName("ffecha");
 
                     b.Property<string>("Fhora")
                         .IsRequired()
-                        .HasMaxLength(16)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(16)")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("fhora");
 
                     b.Property<int>("FkidRegistro")
@@ -135,12 +122,12 @@ namespace Alquileres.Migrations
 
                     b.Property<string>("Ftabla")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .IsUnicode(false)
                         .HasColumnType("varchar(50)")
                         .HasColumnName("ftabla");
 
-                    b.HasKey("Fid");
+                    b.HasKey("FidAuditoria");
+
+                    b.HasIndex("FkidUsuario");
 
                     b.ToTable("tb_auditoria", (string)null);
                 });
@@ -159,30 +146,23 @@ namespace Alquileres.Migrations
                         .HasColumnName("factivo");
 
                     b.Property<decimal>("Fcargos")
-                        .HasColumnType("decimal(18, 2)")
+                        .HasColumnType("decimal(10,2)")
                         .HasColumnName("fcargos");
 
                     b.Property<string>("Fconcepto")
                         .IsRequired()
-                        .IsUnicode(true)
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("fconcepto")
-                        .IsFixedLength(false);
+                        .HasColumnType("varchar(200)")
+                        .HasColumnName("fconcepto");
 
                     b.Property<decimal>("Fdescuento")
-                        .HasColumnType("decimal(18, 2)")
+                        .HasColumnType("decimal(10,2)")
                         .HasColumnName("fdescuento");
 
                     b.Property<DateOnly>("Ffecha")
-                        .HasColumnType("date")
+                        .HasColumnType("Date")
                         .HasColumnName("ffecha");
 
-                    b.Property<DateOnly?>("FfechaAnulacion")
-                        .HasColumnType("date");
-
                     b.Property<TimeOnly>("Fhora")
-                        .HasMaxLength(16)
-                        .IsUnicode(false)
                         .HasColumnType("time")
                         .HasColumnName("fhora");
 
@@ -199,18 +179,61 @@ namespace Alquileres.Migrations
                         .HasColumnName("fkid_usuario");
 
                     b.Property<decimal>("Fmonto")
-                        .HasColumnType("decimal(18, 2)")
+                        .HasColumnType("decimal(10,2)")
                         .HasColumnName("fmonto");
 
-                    b.Property<string>("FmotivoAnulacion")
+                    b.Property<string>("Fncf")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("varchar(15)")
+                        .HasColumnName("fncf");
+
+                    b.Property<DateOnly?>("FncfVence")
+                        .HasColumnType("date");
 
                     b.HasKey("FidCobro");
 
                     b.HasIndex("FkidCxc");
 
-                    b.ToTable("tb_cobros", (string)null);
+                    b.ToTable("tb_cobro", (string)null);
+                });
+
+            modelBuilder.Entity("Alquileres.Models.TbCobroNulo", b =>
+                {
+                    b.Property<int>("FidCobroNulo")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("fid_cobro_nulo");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FidCobroNulo"));
+
+                    b.Property<DateOnly?>("FfechaAnulacion")
+                        .HasColumnType("Date")
+                        .HasColumnName("ffecha_anulacion");
+
+                    b.Property<TimeOnly>("Fhora")
+                        .HasColumnType("time")
+                        .HasColumnName("fhora");
+
+                    b.Property<int>("FkidCobro")
+                        .HasColumnType("int")
+                        .HasColumnName("fkid_cobro");
+
+                    b.Property<int>("FkidUsuario")
+                        .HasColumnType("int")
+                        .HasColumnName("fkid_usuario");
+
+                    b.Property<string>("FmotivoAnulacion")
+                        .IsRequired()
+                        .HasColumnType("varchar(250)")
+                        .HasColumnName("fmotivo_anulacion");
+
+                    b.HasKey("FidCobroNulo");
+
+                    b.HasIndex("FkidCobro");
+
+                    b.HasIndex("FkidUsuario");
+
+                    b.ToTable("tb_cobro_nulo", (string)null);
                 });
 
             modelBuilder.Entity("Alquileres.Models.TbCobrosDesglose", b =>
@@ -218,7 +241,7 @@ namespace Alquileres.Migrations
                     b.Property<int>("FidDesglose")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasColumnName("fidDesglose");
+                        .HasColumnName("fid_desglose");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FidDesglose"));
 
@@ -227,19 +250,19 @@ namespace Alquileres.Migrations
                         .HasColumnName("factivo");
 
                     b.Property<decimal>("Fcheque")
-                        .HasColumnType("decimal(18, 2)")
+                        .HasColumnType("decimal(10,2)")
                         .HasColumnName("fcheque");
 
                     b.Property<decimal>("FdebitoAutomatico")
-                        .HasColumnType("decimal(18, 2)")
+                        .HasColumnType("decimal(10,2)")
                         .HasColumnName("fdebito_automatico");
 
                     b.Property<decimal>("Fdeposito")
-                        .HasColumnType("decimal(18, 2)")
+                        .HasColumnType("decimal(10,2)")
                         .HasColumnName("fdeposito");
 
                     b.Property<decimal>("Fefectivo")
-                        .HasColumnType("decimal(18, 2)")
+                        .HasColumnType("decimal(10,2)")
                         .HasColumnName("fefectivo");
 
                     b.Property<int>("FkidCobro")
@@ -251,7 +274,7 @@ namespace Alquileres.Migrations
                         .HasColumnName("fkid_usuario");
 
                     b.Property<decimal>("FmontoRecibido")
-                        .HasColumnType("decimal(18, 2)")
+                        .HasColumnType("decimal(10,2)")
                         .HasColumnName("fmonto_recibido");
 
                     b.Property<int>("FnoNotaCredito")
@@ -259,15 +282,15 @@ namespace Alquileres.Migrations
                         .HasColumnName("fno_nota_credito");
 
                     b.Property<decimal>("FnotaCredito")
-                        .HasColumnType("decimal(18, 2)")
+                        .HasColumnType("decimal(10,2)")
                         .HasColumnName("fnota_credito");
 
                     b.Property<decimal>("Ftarjeta")
-                        .HasColumnType("decimal(18, 2)")
+                        .HasColumnType("decimal(10,2)")
                         .HasColumnName("ftarjeta");
 
                     b.Property<decimal>("Ftransferencia")
-                        .HasColumnType("decimal(18, 2)")
+                        .HasColumnType("decimal(10,2)")
                         .HasColumnName("ftransferencia");
 
                     b.HasKey("FidDesglose");
@@ -281,12 +304,12 @@ namespace Alquileres.Migrations
 
             modelBuilder.Entity("Alquileres.Models.TbCobrosDetalle", b =>
                 {
-                    b.Property<int>("Fid")
+                    b.Property<int>("FidCobroDetalle")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasColumnName("fid");
+                        .HasColumnName("fid_cobro_detalle");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Fid"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FidCobroDetalle"));
 
                     b.Property<bool>("Factivo")
                         .HasColumnType("bit")
@@ -297,22 +320,103 @@ namespace Alquileres.Migrations
                         .HasColumnName("fkid_cobro");
 
                     b.Property<decimal>("Fmonto")
-                        .HasColumnType("decimal(18, 2)")
+                        .HasColumnType("decimal(10,2)")
                         .HasColumnName("fmonto");
 
                     b.Property<decimal>("Fmora")
-                        .HasColumnType("decimal(18, 2)")
+                        .HasColumnType("decimal(10,2)")
                         .HasColumnName("fmora");
 
                     b.Property<int>("FnumeroCuota")
                         .HasColumnType("int")
-                        .HasColumnName("fnumeroCuota");
+                        .HasColumnName("fnumero_cuota");
 
-                    b.HasKey("Fid");
+                    b.HasKey("FidCobroDetalle");
 
                     b.HasIndex("FkidCobro");
 
                     b.ToTable("tb_cobros_detalle", (string)null);
+                });
+
+            modelBuilder.Entity("Alquileres.Models.TbComprobanteFiscal", b =>
+                {
+                    b.Property<int>("FidComprobante")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("fid_comprobante");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FidComprobante"));
+
+                    b.Property<string>("Fcomprobante")
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("varchar(200)")
+                        .HasColumnName("fcomprobante")
+                        .HasComputedColumnSql("([fprefijo]+CONVERT([varchar],replicate('0',(8)-len([fcontador]+(1)))+CONVERT([varchar],[fcontador]+(1)))) PERSISTED");
+
+                    b.Property<int?>("Fcontador")
+                        .HasColumnType("int")
+                        .HasColumnName("fcontador");
+
+                    b.Property<string>("FestadoSync")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(1)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(1)")
+                        .HasDefaultValue("S")
+                        .HasColumnName("festado_sync")
+                        .IsFixedLength();
+
+                    b.Property<int?>("Ffinaliza")
+                        .HasColumnType("int")
+                        .HasColumnName("ffinaliza");
+
+                    b.Property<int?>("FidTipoComprobante")
+                        .HasColumnType("int")
+                        .HasColumnName("fid_tipo_comprobante");
+
+                    b.Property<int?>("Finicia")
+                        .HasColumnType("int")
+                        .HasColumnName("finicia");
+
+                    b.Property<int?>("FkidEmpresa")
+                        .HasColumnType("int")
+                        .HasColumnName("fkid_empresa");
+
+                    b.Property<int>("FkidUsuario")
+                        .HasColumnType("int")
+                        .HasColumnName("fkid_usuario");
+
+                    b.Property<string>("Fprefijo")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(3)")
+                        .HasColumnName("fprefijo")
+                        .IsFixedLength();
+
+                    b.Property<string>("FtipoComprobante")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("ftipo_comprobante");
+
+                    b.Property<DateTime?>("Fvence")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasColumnName("fvence")
+                        .HasDefaultValueSql("getdate()");
+
+                    b.HasKey("FidComprobante")
+                        .HasName("PK_tb_comprobante_fiscal");
+
+                    b.HasIndex("FkidEmpresa");
+
+                    b.HasIndex("FkidUsuario");
+
+                    b.ToTable("tb_comprobante_fiscal", (string)null);
                 });
 
             modelBuilder.Entity("Alquileres.Models.TbCxc", b =>
@@ -325,68 +429,64 @@ namespace Alquileres.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FidCuenta"));
 
                     b.Property<bool>("Factivo")
-                        .HasColumnType("bit");
+                        .HasColumnType("bit")
+                        .HasColumnName("factivo");
 
                     b.Property<int>("FdiasGracia")
                         .HasColumnType("int")
                         .HasColumnName("fdias_gracia");
 
-                    b.Property<DateOnly?>("FfechaCancelacion")
-                        .HasColumnType("date");
-
                     b.Property<DateTime>("FfechaInicio")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("Date")
+                        .HasColumnName("ffecha_inicio");
 
                     b.Property<DateTime>("FfechaProxCuota")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("FidInquilino")
-                        .HasColumnType("int")
-                        .HasColumnName("fid_inquilino");
-
-                    b.Property<int>("FidPeriodoPago")
-                        .HasColumnType("int")
-                        .HasColumnName("fid_periodo_pago");
+                        .HasColumnType("Date")
+                        .HasColumnName("ffecha_prox_cuota");
 
                     b.Property<int?>("FkidInmueble")
                         .HasColumnType("int")
                         .HasColumnName("fkid_inmueble");
+
+                    b.Property<int?>("FkidInquilino")
+                        .HasColumnType("int")
+                        .HasColumnName("fkid_inquilino");
+
+                    b.Property<int>("FkidPeriodoPago")
+                        .HasColumnType("int")
+                        .HasColumnName("fid_periodo_pago");
 
                     b.Property<int>("FkidUsuario")
                         .HasColumnType("int")
                         .HasColumnName("fkid_usuario");
 
                     b.Property<decimal>("Fmonto")
-                        .HasColumnType("decimal(18, 2)")
+                        .HasColumnType("decimal(10,2)")
                         .HasColumnName("fmonto");
-
-                    b.Property<string>("FmotivoCancelacion")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Fnota")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("varchar(250)")
+                        .HasColumnName("fnota");
 
                     b.Property<string>("Fstatus")
                         .IsRequired()
-                        .HasMaxLength(1)
-                        .HasColumnType("char")
+                        .HasColumnType("varchar(1)")
                         .HasColumnName("fstatus");
 
                     b.Property<decimal>("FtasaMora")
-                        .HasColumnType("decimal(18, 2)")
+                        .HasColumnType("decimal(10,2)")
                         .HasColumnName("ftasa_mora");
 
                     b.HasKey("FidCuenta");
 
-                    b.HasIndex(new[] { "FidInquilino" }, "IX_tb_cxc_fid_inquilino");
+                    b.HasIndex("FkidInmueble");
 
-                    b.HasIndex(new[] { "FidPeriodoPago" }, "IX_tb_cxc_fid_periodo_pago");
+                    b.HasIndex("FkidInquilino");
 
-                    b.HasIndex(new[] { "FkidInmueble" }, "IX_tb_cxc_fkid_inmueble");
+                    b.HasIndex("FkidPeriodoPago");
 
-                    b.HasIndex(new[] { "FkidUsuario" }, "IX_tb_cxc_fkid_usuario");
+                    b.HasIndex("FkidUsuario");
 
                     b.ToTable("tb_cxc", (string)null);
                 });
@@ -408,41 +508,161 @@ namespace Alquileres.Migrations
                         .HasColumnType("bit")
                         .HasColumnName("factivo");
 
+                    b.Property<int>("FdiasAtraso")
+                        .HasColumnType("int")
+                        .HasColumnName("fdias_atraso");
+
                     b.Property<DateTime>("FfechaUltCalculo")
-                        .HasColumnType("date")
+                        .HasColumnType("Date")
                         .HasColumnName("ffecha_ult_calculo");
 
-                    b.Property<int>("FidCxc")
+                    b.Property<int>("FkidCxc")
                         .HasColumnType("int")
-                        .HasColumnName("fid_cxc");
+                        .HasColumnName("fkid_cxc");
 
-                    b.Property<int>("Fmonto")
-                        .HasColumnType("int")
+                    b.Property<decimal>("Fmonto")
+                        .HasColumnType("decimal(10,2)")
                         .HasColumnName("fmonto");
 
                     b.Property<decimal>("Fmora")
-                        .HasColumnType("decimal(18, 2)")
+                        .HasColumnType("decimal(10,2)")
                         .HasColumnName("fmora");
 
                     b.Property<decimal>("Fsaldo")
-                        .HasColumnType("decimal(18, 2)")
+                        .HasColumnType("decimal(10,2)")
                         .HasColumnName("fsaldo");
 
                     b.Property<string>("Fstatus")
                         .IsRequired()
-                        .HasMaxLength(1)
-                        .HasColumnType("char")
+                        .HasColumnType("varchar(1)")
                         .HasColumnName("fstatus");
 
                     b.Property<DateTime>("Fvence")
-                        .HasColumnType("date")
+                        .HasColumnType("Date")
                         .HasColumnName("fvence");
 
                     b.HasKey("FidCuota");
 
-                    b.HasIndex("FidCxc");
+                    b.HasIndex("FkidCxc");
 
                     b.ToTable("tb_cxc_cuota", (string)null);
+                });
+
+            modelBuilder.Entity("Alquileres.Models.TbCxcNulo", b =>
+                {
+                    b.Property<int>("FidCuentaNulo")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("fid_cxc_nulo");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FidCuentaNulo"));
+
+                    b.Property<DateOnly?>("FfechaAnulacion")
+                        .HasColumnType("Date")
+                        .HasColumnName("ffecha_anulacion");
+
+                    b.Property<TimeOnly>("Fhora")
+                        .HasColumnType("time")
+                        .HasColumnName("fhora");
+
+                    b.Property<int>("FkidCuenta")
+                        .HasColumnType("int")
+                        .HasColumnName("fkid_cuenta");
+
+                    b.Property<int>("FkidUsuario")
+                        .HasColumnType("int")
+                        .HasColumnName("fkid_usuario");
+
+                    b.Property<string>("FmotivoAnulacion")
+                        .IsRequired()
+                        .HasColumnType("varchar(250)")
+                        .HasColumnName("fmotivo_anulacion");
+
+                    b.HasKey("FidCuentaNulo");
+
+                    b.HasIndex("FkidCuenta");
+
+                    b.HasIndex("FkidUsuario");
+
+                    b.ToTable("tb_cxc_nulo", (string)null);
+                });
+
+            modelBuilder.Entity("Alquileres.Models.TbGasto", b =>
+                {
+                    b.Property<int>("FidGasto")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("fid_gasto");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FidGasto"));
+
+                    b.Property<bool>("Factivo")
+                        .HasColumnType("bit")
+                        .HasColumnName("factivo");
+
+                    b.Property<string>("Fdescripcion")
+                        .IsRequired()
+                        .HasColumnType("varchar(250)")
+                        .HasColumnName("fdescripcion");
+
+                    b.Property<DateOnly>("Ffecha")
+                        .HasColumnType("date")
+                        .HasColumnName("ffecha");
+
+                    b.Property<int>("FkidGastoTipo")
+                        .HasColumnType("int")
+                        .HasColumnName("fkid_gasto_tipo");
+
+                    b.Property<int>("FkidUsuario")
+                        .HasColumnType("int")
+                        .HasColumnName("fkid_usuario");
+
+                    b.Property<decimal>("Fmonto")
+                        .HasColumnType("decimal(10,2)")
+                        .HasColumnName("fmonto");
+
+                    b.HasKey("FidGasto")
+                        .HasName("PK_tb_gasto");
+
+                    b.HasIndex("FkidGastoTipo");
+
+                    b.HasIndex("FkidUsuario");
+
+                    b.ToTable("tb_gasto", (string)null);
+                });
+
+            modelBuilder.Entity("Alquileres.Models.TbGastoTipo", b =>
+                {
+                    b.Property<int>("FidGastoTipo")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("fid_gasto_tipo");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FidGastoTipo"));
+
+                    b.Property<bool>("Factivo")
+                        .HasColumnType("bit")
+                        .HasColumnName("factivo");
+
+                    b.Property<string>("Fdescripcion")
+                        .IsRequired()
+                        .HasColumnType("varchar(250)")
+                        .HasColumnName("fdescripcion");
+
+                    b.Property<int>("FkidUsuario")
+                        .HasColumnType("int")
+                        .HasColumnName("fkid_usuario");
+
+                    b.Property<decimal>("Fmonto")
+                        .HasColumnType("decimal(10,2)")
+                        .HasColumnName("fmonto");
+
+                    b.HasKey("FidGastoTipo")
+                        .HasName("PK_tb_gasto_tipo");
+
+                    b.HasIndex("FkidUsuario");
+
+                    b.ToTable("tb_gasto_tipo", (string)null);
                 });
 
             modelBuilder.Entity("Alquileres.Models.TbInmueble", b =>
@@ -455,49 +675,47 @@ namespace Alquileres.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FidInmueble"));
 
                     b.Property<bool>("Factivo")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
-                        .HasDefaultValue(true)
                         .HasColumnName("factivo");
 
                     b.Property<string>("Fdescripcion")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(100)")
+                        .HasColumnType("varchar(250)")
                         .HasColumnName("fdescripcion");
 
                     b.Property<string>("Fdireccion")
                         .IsRequired()
-                        .HasMaxLength(400)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(400)")
+                        .HasColumnType("varchar(200)")
                         .HasColumnName("fdireccion");
 
                     b.Property<DateTime>("FfechaRegistro")
-                        .IsUnicode(false)
-                        .HasColumnType("datetime2")
-                        .HasColumnName("ffechaRegistro");
+                        .HasColumnType("Date")
+                        .HasColumnName("ffecha_registro");
+
+                    b.Property<int>("FkidMoneda")
+                        .HasColumnType("int")
+                        .HasColumnName("fkid_moneda");
 
                     b.Property<int>("FkidPropietario")
                         .HasColumnType("int")
                         .HasColumnName("fkid_propietario");
 
                     b.Property<int>("FkidUsuario")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("fkid_usuario");
 
                     b.Property<decimal>("Fprecio")
-                        .HasColumnType("decimal(18, 2)")
+                        .HasColumnType("decimal(10,2)")
                         .HasColumnName("fprecio");
 
                     b.Property<string>("Fubicacion")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(50)")
+                        .HasColumnType("varchar(100)")
                         .HasColumnName("fubicacion");
 
                     b.HasKey("FidInmueble");
+
+                    b.HasIndex("FkidMoneda");
 
                     b.HasIndex("FkidUsuario");
 
@@ -521,50 +739,42 @@ namespace Alquileres.Migrations
 
                     b.Property<string>("Fapellidos")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(50)")
+                        .HasColumnType("varchar(100)")
                         .HasColumnName("fapellidos");
 
                     b.Property<string>("Fcedula")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(20)")
+                        .HasColumnType("varchar(50)")
                         .HasColumnName("fcedula");
 
                     b.Property<string>("Fcelular")
                         .IsRequired()
-                        .HasMaxLength(14)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(14)")
+                        .HasColumnType("varchar(50)")
                         .HasColumnName("fcelular");
 
                     b.Property<string>("Fdireccion")
                         .IsRequired()
-                        .HasMaxLength(400)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(400)")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)")
                         .HasColumnName("fdireccion");
 
                     b.Property<DateTime>("FfechaRegistro")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("Date")
+                        .HasColumnName("ffecha_registro");
 
                     b.Property<int>("FkidUsuario")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("fkid_usuario");
 
                     b.Property<string>("Fnombre")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .IsUnicode(false)
                         .HasColumnType("varchar(50)")
                         .HasColumnName("fnombre");
 
                     b.Property<string>("Ftelefono")
                         .IsRequired()
-                        .HasMaxLength(14)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(14)")
+                        .HasColumnType("varchar(50)")
                         .HasColumnName("ftelefono");
 
                     b.HasKey("FidInquilino");
@@ -574,62 +784,76 @@ namespace Alquileres.Migrations
                     b.ToTable("tb_inquilino", (string)null);
                 });
 
-            modelBuilder.Entity("Alquileres.Models.TbPeriodoPago", b =>
+            modelBuilder.Entity("Alquileres.Models.TbMoneda", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("FidMoneda")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasColumnName("id");
+                        .HasColumnName("fid_moneda");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FidMoneda"));
 
-                    b.Property<int>("Dias")
-                        .HasColumnType("int")
-                        .HasColumnName("dias");
+                    b.Property<bool>("Factivo")
+                        .HasColumnType("bit")
+                        .HasColumnName("factivo");
 
-                    b.Property<string>("Nombre")
+                    b.Property<string>("Fmoneda")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("nombre");
+                        .HasColumnType("varchar(10)")
+                        .HasColumnName("fmoneda");
 
-                    b.HasKey("Id");
+                    b.Property<string>("Fsimbolo")
+                        .IsRequired()
+                        .HasColumnType("varchar(5)")
+                        .HasColumnName("fsimbolo");
 
-                    b.ToTable("periodos_pago", (string)null);
+                    b.HasKey("FidMoneda");
+
+                    b.ToTable("tb_moneda", (string)null);
+                });
+
+            modelBuilder.Entity("Alquileres.Models.TbPeriodoPago", b =>
+                {
+                    b.Property<int>("FidPeriodoPago")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("fid_periodo_pago");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FidPeriodoPago"));
+
+                    b.Property<int>("Fdias")
+                        .HasColumnType("int")
+                        .HasColumnName("fdias");
+
+                    b.Property<string>("Fnombre")
+                        .IsRequired()
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("fnombre");
+
+                    b.HasKey("FidPeriodoPago");
+
+                    b.ToTable("tb_periodos_pago", (string)null);
 
                     b.HasData(
                         new
                         {
-                            Id = 1,
-                            Dias = 6,
-                            Nombre = "Semanal"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Dias = 15,
-                            Nombre = "Quincenal"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Dias = 30,
-                            Nombre = "Mensual"
+                            FidPeriodoPago = 1,
+                            Fdias = 30,
+                            Fnombre = "Mensual"
                         });
                 });
 
             modelBuilder.Entity("Alquileres.Models.TbPermisoCobro", b =>
                 {
-                    b.Property<int>("Fid")
+                    b.Property<int>("FidPermisoCobro")
                         .HasColumnType("int")
-                        .HasColumnName("fid");
+                        .HasColumnName("fid_permiso_cobro");
 
                     b.Property<int>("FkidUsuario")
                         .HasColumnType("int")
                         .HasColumnName("fkid_usuario");
 
-                    b.HasKey("Fid")
+                    b.HasKey("FidPermisoCobro")
                         .HasName("PK_tb_permiso_cobro");
 
                     b.HasIndex("FkidUsuario");
@@ -652,47 +876,39 @@ namespace Alquileres.Migrations
 
                     b.Property<string>("Fapellidos")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(50)")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
                         .HasColumnName("fapellidos");
 
                     b.Property<string>("Fcedula")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(20)")
+                        .HasColumnType("varchar(50)")
                         .HasColumnName("fcedula");
 
                     b.Property<string>("Fcelular")
                         .IsRequired()
-                        .HasMaxLength(14)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(14)")
+                        .HasColumnType("varchar(50)")
                         .HasColumnName("fcelular");
 
                     b.Property<string>("Fdireccion")
                         .IsRequired()
-                        .HasMaxLength(400)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(400)")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)")
                         .HasColumnName("fdireccion");
 
                     b.Property<DateTime>("FfechaRegistro")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("Date")
+                        .HasColumnName("ffecha_registro");
 
                     b.Property<string>("Fnombre")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .IsUnicode(false)
                         .HasColumnType("varchar(50)")
                         .HasColumnName("fnombre");
 
                     b.Property<string>("Ftelefono")
                         .IsRequired()
-                        .HasMaxLength(14)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(14)")
+                        .HasColumnType("varchar(50)")
                         .HasColumnName("ftelefono");
 
                     b.HasKey("FidPropietario");
@@ -722,22 +938,14 @@ namespace Alquileres.Migrations
                         .HasColumnType("bit")
                         .HasColumnName("factivo");
 
-                    b.Property<string>("FestadoSync")
+                    b.Property<string>("Femail")
                         .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(1)
-                        .IsUnicode(false)
-                        .HasColumnType("char(1)")
-                        .HasDefaultValue("A")
-                        .HasColumnName("festado_sync")
-                        .IsFixedLength();
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("femail");
 
                     b.Property<int>("FkidSucursal")
                         .HasColumnType("int")
                         .HasColumnName("fkid_sucursal");
-
-                    b.Property<int>("FkidUsuario")
-                        .HasColumnType("int");
 
                     b.Property<int>("Fnivel")
                         .HasColumnType("int")
@@ -754,14 +962,14 @@ namespace Alquileres.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .IsUnicode(false)
-                        .HasColumnType("varchar(100)")
+                        .HasColumnType("varchar(MAX)")
                         .HasColumnName("fpassword");
 
                     b.Property<string>("Fusuario")
                         .IsRequired()
                         .HasMaxLength(50)
                         .IsUnicode(false)
-                        .HasColumnType("varchar(50)")
+                        .HasColumnType("varchar(20)")
                         .HasColumnName("fusuario");
 
                     b.Property<string>("IdentityId")
@@ -991,12 +1199,36 @@ namespace Alquileres.Migrations
                     b.ToView("vw_UserTutorialStatus", (string)null);
                 });
 
+            modelBuilder.Entity("Alquileres.Models.TbAuditorium", b =>
+                {
+                    b.HasOne("Alquileres.Models.TbUsuario", null)
+                        .WithMany()
+                        .HasForeignKey("FkidUsuario")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Alquileres.Models.TbCobro", b =>
                 {
                     b.HasOne("Alquileres.Models.TbCxc", null)
                         .WithMany()
                         .HasForeignKey("FkidCxc")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Alquileres.Models.TbCobroNulo", b =>
+                {
+                    b.HasOne("Alquileres.Models.TbCobro", null)
+                        .WithMany()
+                        .HasForeignKey("FkidCobro")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Alquileres.Models.TbUsuario", null)
+                        .WithMany()
+                        .HasForeignKey("FkidUsuario")
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
                 });
 
@@ -1024,21 +1256,37 @@ namespace Alquileres.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Alquileres.Models.TbComprobanteFiscal", b =>
+                {
+                    b.HasOne("Alquileres.Models.Empresa", null)
+                        .WithMany()
+                        .HasForeignKey("FkidEmpresa")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .HasConstraintName("FK_tb_comprobante_fiscal_tb_empresa_fid_empresa");
+
+                    b.HasOne("Alquileres.Models.TbUsuario", null)
+                        .WithMany()
+                        .HasForeignKey("FkidUsuario")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_tb_comprobante_fiscal_tb_usuario_fkid_usuario");
+                });
+
             modelBuilder.Entity("Alquileres.Models.TbCxc", b =>
                 {
-                    b.HasOne("Alquileres.Models.TbInquilino", null)
-                        .WithMany()
-                        .HasForeignKey("FidInquilino");
-
-                    b.HasOne("Alquileres.Models.TbPeriodoPago", null)
-                        .WithMany()
-                        .HasForeignKey("FidPeriodoPago")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Alquileres.Models.TbInmueble", null)
                         .WithMany()
                         .HasForeignKey("FkidInmueble");
+
+                    b.HasOne("Alquileres.Models.TbInquilino", null)
+                        .WithMany()
+                        .HasForeignKey("FkidInquilino");
+
+                    b.HasOne("Alquileres.Models.TbPeriodoPago", null)
+                        .WithMany()
+                        .HasForeignKey("FkidPeriodoPago")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("Alquileres.Models.TbUsuario", null)
                         .WithMany()
@@ -1051,13 +1299,59 @@ namespace Alquileres.Migrations
                 {
                     b.HasOne("Alquileres.Models.TbCxc", null)
                         .WithMany()
-                        .HasForeignKey("FidCxc")
+                        .HasForeignKey("FkidCxc")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Alquileres.Models.TbCxcNulo", b =>
+                {
+                    b.HasOne("Alquileres.Models.TbCxc", null)
+                        .WithMany()
+                        .HasForeignKey("FkidCuenta")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Alquileres.Models.TbUsuario", null)
+                        .WithMany()
+                        .HasForeignKey("FkidUsuario")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Alquileres.Models.TbGasto", b =>
+                {
+                    b.HasOne("Alquileres.Models.TbGastoTipo", null)
+                        .WithMany()
+                        .HasForeignKey("FkidGastoTipo")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Alquileres.Models.TbUsuario", null)
+                        .WithMany()
+                        .HasForeignKey("FkidUsuario")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Alquileres.Models.TbGastoTipo", b =>
+                {
+                    b.HasOne("Alquileres.Models.TbUsuario", null)
+                        .WithMany()
+                        .HasForeignKey("FkidUsuario")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_tb_gasto_fkid_usuario");
+                });
+
             modelBuilder.Entity("Alquileres.Models.TbInmueble", b =>
                 {
+                    b.HasOne("Alquileres.Models.TbMoneda", null)
+                        .WithMany()
+                        .HasForeignKey("FkidMoneda")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Alquileres.Models.TbPropietario", null)
                         .WithMany()
                         .HasForeignKey("FkidPropietario")

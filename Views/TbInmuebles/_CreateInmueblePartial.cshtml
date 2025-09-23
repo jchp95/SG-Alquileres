@@ -1,11 +1,11 @@
 @model Alquileres.Models.TbInmueble
 
-<div class="mb-4">
-    <h3>Crear Inmueble</h3>
-</div>
-<hr />
 <div class="row">
     <div class="col-md-6 offset-md-3">
+        <div class="d-flex align-items-center mb-3">
+            <i class="fas fa-house-medical text-primary fs-4 me-2"></i>
+            <h4 class="mb-0">Crear Inmueble</h4>
+        </div>
         <form id="inmuebleForm" asp-action="Create" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
@@ -14,7 +14,7 @@
             <!-- Select para Propietarios -->
             <div class="form-group">
                 <label class="control-label">Propietario</label>
-                <select id="busquedaPropietario" class="form-control select2" name="busquedaPropietario"
+                <select id="busquedaPropietario" class="form-control select2" name="busquedaPropietario" required
                     style="width: 100%">
                     <option></option> <!-- Opción vacía para placeholder -->
                 </select>
@@ -38,26 +38,36 @@
                 <label for="Fubicacion" class="form-label">Ubicación (GPS)</label>
                 <div class="input-group">
                     <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
-                        data-bs-target="#mapModal" aria-label="Seleccionar ubicación en mapa" id="openMapBtn">
+                            data-bs-target="#mapModal" aria-label="Seleccionar ubicación en mapa" id="openMapBtn">
                         <i class="fas fa-map-marker-alt"></i> Seleccionar
                     </button>
                     <input type="text" id="Fubicacion" name="Fubicacion" class="form-control"
-                        placeholder="Ingrese las coordenadas, por ejemplo: -34.6037, -58.3816" />
+                           value="0,0"
+                           placeholder="Ingrese las coordenadas, por ejemplo: -34.6037, -58.3816" />
                 </div>
                 <small class="form-text text-muted">Formato: latitud, longitud</small>
                 <span asp-validation-for="Fubicacion" class="text-danger"></span>
             </div>
 
+
             <div class="form-group">
                 <label class="control-label">Precio</label>
-                <input asp-for="Fprecio" class="form-control numeric-input" inputmode="decimal" type="text"
-                    autocomplete="off" placeholder="Precio del inmueble" />
+                <input asp-for="Fprecio" class="form-control numeric-input" type="text" step="0.01" autocomplete="off"
+                    placeholder="Precio del inmueble" />
                 <span asp-validation-for="Fprecio" class="text-danger"></span>
             </div>
 
-            <div class="form-group mt-2">
+            <div class="form-group">
+                <label class="control-label">Moneda</label>
+                <select asp-for="FkidMoneda" class="form-control" asp-items="ViewBag.FkidMoneda" required>
+                    <option value="">Seleccionar tipo de moneda</option>
+                </select>
+                <span asp-validation-for="FkidMoneda" class="text-danger"></span>
+            </div>
+
+            <div class="form-group-button mt-2">
                 <input type="submit" value="Crear" class="btn btn-primary" />
-                <a asp-action="Index" class="btn btn-secondary ml-2">Volver a la Lista</a>
+                <!--  <a asp-action="Index" class="btn btn-secondary ml-2">Volver a la Lista</a> -->
             </div>
         </form>
     </div>

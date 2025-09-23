@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 namespace Alquileres.Context
 {
@@ -20,20 +21,27 @@ namespace Alquileres.Context
             _logger = logger; // Inicializa el logger
             _context = this; // Inicializa el contexto
         }
-        public DbSet<Empresa> Empresas { get; set; }
+        public virtual DbSet<Empresa> Empresas { get; set; }
 
         public virtual DbSet<TbPeriodoPago> PeriodosPagos { get; set; }
         public virtual DbSet<TbAuditorium> TbAuditoria { get; set; }
         public virtual DbSet<TbCobro> TbCobros { get; set; }
         public virtual DbSet<TbCobrosDetalle> TbCobrosDetalles { get; set; }
         public virtual DbSet<TbCobrosDesglose> TbCobrosDesgloses { get; set; }
+        public virtual DbSet<TbCobroNulo> TbCobrosNulos { get; set; }
         public virtual DbSet<TbCxc> TbCxcs { get; set; }
+        public virtual DbSet<TbCxcNulo> TbCxcNulos { get; set; }
         public virtual DbSet<TbCxcCuotum> TbCxcCuota { get; set; }
         public virtual DbSet<TbInmueble> TbInmuebles { get; set; }
         public virtual DbSet<TbInquilino> TbInquilinos { get; set; }
         public virtual DbSet<TbPermisoCobro> TbPermisoCobros { get; set; }
         public virtual DbSet<TbPropietario> TbPropietarios { get; set; }
         public virtual DbSet<TbUsuario> TbUsuarios { get; set; }
+        public virtual DbSet<TbComprobanteFiscal> TbComprobantesFiscales { get; set; }
+        public virtual DbSet<TbGasto> TbGastos { get; set; }
+        public virtual DbSet<TbGastoTipo> TbGastoTipos { get; set; }
+        public virtual DbSet<TbMoneda> TbMonedas { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -46,10 +54,11 @@ namespace Alquileres.Context
             });
 
             modelBuilder.Entity<TbPeriodoPago>().HasData(
-                new TbPeriodoPago { Id = 1, Nombre = "Semanal", Dias = 6 },
-                new TbPeriodoPago { Id = 2, Nombre = "Quincenal", Dias = 15 },
-                new TbPeriodoPago { Id = 3, Nombre = "Mensual", Dias = 30 }
+                new TbPeriodoPago { FidPeriodoPago = 1, Fnombre = "Mensual", Fdias = 30 }
             );
+
+
+            // Relaciones entre las tablas: 
 
             // Dentro del método OnModelCreating, antes de OnModelCreatingPartial
             modelBuilder.Entity<Empresa>(entity =>
@@ -61,134 +70,49 @@ namespace Alquileres.Context
 
                 entity.Property(e => e.IdEmpresa)
                     .HasColumnName("fid_empresa")
-                    .ValueGeneratedNever(); // O ValueGeneratedOnAdd() si es autoincremental
-
-                entity.Property(e => e.Rnc)
-                    .HasColumnName("frnc")
-                    .HasMaxLength(18)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.Nombre)
-                    .HasColumnName("fnombre")
-                    .HasMaxLength(250)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.Direccion)
-                    .HasColumnName("fdireccion")
-                    .HasMaxLength(250)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.Telefonos)
-                    .HasColumnName("ftelefonos")
-                    .HasMaxLength(14)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.Slogan)
-                    .HasColumnName("festlogan")
-                    .HasMaxLength(250)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.Mensaje)
-                    .HasColumnName("fmensaje")
-                    .HasMaxLength(250)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.Logo)
-                    .HasColumnName("flogo")
-                    .HasColumnType("varbinary(max)");
-
-                entity.Property(e => e.Fondo)
-                    .HasColumnName("ffondo")
-                    .HasColumnType("varbinary(max)");
-
-                entity.Property(e => e.CodigoQrWeb)
-                    .HasColumnName("fcodigoqr_web")
-                    .HasColumnType("varbinary(max)");
-
-                entity.Property(e => e.CodigoQrRedes)
-                    .HasColumnName("fcodigoqr_redes")
-                    .HasColumnType("varbinary(max)");
-
-                entity.Property(e => e.Email)
-                    .HasColumnName("femail")
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.Contrasena)
-                    .HasColumnName("fcontraseña")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                    .ValueGeneratedOnAdd(); // O ValueGeneratedOnAdd() si es autoincremental
 
             });
 
 
             modelBuilder.Entity<TbPeriodoPago>(entity =>
             {
-                entity.ToTable("periodos_pago");
+                entity.ToTable("tb_periodos_pago");
 
-                entity.Property(e => e.Id).HasColumnName("id");
-                entity.Property(e => e.Dias).HasColumnName("dias");
-                entity.Property(e => e.Nombre)
-                    .HasMaxLength(50)
-                    .IsUnicode(false)
-                    .HasColumnName("nombre");
+                entity.Property(e => e.FidPeriodoPago).HasColumnName("fid_periodo_pago");
+
+            });
+
+            modelBuilder.Entity<TbMoneda>(entity =>
+            {
+                entity.ToTable("tb_moneda");
+
+                entity.Property(e => e.FidMoneda).HasColumnName("fid_moneda");
+
             });
 
             modelBuilder.Entity<TbAuditorium>(entity =>
             {
-                entity.HasKey(e => e.Fid);
+                entity.HasKey(e => e.FidAuditoria);
 
                 entity.ToTable("tb_auditoria");
 
-                entity.Property(e => e.Fid).HasColumnName("fid");
-                entity.Property(e => e.Faccion)
-                    .HasMaxLength(50)
-                    .IsUnicode(false)
-                    .HasColumnName("faccion");
-                entity.Property(e => e.Ffecha).HasColumnName("ffecha");
-                entity.Property(e => e.Fhora)
-                    .HasMaxLength(16)
-                    .IsUnicode(false)
-                    .HasColumnName("fhora");
-                entity.Property(e => e.FkidRegistro).HasColumnName("fkid_registro");
-                entity.Property(e => e.FkidUsuario).HasColumnName("fkid_usuario");
-                entity.Property(e => e.Ftabla)
-                    .HasMaxLength(50)
-                    .IsUnicode(false)
-                    .HasColumnName("ftabla");
+                entity.Property(e => e.FidAuditoria).HasColumnName("fid_auditoria");
+
+                entity.HasOne<TbUsuario>()
+                    .WithMany()
+                    .HasForeignKey(e => e.FkidUsuario)
+                    .OnDelete(DeleteBehavior.NoAction); // Cambiar la cascada por "NoAction"
+
             });
 
             modelBuilder.Entity<TbCobro>(entity =>
             {
                 entity.HasKey(e => e.FidCobro);
 
-                entity.ToTable("tb_cobros");
+                entity.ToTable("tb_cobro");
 
                 entity.Property(e => e.FidCobro).HasColumnName("fid_cobro");
-                entity.Property(e => e.Factivo).HasColumnName("factivo");
-                entity.Property(e => e.Fcargos)
-                    .HasColumnType("decimal(18, 2)")
-                    .HasColumnName("fcargos");
-                entity.Property(e => e.Fconcepto)
-                    .HasColumnType("nvarchar(max)")
-                    .IsUnicode(true)
-                    .IsFixedLength(false)
-                    .HasColumnName("fconcepto");
-                entity.Property(e => e.Fdescuento)
-                    .HasColumnType("decimal(18, 2)")
-                    .HasColumnName("fdescuento");
-                entity.Property(e => e.Ffecha)
-                    .HasColumnName("ffecha");
-                entity.Property(e => e.Fhora)
-                    .HasMaxLength(16)
-                    .IsUnicode(false)
-                    .HasColumnName("fhora");
-                entity.Property(e => e.FkidCxc).HasColumnName("fkid_cxc");
-                entity.Property(e => e.FkidOrigen).HasColumnName("fkid_origen");
-                entity.Property(e => e.FkidUsuario).HasColumnName("fkid_usuario");
-                entity.Property(e => e.Fmonto)
-                    .HasColumnType("decimal(18, 2)")
-                    .HasColumnName("fmonto");
 
                 entity.HasOne<TbCxc>()
                     .WithMany()
@@ -197,21 +121,12 @@ namespace Alquileres.Context
 
             modelBuilder.Entity<TbCobrosDetalle>(entity =>
             {
-                entity.HasKey(e => e.Fid);
+                entity.HasKey(e => e.FidCobroDetalle);
 
                 entity.ToTable("tb_cobros_detalle");
 
-                entity.Property(e => e.Fid)
-                    .HasColumnName("fid");
-                entity.Property(e => e.Factivo).HasColumnName("factivo");
-                entity.Property(e => e.FkidCobro).HasColumnName("fkid_cobro");
-                entity.Property(e => e.Fmonto)
-                    .HasColumnType("decimal(18, 2)")
-                    .HasColumnName("fmonto");
-                entity.Property(e => e.Fmora)
-                    .HasColumnType("decimal(18, 2)")
-                    .HasColumnName("fmora");
-                entity.Property(e => e.FnumeroCuota).HasColumnName("fnumeroCuota");
+                entity.Property(e => e.FidCobroDetalle)
+                    .HasColumnName("fid_cobro_detalle");
 
                 entity.HasOne<TbCobro>()
                     .WithMany()
@@ -225,46 +140,84 @@ namespace Alquileres.Context
                 entity.ToTable("tb_cobros_desglose");
 
                 entity.Property(e => e.FidDesglose)
-                    .HasColumnName("fidDesglose");
-                entity.Property(e => e.FkidCobro)
-                    .HasColumnName("fkid_cobro");
-                entity.Property(e => e.FkidUsuario)
-                    .HasColumnName("fkid_usuario");
-
-                entity.Property(e => e.Fefectivo)
-                    .HasColumnType("decimal(18, 2)")
-                    .HasColumnName("fefectivo");
-                entity.Property(e => e.Ftransferencia)
-                    .HasColumnType("decimal(18, 2)")
-                    .HasColumnName("ftransferencia");
-                entity.Property(e => e.FmontoRecibido)
-                    .HasColumnType("decimal(18, 2)")
-                    .HasColumnName("fmonto_recibido");
-                entity.Property(e => e.Ftarjeta)
-                    .HasColumnType("decimal(18, 2)")
-                    .HasColumnName("ftarjeta");
-                entity.Property(e => e.FnotaCredito)
-                    .HasColumnType("decimal(18, 2)")
-                    .HasColumnName("fnota_credito");
-                entity.Property(e => e.Fcheque)
-                    .HasColumnType("decimal(18, 2)")
-                    .HasColumnName("fcheque");
-                entity.Property(e => e.Fdeposito)
-                    .HasColumnType("decimal(18, 2)")
-                    .HasColumnName("fdeposito");
-                entity.Property(e => e.FdebitoAutomatico)
-                    .HasColumnType("decimal(18, 2)")
-                    .HasColumnName("fdebito_automatico");
-                entity.Property(e => e.FnoNotaCredito)
-                    .HasColumnType("int")
-                    .HasColumnName("fno_nota_credito");
-                entity.Property(e => e.Factivo)
-                    .HasColumnName("factivo");
+                    .HasColumnName("fid_desglose");
 
                 // Relaciones con la tabla cobro y la tabla usuario
                 entity.HasOne<TbCobro>()
                     .WithMany()
                     .HasForeignKey(e => e.FkidCobro)
+                    .OnDelete(DeleteBehavior.NoAction); // Cambiar la cascada por "NoAction"
+
+                entity.HasOne<TbUsuario>()
+                    .WithMany()
+                    .HasForeignKey(e => e.FkidUsuario)
+                    .OnDelete(DeleteBehavior.NoAction); // Cambiar la cascada por "NoAction"
+            });
+
+            modelBuilder.Entity<TbCobroNulo>(entity =>
+            {
+                entity.HasKey(e => e.FidCobroNulo);
+
+                entity.ToTable("tb_cobro_nulo");
+
+                entity.Property(e => e.FidCobroNulo)
+                    .HasColumnName("fid_cobro_nulo");
+
+                // Relaciones con la tabla cobro y la tabla usuario
+                entity.HasOne<TbCobro>()
+                    .WithMany()
+                    .HasForeignKey(e => e.FkidCobro)
+                    .OnDelete(DeleteBehavior.NoAction); // Cambiar la cascada por "NoAction"
+
+                entity.HasOne<TbUsuario>()
+                    .WithMany()
+                    .HasForeignKey(e => e.FkidUsuario)
+                    .OnDelete(DeleteBehavior.NoAction); // Cambiar la cascada por "NoAction"
+            });
+
+            modelBuilder.Entity<TbCxcNulo>(entity =>
+           {
+               entity.HasKey(e => e.FidCuentaNulo);
+
+               entity.ToTable("tb_cxc_nulo");
+
+               entity.Property(e => e.FidCuentaNulo)
+                   .HasColumnName("fid_cxc_nulo");
+
+               entity.HasOne<TbCxc>()
+                   .WithMany()
+                   .HasForeignKey(e => e.FkidCuenta)
+                   .OnDelete(DeleteBehavior.NoAction); // Cambiar la cascada por "NoAction"
+
+               entity.HasOne<TbUsuario>()
+                   .WithMany()
+                   .HasForeignKey(e => e.FkidUsuario)
+                   .OnDelete(DeleteBehavior.NoAction); // Cambiar la cascada por "NoAction"
+           });
+
+            modelBuilder.Entity<TbGastoTipo>(entity =>
+            {
+                entity.HasKey(e => e.FidGastoTipo);
+
+                entity.ToTable("tb_gasto_tipo");
+
+                entity.Property(e => e.FidGastoTipo)
+                    .HasColumnName("fid_gasto_tipo");
+
+            });
+
+            modelBuilder.Entity<TbGasto>(entity =>
+            {
+                entity.HasKey(e => e.FidGasto);
+
+                entity.ToTable("tb_gasto");
+
+                entity.Property(e => e.FidGasto)
+                    .HasColumnName("fid_gasto");
+
+                entity.HasOne<TbGastoTipo>()
+                    .WithMany()
+                    .HasForeignKey(e => e.FkidGastoTipo)
                     .OnDelete(DeleteBehavior.NoAction); // Cambiar la cascada por "NoAction"
 
                 entity.HasOne<TbUsuario>()
@@ -280,35 +233,17 @@ namespace Alquileres.Context
 
                 entity.ToTable("tb_cxc");
 
-                entity.HasIndex(e => e.FidInquilino, "IX_tb_cxc_fid_inquilino");
-                entity.HasIndex(e => e.FidPeriodoPago, "IX_tb_cxc_fid_periodo_pago");
-                entity.HasIndex(e => e.FkidInmueble, "IX_tb_cxc_fkid_inmueble");
-                entity.HasIndex(e => e.FkidUsuario, "IX_tb_cxc_fkid_usuario");
-
                 entity.Property(e => e.FidCuenta).HasColumnName("fid_cuenta");
-                entity.Property(e => e.FdiasGracia).HasColumnName("fdias_gracia");
-                entity.Property(e => e.FidInquilino).HasColumnName("fid_inquilino");
-                entity.Property(e => e.FidPeriodoPago).HasColumnName("fid_periodo_pago");
-                entity.Property(e => e.FkidInmueble).HasColumnName("fkid_inmueble");
-                entity.Property(e => e.FkidUsuario).HasColumnName("fkid_usuario");
-                entity.Property(e => e.Fmonto)
-                    .HasColumnType("decimal(18, 2)")
-                    .HasColumnName("fmonto");
-                entity.Property(e => e.FtasaMora)
-                    .HasColumnType("decimal(18, 2)")
-                    .HasColumnName("ftasa_mora");
-                entity.Property(e => e.Fstatus)
-                .HasMaxLength(1)
-                .HasColumnType("char")
-                .HasColumnName("fstatus");
+
 
                 entity.HasOne<TbInquilino>()
                     .WithMany()
-                    .HasForeignKey(e => e.FidInquilino);
+                    .HasForeignKey(e => e.FkidInquilino);
 
                 entity.HasOne<TbPeriodoPago>()
                     .WithMany()
-                    .HasForeignKey(e => e.FidPeriodoPago);
+                    .HasForeignKey(e => e.FkidPeriodoPago)
+                    .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne<TbInmueble>()
                     .WithMany()
@@ -329,43 +264,10 @@ namespace Alquileres.Context
                 entity.Property(e => e.FidCuota)
                     .HasColumnName("fid_cuota");
 
-                entity.Property(e => e.Factivo)
-                    .HasColumnName("factivo");
-
-                entity.Property(e => e.FfechaUltCalculo)
-                    .HasColumnType("date")
-                    .HasColumnName("ffecha_ult_calculo");
-
-                entity.Property(e => e.FidCxc)
-                    .HasColumnName("fid_cxc");
-
-                entity.Property(e => e.Fmonto)
-                    .HasColumnName("fmonto");
-
-                entity.Property(e => e.Fmora)
-                    .HasColumnType("decimal(18, 2)")
-                    .HasColumnName("fmora");
-
-                entity.Property(e => e.FNumeroCuota)
-                    .HasColumnName("fnumero_cuota");
-
-                entity.Property(e => e.Fsaldo)
-                    .HasColumnType("decimal(18, 2)")
-                    .HasColumnName("fsaldo");
-
-                entity.Property(e => e.Fvence)
-                    .HasColumnType("date")
-                    .HasColumnName("fvence");
-
-                entity.Property(e => e.Fstatus)
-                    .HasColumnType("char")
-                    .HasColumnName("fstatus")
-                    .HasMaxLength(1);
-
                 // Configuración de la relación con TbCxc
                 entity.HasOne<TbCxc>()
                     .WithMany() // Aquí puedes especificar el nombre de la colección si es necesario
-                    .HasForeignKey(e => e.FidCxc)
+                    .HasForeignKey(e => e.FkidCxc)
                     .OnDelete(DeleteBehavior.Cascade); // Ajusta el comportamiento de eliminación según sea necesario
             });
 
@@ -378,47 +280,19 @@ namespace Alquileres.Context
                 entity.HasIndex(e => e.FkidPropietario, "IX_tb_inmueble_fkid_propietario");
 
                 entity.Property(e => e.FidInmueble).HasColumnName("fid_inmueble");
-                entity.Property(e => e.Factivo)
-                    .HasColumnName("factivo")
-                    .HasDefaultValue(true);
-
-                entity.Property(e => e.Fdescripcion)
-                    .IsRequired()
-                    .HasMaxLength(100)
-                    .IsUnicode(false)
-                    .HasColumnName("fdescripcion");
-
-                entity.Property(e => e.Fdireccion)
-                    .IsRequired()
-                    .HasMaxLength(400)
-                    .IsUnicode(false)
-                    .HasColumnName("fdireccion");
-
-                entity.Property(e => e.FkidPropietario)
-                    .HasColumnName("fkid_propietario"); // Corregí el nombre
-
-                entity.Property(e => e.Fprecio)
-                    .HasColumnType("decimal(18, 2)")
-                    .HasColumnName("fprecio");
-
-                entity.Property(e => e.Fubicacion)
-                    .IsRequired()
-                    .HasMaxLength(50)
-                    .IsUnicode(false)
-                    .HasColumnName("fubicacion");
-
-                entity.Property(e => e.FfechaRegistro)
-                    .IsRequired()
-                    .IsUnicode(false)
-                    .HasColumnName("ffechaRegistro");
 
                 entity.HasOne<TbPropietario>()
                     .WithMany()
                     .HasForeignKey(e => e.FkidPropietario)
                     .OnDelete(DeleteBehavior.Restrict);
+
                 entity.HasOne<TbUsuario>()
                     .WithMany()
                     .HasForeignKey(e => e.FkidUsuario);
+
+                entity.HasOne<TbMoneda>()
+                .WithMany()
+                .HasForeignKey(e => e.FkidMoneda);
             });
 
             modelBuilder.Entity<TbInquilino>(entity =>
@@ -428,31 +302,7 @@ namespace Alquileres.Context
                 entity.ToTable("tb_inquilino");
 
                 entity.Property(e => e.FidInquilino).HasColumnName("fid_inquilino");
-                entity.Property(e => e.Factivo).HasColumnName("factivo");
-                entity.Property(e => e.Fapellidos)
-                    .HasMaxLength(50)
-                    .IsUnicode(false)
-                    .HasColumnName("fapellidos");
-                entity.Property(e => e.Fcedula)
-                    .HasMaxLength(20)
-                    .IsUnicode(false)
-                    .HasColumnName("fcedula");
-                entity.Property(e => e.Fcelular)
-                    .HasMaxLength(14)
-                    .IsUnicode(false)
-                    .HasColumnName("fcelular");
-                entity.Property(e => e.Fdireccion)
-                    .HasMaxLength(400)
-                    .IsUnicode(false)
-                    .HasColumnName("fdireccion");
-                entity.Property(e => e.Fnombre)
-                    .HasMaxLength(50)
-                    .IsUnicode(false)
-                    .HasColumnName("fnombre");
-                entity.Property(e => e.Ftelefono)
-                    .HasMaxLength(14)
-                    .IsUnicode(false)
-                    .HasColumnName("ftelefono");
+
                 entity.HasOne<TbUsuario>()
                     .WithMany()
                     .HasForeignKey(e => e.FkidUsuario);
@@ -460,14 +310,13 @@ namespace Alquileres.Context
 
             modelBuilder.Entity<TbPermisoCobro>(entity =>
             {
-                entity.HasKey(e => e.Fid).HasName("PK_tb_permiso_cobro");
+                entity.HasKey(e => e.FidPermisoCobro).HasName("PK_tb_permiso_cobro");
 
                 entity.ToTable("tb_permiso_cobros");
 
-                entity.Property(e => e.Fid)
+                entity.Property(e => e.FidPermisoCobro)
                     .ValueGeneratedNever()
-                    .HasColumnName("fid");
-                entity.Property(e => e.FkidUsuario).HasColumnName("fkid_usuario");
+                    .HasColumnName("fid_permiso_cobro");
 
                 entity.HasOne<TbUsuario>()
                     .WithMany()
@@ -480,32 +329,9 @@ namespace Alquileres.Context
 
                 entity.ToTable("tb_propietario");
 
-                entity.Property(e => e.FidPropietario).HasColumnName("fid_propietario");
-                entity.Property(e => e.Factivo).HasColumnName("factivo");
-                entity.Property(e => e.Fapellidos)
-                    .HasMaxLength(50)
-                    .IsUnicode(false)
-                    .HasColumnName("fapellidos");
-                entity.Property(e => e.Fcedula)
-                    .HasMaxLength(20)
-                    .IsUnicode(false)
-                    .HasColumnName("fcedula");
-                entity.Property(e => e.Fcelular)
-                    .HasMaxLength(14)
-                    .IsUnicode(false)
-                    .HasColumnName("fcelular");
-                entity.Property(e => e.Fdireccion)
-                    .HasMaxLength(400)
-                    .IsUnicode(false)
-                    .HasColumnName("fdireccion");
-                entity.Property(e => e.Fnombre)
-                    .HasMaxLength(50)
-                    .IsUnicode(false)
-                    .HasColumnName("fnombre");
-                entity.Property(e => e.Ftelefono)
-                    .HasMaxLength(14)
-                    .IsUnicode(false)
-                    .HasColumnName("ftelefono");
+                entity.Property(e => e.FidPropietario)
+                    .HasColumnName("fid_propietario");
+
             });
 
             modelBuilder.Entity<TbUsuario>(entity =>
@@ -536,12 +362,6 @@ namespace Alquileres.Context
                     .HasColumnName("fid_usuario");
                 entity.Property(e => e.Factivado).HasColumnName("factivado");
                 entity.Property(e => e.Factivo).HasColumnName("factivo");
-                entity.Property(e => e.FestadoSync)
-                    .HasMaxLength(1)
-                    .IsUnicode(false)
-                    .HasDefaultValue("A")
-                    .IsFixedLength()
-                    .HasColumnName("festado_sync");
                 entity.Property(e => e.FkidSucursal).HasColumnName("fkid_sucursal");
                 entity.Property(e => e.Fnivel).HasColumnName("fnivel");
                 entity.Property(e => e.Fnombre)
@@ -566,24 +386,155 @@ namespace Alquileres.Context
                     .HasColumnName("tutorial_visto");
             });
 
+            modelBuilder.Entity<TbComprobanteFiscal>(entity =>
+            {
+                entity.HasKey(e => e.FidComprobante)
+                    .HasName("PK_tb_comprobante_fiscal");
+
+                entity.ToTable("tb_comprobante_fiscal");
+
+                entity.Property(e => e.FidComprobante)
+                    .HasColumnName("fid_comprobante");
+
+                entity.Property(e => e.FkidEmpresa)
+                    .HasColumnName("fkid_empresa");
+
+                entity.Property(e => e.FidTipoComprobante)
+                    .HasColumnName("fid_tipo_comprobante");
+
+                entity.Property(e => e.Fprefijo)
+                    .HasMaxLength(3)
+                    .IsUnicode(false)
+                    .IsFixedLength()
+                    .HasColumnName("fprefijo");
+
+                entity.Property(e => e.Finicia)
+                    .HasColumnName("finicia");
+
+                entity.Property(e => e.Ffinaliza)
+                    .HasColumnName("ffinaliza");
+
+                entity.Property(e => e.Fcontador)
+                    .HasColumnName("fcontador");
+
+                entity.Property(e => e.Fcomprobante)
+                    .HasComputedColumnSql("([fprefijo]+CONVERT([varchar],replicate('0',(8)-len([fcontador]+(1)))+CONVERT([varchar],[fcontador]+(1)))) PERSISTED")
+                    .HasColumnName("fcomprobante");
+
+                entity.Property(e => e.Fvence)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("getdate()")
+                    .HasColumnName("fvence");
+
+                entity.Property(e => e.FkidUsuario)
+                    .HasColumnName("fkid_usuario");
+
+                entity.Property(e => e.FtipoComprobante)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("ftipo_comprobante");
+
+                entity.Property(e => e.FestadoSync)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .IsFixedLength()
+                    .HasDefaultValue("S")
+                    .HasColumnName("festado_sync");
+
+                entity.HasOne<TbUsuario>()
+                    .WithMany()
+                    .HasForeignKey(e => e.FkidUsuario)
+                    .HasConstraintName("FK_tb_comprobante_fiscal_tb_usuario_fkid_usuario")
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne<Empresa>()
+                    .WithMany()
+                    .HasForeignKey(e => e.FkidEmpresa)
+                    .HasConstraintName("FK_tb_comprobante_fiscal_tb_empresa_fid_empresa")
+                    .OnDelete(DeleteBehavior.NoAction);
+            });
+
+            modelBuilder.Entity<TbGasto>(entity =>
+            {
+                entity.HasKey(e => e.FidGasto)
+                    .HasName("PK_tb_gasto");
+
+                entity.ToTable("tb_gasto");
+
+                entity.Property(e => e.FidGasto)
+                    .HasColumnName("fid_gasto");
+
+                entity.HasOne<TbUsuario>()
+                    .WithMany()
+                    .HasForeignKey(e => e.FkidUsuario)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne<TbGastoTipo>()
+                    .WithMany()
+                    .HasForeignKey(e => e.FkidGastoTipo)
+                    .OnDelete(DeleteBehavior.NoAction);
+            });
+
+            modelBuilder.Entity<TbGastoTipo>(entity =>
+           {
+               entity.HasKey(e => e.FidGastoTipo)
+                   .HasName("PK_tb_gasto_tipo");
+
+               entity.ToTable("tb_gasto_tipo");
+
+               entity.Property(e => e.FidGastoTipo)
+                   .HasColumnName("fid_gasto_tipo");
+
+               entity.HasOne<TbUsuario>()
+                   .WithMany()
+                   .HasForeignKey(e => e.FkidUsuario)
+                   .HasConstraintName("FK_tb_gasto_fkid_usuario")
+                   .OnDelete(DeleteBehavior.Restrict);
+
+           });
+
             OnModelCreatingPartial(modelBuilder);
         }
 
         public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
         {
-            var auditorias = new List<TbAuditorium>();
-            var usuarioIdActual = await ObtenerUsuarioActual(); // Asegúrate de usar await aquí
+            // Saltar auditoría durante la inicialización de datos
+            if (IsSeeding)
+            {
+                return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+            }
 
-            foreach (var entrada in ChangeTracker.Entries()
-                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified || e.State == EntityState.Deleted))
+            // Saltar auditoría para tablas de Identity framework y TbUsuario
+            var entriesToSkip = ChangeTracker.Entries()
+                .Where(e => e.Entity is IdentityUser ||
+                            e.Entity is IdentityRole ||
+                            e.Entity is IdentityUserClaim<string> ||
+                            e.Entity is IdentityUserLogin<string> ||
+                            e.Entity is IdentityUserToken<string> ||
+                            e.Entity is IdentityRoleClaim<string> ||
+                            e.Entity is TbUsuario);
+
+            if (entriesToSkip.Any())
+            {
+                return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+            }
+
+            var auditorias = new List<TbAuditorium>();
+            var usuarioIdActual = await ObtenerUsuarioActual();
+
+            var entriesToAudit = ChangeTracker.Entries()
+                .Where(e => e.State != EntityState.Unchanged &&
+                            !entriesToSkip.Any(s => s.Entity == e.Entity));
+
+            foreach (var entrada in entriesToAudit)
             {
                 var auditoria = new TbAuditorium
                 {
                     Ftabla = entrada.Entity.GetType().Name,
-                    Faccion = entrada.State.ToString(),
-                    Ffecha = DateTime.UtcNow.Date, // Usar UTC para consistencia
+                    Faccion = TraducirEstadoEntidad(entrada.State),
+                    Ffecha = DateTime.UtcNow.Date,
                     Fhora = DateTime.UtcNow.ToString("HH:mm:ss"),
-                    FkidUsuario = usuarioIdActual.usuarioId ?? 0, // Si no hay usuario, usar 0
+                    FkidUsuario = usuarioIdActual.usuarioId ?? 0,
                     FkidRegistro = ObtenerIdRegistro(entrada)
                 };
                 auditorias.Add(auditoria);
@@ -592,14 +543,37 @@ namespace Alquileres.Context
             if (auditorias.Any())
             {
                 await using var transaccion = await Database.BeginTransactionAsync(cancellationToken);
-                await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+                var result = await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
                 await TbAuditoria.AddRangeAsync(auditorias, cancellationToken);
                 await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
                 await transaccion.CommitAsync(cancellationToken);
+                return result;
             }
 
             return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
         }
+
+        private string TraducirEstadoEntidad(EntityState estado)
+        {
+            switch (estado)
+            {
+                case EntityState.Added:
+                    return "Creación";
+                case EntityState.Modified:
+                    return "Modificación";
+                case EntityState.Deleted:
+                    return "Eliminación";
+                case EntityState.Detached:
+                    return "Desconectado";
+                case EntityState.Unchanged:
+                    return "Sin cambios";
+                default:
+                    return estado.ToString();
+            }
+        }
+
+        // Add this property to track seeding state
+        public bool IsSeeding { get; set; }
 
         private async Task<(int? usuarioId, string usuarioNombre)> ObtenerUsuarioActual()
         {
@@ -650,13 +624,27 @@ namespace Alquileres.Context
                     var propClave = entrada.Properties.FirstOrDefault(p => p.Metadata.IsPrimaryKey());
                     if (propClave?.CurrentValue != null)
                     {
-                        return Convert.ToInt32(propClave.CurrentValue);
+                        // Handle different ID types
+                        return propClave.CurrentValue switch
+                        {
+                            int intValue => intValue,
+                            long longValue => (int)longValue,
+                            string strValue when int.TryParse(strValue, out var parsedInt) => parsedInt,
+                            Guid guidValue => Math.Abs(guidValue.GetHashCode()), // Convert GUID to a pseudo-int
+                            _ => 0
+                        };
                     }
                 }
 
                 // 2. Para entidades nuevas, generamos un ID secuencial temporal
                 if (entrada.State == EntityState.Added)
                 {
+                    // Null check for HttpContext
+                    if (_httpContextAccessor.HttpContext == null)
+                    {
+                        return -1;
+                    }
+
                     // Usamos un contador estático para IDs temporales (por solicitud)
                     if (!_httpContextAccessor.HttpContext.Items.ContainsKey("TempIdCounter"))
                     {
@@ -678,6 +666,7 @@ namespace Alquileres.Context
                 return 0;
             }
         }
+
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
 }

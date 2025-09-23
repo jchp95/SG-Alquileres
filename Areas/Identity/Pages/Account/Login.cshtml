@@ -15,8 +15,11 @@
                     <div class="col-md-6 bg-white d-flex align-items-center">
                         <div class="p-5 w-100">
                             <div class="text-center mb-4">
-                                <img src="~/favicon_io/android-chrome-192x192.png" alt="logo"
-                                    style="height: 200px; width: auto;" class="img-fluid" />
+                                <img id="logoEmpresa" src="@Url.Action("GetLogo", "Empresa")" alt="LOGO"
+                                    class="logo-navbar" style="height: 60px; width: auto;"
+                                    onerror="this.style.display='none'; document.getElementById('altLogo').style.display='inline';" />
+
+                                <span id="altLogo" class="fw-bold text-dark" style="display: none;">LOGO</span>
                                 <h3 class="fw-bold mb-2" style="color: #0077cc;">Bienvenido</h3>
                                 <p class="text-muted">Acceder con su cuenta</p>
                             </div>
@@ -39,12 +42,16 @@
                                     <span asp-validation-for="Input.Password" class="text-danger"></span>
                                 </div>
 
-                                <div class="form-check mb-4">
-                                    <input class="form-check-input" asp-for="Input.RememberMe" />
-                                    <label class="form-check-label" asp-for="Input.RememberMe">
-                                        @Html.DisplayNameFor(m => m.Input.RememberMe)
-                                    </label>
-                                </div>
+                                @if (User.Identity.IsAuthenticated)
+                                {
+                                    <div class="form-check mb-4">
+                                        <input class="form-check-input" asp-for="Input.RememberMe" />
+                                        <label class="form-check-label" asp-for="Input.RememberMe">
+                                            @Html.DisplayNameFor(m => m.Input.RememberMe)
+                                        </label>
+                                    </div>
+                                }
+
 
                                 <div class="d-grid gap-2">
                                     <button id="login-submit" type="submit" class="btn btn-primary btn-lg">
@@ -55,14 +62,16 @@
                                 <div class="mt-3 text-center">
                                     <a class="small text-muted" asp-page="./ForgotPassword">Olvidaste la Contraseña?</a>
                                 </div>
-
-                                <p class="mt-4 mb-0 text-center text-muted">
-                                    Aún no te has registrado?
-                                    <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl"
-                                        class="text-primary">
-                                        Registrar
-                                    </a>
-                                </p>
+                                @if (User.Identity.IsAuthenticated)
+                                {
+                                    <p class="mt-4 mb-0 text-center text-muted">
+                                        Aún no te has registrado?
+                                        <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl"
+                                            class="text-primary">
+                                            Registrar
+                                        </a>
+                                    </p>
+                                }
 
                                 <div class="mt-4 text-center">
                                     <a href="#" class="small text-muted me-2">Términos de uso</a>

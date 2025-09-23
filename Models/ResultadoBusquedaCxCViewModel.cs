@@ -7,6 +7,7 @@
         public string Tipo { get; set; }
         public int NumeroCuota { get; set; }
         public DateTime FechaVencimiento { get; set; }
+        public DateOnly FfechaInicio { get; set; }
         public decimal Monto { get; set; }
         public decimal Mora { get; set; }
     }

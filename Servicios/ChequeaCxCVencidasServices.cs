@@ -23,7 +23,7 @@ public class ChequeaCxCVencidasServices
                 .Where(c => c.Factivo &&
                        c.Fstatus != 'V' && // Que no estén ya marcadas como vencidas
                        _context.TbCxcCuota.Any(
-                           q => q.FidCxc == c.FidCuenta &&
+                           q => q.FkidCxc == c.FidCuenta &&
                            q.Fstatus == 'V' &&
                            q.Factivo))
                 .ToListAsync();

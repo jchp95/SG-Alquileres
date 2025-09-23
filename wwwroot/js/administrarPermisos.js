@@ -16,11 +16,19 @@ $(document).ready(function () {
 
         // Mostrar la card de permisos
         $('#permissionsCard').fadeIn();
+
+        // Insertar el botón maestro al lado del nombre del usuario
+        $('#selectedUserName').after(`
+            <button type="button" class="btn btn-sm btn-outline-primary ms-2 master-permission-btn">
+                <i class="fas fa-check-double"></i> Seleccionar todos los permisos
+            </button>
+        `);
     });
 
     // Cerrar la card de permisos
     $('#closePermissionsCard, #cancelPermissions').on('click', function () {
         $('#permissionsCard').fadeOut();
+        $('.master-permission-btn').remove(); // Eliminar el botón maestro al cerrar
     });
 
     // Función para cargar los permisos via AJAX
@@ -48,30 +56,62 @@ $(document).ready(function () {
                     const isChecked = permission.isSelected ? 'checked' : '';
 
                     container.append(`
-                                                                <div class="permission-item">
-                                                                    <div class="form-check form-switch">
-                                                                        <input type="checkbox" class="form-check-input permission-switch" 
-                                                                               id="${switchId}" 
-                                                                               data-permission="${permission.value}"
-                                                                               ${isChecked}>
-                                                                        <label class="form-check-label" for="${switchId}">
-                                                                            <i class="fas ${getPermissionIcon(permission.value)}"></i>
-                                                                            ${permission.displayName}
-                                                                        </label>
-                                                                    </div>
-                                                                </div>
-                                                            `);
+                        <div class="permission-item">
+                            <div class="form-check form-switch">
+                                <input type="checkbox" class="form-check-input permission-switch" 
+                                       id="${switchId}" 
+                                       data-permission="${permission.value}"
+                                       ${isChecked}>
+                                <label class="form-check-label" for="${switchId}">
+                                    <i class="fas ${getPermissionIcon(permission.value)}"></i>
+                                    ${permission.displayName}
+                                </label>
+                            </div>
+                        </div>
+                    `);
                 });
 
                 // Agregar botón "Seleccionar todos" para cada categoría
                 container.prepend(`
-                                                            <div class="category-actions mb-3">
-                                                                <button type="button" class="btn btn-sm btn-outline-primary select-all-btn" 
-                                                                        data-category="${category}">
-                                                                    <i class="fas fa-check-circle"></i> Seleccionar todos
-                                                                </button>
-                                                            </div>
-                                                        `);
+                    <div class="category-actions mb-3">
+                        <button type="button" class="btn btn-sm btn-outline-primary select-all-btn" 
+                                data-category="${category}">
+                            <i class="fas fa-check-circle"></i> Seleccionar todos
+                        </button>
+                    </div>
+                `);
+            });
+
+            // Configurar el evento click para el botón maestro
+            $('.master-permission-btn').off('click').on('click', function () {
+                const totalCheckboxes = $('.permission-switch').length;
+                const checkedCheckboxes = $('.permission-switch:checked').length;
+                const isAllChecked = checkedCheckboxes === totalCheckboxes;
+
+                // Activar/desactivar todos los checkboxes de permisos
+                $('.permission-switch').prop('checked', !isAllChecked).trigger('change');
+
+                // Actualizar el texto del botón maestro
+                $(this).html(`<i class="fas fa-check-double"></i> ${!isAllChecked ? 'Deseleccionar' : 'Seleccionar'} todos`);
+
+                // Actualizar los botones "Seleccionar todos" de cada categoría
+                $('.select-all-btn').each(function () {
+                    const category = $(this).data('category');
+                    const container = $(`#content-${category} .permission-items-container`);
+                    const checkboxes = container.find('.permission-switch');
+                    const allChecked = checkboxes.length === checkboxes.filter(':checked').length;
+
+                    $(this).html(`<i class="fas fa-${allChecked ? 'times' : 'check'}-circle"></i> ${allChecked ? 'Deseleccionar' : 'Seleccionar'} todos`);
+                });
+            });
+
+            // Actualizar el texto del botón maestro cuando cambien otros checkboxes
+            $('.permission-switch').off('change').on('change', function () {
+                const totalCheckboxes = $('.permission-switch').length;
+                const checkedCheckboxes = $('.permission-switch:checked').length;
+                const isAllChecked = checkedCheckboxes === totalCheckboxes;
+
+                $('.master-permission-btn').html(`<i class="fas fa-check-double"></i> ${isAllChecked ? 'Deseleccionar' : 'Seleccionar'} todos`);
             });
         });
     }
@@ -98,10 +138,16 @@ $(document).ready(function () {
         const allChecked = checkboxes.length === checkboxes.filter(':checked').length;
 
         // Toggle estado
-        checkboxes.prop('checked', !allChecked);
+        checkboxes.prop('checked', !allChecked).trigger('change');
 
         // Actualizar el texto del botón
         $(this).html(`<i class="fas fa-${!allChecked ? 'times' : 'check'}-circle"></i> ${!allChecked ? 'Deseleccionar' : 'Seleccionar'} todos`);
+
+        // Actualizar el texto del botón maestro
+        const totalCheckboxes = $('.permission-switch').length;
+        const checkedCheckboxes = $('.permission-switch:checked').length;
+        const isAllChecked = checkedCheckboxes === totalCheckboxes;
+        $('.master-permission-btn').html(`<i class="fas fa-check-double"></i> ${isAllChecked ? 'Deseleccionar' : 'Seleccionar'} todos`);
     });
 
     // Guardar permisos
@@ -122,18 +168,21 @@ $(document).ready(function () {
             selectedPermissions: selectedPermissions
         };
 
+        console.log("Payload que se enviará:", JSON.stringify(requestData));
+
         $.ajax({
             url: '/AdministrarPermisos/UpdatePermissions',
             type: 'POST',
-            contentType: 'application/json',
-            headers: {
-                'RequestVerificationToken': token
-            },
+            contentType: 'application/json; charset=utf-8',
             data: JSON.stringify(requestData),
+            headers: {
+                'X-RequestVerificationToken': token   
+            },
             success: function (response) {
                 if (response.success) {
                     showToast('Permisos actualizados correctamente', 'success');
                     $('#permissionsCard').fadeOut();
+                    $('.master-permission-btn').remove();
                 } else {
                     const errors = response.errors ? response.errors.join(', ') : 'Error desconocido';
                     showToast('Error: ' + errors, 'error');

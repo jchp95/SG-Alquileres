@@ -1,57 +1,64 @@
 @model Alquileres.Models.TbPropietario
 
-<h3 class="mb-4">Editar Propietario</h3>
+@{
+    ViewData["Title"] = "Editar Propietario";
+}
 
-<div class="card shadow-sm rounded-4 p-4 mb-4">
-    <form asp-action="Edit">
-        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
-        <input type="hidden" asp-for="FidPropietario" />
-
-        <div class="mb-3">
-            <label asp-for="Fnombre" class="form-label">Nombre</label>
-            <input asp-for="Fnombre" class="form-control rounded-3" />
-            <span asp-validation-for="Fnombre" class="text-danger"></span>
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="d-flex align-items-center mb-3">
+            <i class="fas fa-user-edit text-primary fs-4 me-2"></i>
+            <h4 class="mb-0">Editar Propietario</h4>
         </div>
+        <form asp-action="Edit">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="FidPropietario" />
 
-        <div class="mb-3">
-            <label asp-for="Fapellidos" class="form-label">Apellidos</label>
-            <input asp-for="Fapellidos" class="form-control rounded-3" />
-            <span asp-validation-for="Fapellidos" class="text-danger"></span>
-        </div>
+            <div class="form-group mb-3">
+                <label class="control-label">Nombre</label>
+                <input asp-for="Fnombre" class="form-control" placeholder="Ingrese el nombre completo" />
+                <span asp-validation-for="Fnombre" class="text-danger"></span>
+            </div>
 
-        <div class="mb-3">
-            <label asp-for="Fcedula" class="form-label">Cédula</label>
-            <input asp-for="Fcedula" class="form-control rounded-3" placeholder="Cédula o Pasaporte" />
-            <span asp-validation-for="Fcedula" class="text-danger"></span>
-        </div>
+            <div class="form-group mb-3">
+                <label class="control-label">Apellidos</label>
+                <input asp-for="Fapellidos" class="form-control" placeholder="Ingrese los apellidos" />
+                <span asp-validation-for="Fapellidos" class="text-danger"></span>
+            </div>
 
-        <div class="mb-3">
-            <label asp-for="Fdireccion" class="form-label">Dirección</label>
-            <input asp-for="Fdireccion" class="form-control rounded-3" />
-            <span asp-validation-for="Fdireccion" class="text-danger"></span>
-        </div>
+            <div class="form-group mb-3">
+                <label class="control-label">Cédula</label>
+                <input asp-for="Fcedula" class="form-control" placeholder="Cédula o Pasaporte" />
+                <span asp-validation-for="Fcedula" class="text-danger"></span>
+            </div>
 
-        <div class="mb-3">
-            <label asp-for="Ftelefono" class="form-label">Teléfono</label>
-            <input asp-for="Ftelefono" class="form-control rounded-3 telefono-input" />
-            <span asp-validation-for="Ftelefono" class="text-danger"></span>
-        </div>
+            <div class="form-group mb-3">
+                <label class="control-label">Dirección</label>
+                <input asp-for="Fdireccion" class="form-control" placeholder="Ingrese la dirección completa" />
+                <span asp-validation-for="Fdireccion" class="text-danger"></span>
+            </div>
 
-        <div class="mb-3">
-            <label asp-for="Fcelular" class="form-label">Celular</label>
-            <input asp-for="Fcelular" class="form-control rounded-3 telefono-input" />
-            <span asp-validation-for="Fcelular" class="text-danger"></span>
-        </div>
+            <div class="form-group mb-3">
+                <label class="control-label">Teléfono</label>
+                <input asp-for="Ftelefono" class="form-control telefono-input" placeholder="Ej: (809) 221-1234" />
+                <span asp-validation-for="Ftelefono" class="text-danger"></span>
+            </div>
 
-        <div class="d-flex gap-2">
-            <input type="submit" value="Guardar" class="btn btn-primary px-4 shadow-sm" />
-            <a asp-action="Index" class="btn btn-outline-secondary px-4">Volver a la lista</a>
-        </div>
-    </form>
+            <div class="form-group mb-3">
+                <label class="control-label">Celular</label>
+                <input asp-for="Fcelular" class="form-control telefono-input" placeholder="Ej: (809) 456-7890" />
+                <span asp-validation-for="Fcelular" class="text-danger"></span>
+            </div>
+
+            <div class="form-group-button mt-3">
+                <input type="submit" value="Guardar" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary">Volver a la Lista</a>
+            </div>
+        </form>
+    </div>
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    @await Html.PartialAsync("_ValidationScriptsPartial")
 }

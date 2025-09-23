@@ -8,6 +8,7 @@ namespace Alquileres.Models
         public string TextoCambioInmuebles { get; set; }
         public string ClaseCambioInmuebles { get; set; }
         public int CuotasVencidasCount { get; set; }
+        public decimal MontoTotalCuotasVencidas { get; set; }
         public List<TbInmueble> InmueblesActivos { get; set; }
 
         // Nuevas propiedades para ocupación
@@ -18,9 +19,12 @@ namespace Alquileres.Models
         // Nuevas propiedades para ingresos
         public decimal IngresosMensuales { get; set; }
         public decimal IngresosMesAnterior { get; set; }
+        public decimal IngresosMensualesEsperados { get; set; }
         public decimal? CambioIngresos { get; set; }
         public string TextoCambioIngresos { get; set; }
         public string ClaseCambioIngresos { get; set; }
+        public decimal CobrosHoy { get; set; }
+
 
         public List<ActividadReciente> ActividadesRecientes { get; set; }
 

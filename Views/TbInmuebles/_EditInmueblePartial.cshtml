@@ -1,53 +1,74 @@
 @using System.Globalization
 @model Alquileres.Models.TbInmueble
 
-<h3 class="mb-4">Editar Inmueble</h3>
+@{
+    ViewData["Title"] = "Editar Inmueble";
+}
 
-<div class="card shadow-sm rounded-4 p-4 mb-4">
-    <form asp-action="Edit">
-        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
-        <input type="hidden" asp-for="FidInmueble" />
-
-        <div class="mb-3">
-            <label class="form-label">Propietario</label>
-            <input type="text" class="form-control rounded-3" value="@ViewBag.PropietarioNombre" readonly />
-            <input type="hidden" asp-for="FkidPropietario" />
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <!-- Encabezado con icono -->
+        <div class="d-flex align-items-center mb-3">
+            <i class="fas fa-building text-primary fs-4 me-2"></i>
+            <h4 class="mb-0">Editar Inmueble</h4>
         </div>
 
-        <div class="mb-3">
-            <label asp-for="Fdescripcion" class="form-label">Descripción</label>
-            <input asp-for="Fdescripcion" class="form-control rounded-3" />
-            <span asp-validation-for="Fdescripcion" class="text-danger"></span>
-        </div>
+        <form asp-action="Edit">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="FidInmueble" />
 
-        <div class="mb-3">
-            <label asp-for="Fdireccion" class="form-label">Dirección</label>
-            <input asp-for="Fdireccion" class="form-control rounded-3" />
-            <span asp-validation-for="Fdireccion" class="text-danger"></span>
-        </div>
+            <!-- Select para Propietarios -->
+            <div class="form-group">
+                <label class="control-label">Propietario</label>
+                <select id="busquedaPropietario" class="form-control select2" name="busquedaPropietario" required
+                    style="width: 100%">
+                    <option></option> <!-- Opción vacía para placeholder -->
+                </select>
+                <input type="hidden" id="FkidPropietario" name="FkidPropietario" asp-for="FkidPropietario" />
+                <span asp-validation-for="FkidPropietario" class="text-danger"></span>
+            </div>
 
-        <div class="mb-3">
-            <label asp-for="Fubicacion" class="form-label">Ubicación (GPS)</label>
-            <input asp-for="Fubicacion" class="form-control rounded-3" />
-            <span asp-validation-for="Fubicacion" class="text-danger"></span>
-        </div>
+            <div class="form-group mb-3">
+                <label asp-for="Fdescripcion" class="control-label">Descripción</label>
+                <input asp-for="Fdescripcion" class="form-control" />
+                <span asp-validation-for="Fdescripcion" class="text-danger"></span>
+            </div>
 
-        <div class="mb-3">
-            <label asp-for="Fprecio" class="form-label">Precio</label>
-            <input asp-for="Fprecio" class="form-control rounded-3 numeric-input"
-                value="@Model.Fprecio.ToString("N2", new CultureInfo("es-DO"))" />
-            <span asp-validation-for="Fprecio" class="text-danger"></span>
-        </div>
+            <div class="form-group mb-3">
+                <label asp-for="Fdireccion" class="control-label">Dirección</label>
+                <input asp-for="Fdireccion" class="form-control" />
+                <span asp-validation-for="Fdireccion" class="text-danger"></span>
+            </div>
 
-        <div class="d-flex gap-2">
-            <input type="submit" value="Guardar" class="btn btn-primary px-4 shadow-sm" />
-            <a asp-action="Index" class="btn btn-outline-secondary px-4">Volver a la lista</a>
-        </div>
-    </form>
+            <div class="form-group mb-3">
+                <label asp-for="Fubicacion" class="control-label">Ubicación (GPS)</label>
+                <input asp-for="Fubicacion" class="form-control" />
+                <span asp-validation-for="Fubicacion" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Precio</label>
+                <input asp-for="Fprecio" class="form-control numeric-input" type="text" step="0.01" autocomplete="off"
+                    placeholder="Precio del inmueble" />
+                <span asp-validation-for="Fprecio" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="FkidMoneda" class="form-label"></label>
+                <select asp-for="FkidMoneda" class="form-control rounded-3" asp-items="ViewBag.FkidMoneda"
+                    required></select>
+                <span asp-validation-for="FkidMoneda" class="text-danger"></span>
+            </div>
+
+            <div class="form-group-button mt-3">
+                <input type="submit" value="Guardar" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary">Volver a la lista</a>
+            </div>
+        </form>
+    </div>
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    @await Html.PartialAsync("_ValidationScriptsPartial")
 }

@@ -22,5 +22,6 @@ namespace Alquileres.DTO
         public decimal Fdeposito { get; set; }
         public decimal FdebitoAutomatico { get; set; }
         public int FnoNotaCredito { get; set; }
+        public string ComprobanteFiscalSeleccionado { get; set; }
     }
 }

@@ -1,144 +1,390 @@
 <!-- Sidebar -->
 <div class="div2 collapsed" id="sidebar">
-    <div class="d-flex flex-column bg-light">
+    <div class="background-layer"></div> 
+    <div class="d-flex flex-column">
+
         <!-- Botón de alternancia -->
-        <button id="toggleSidebar" class="btn">
-            <i class="fas fa-bars"></i> <!-- Icono para el botón -->
+        <button id="toggleSidebar" class="btn text-white">
+            <i class="fas fa-bars"></i>
         </button>
-        <!-- Enlace principal con colapso para Inquilinos -->
+
+        <!-- Inquilinos -->
         <li class="sidebar-nav-item">
-            <a class="list-group-item list-group-item-action ripple nav-link text-dark" data-toggle="tooltip"
-                data-html="true" data-placement="right" title="Gestión de Inquilinos" aria-current="true"
-                data-mdb-collapse-init href="#inquilinosSubMenu" aria-expanded="false" aria-controls="inquilinosSubMenu"
-                onclick="toggleSubMenu(event, 'inquilinosSubMenu')">
-                <i class="fas fa-users"></i><span class="sidebar-text">Inquilinos</span>
-                <i class="fas fa-chevron-down float-end" id="inquilinosArrow"></i> <!-- Icono de flecha -->
+            <a class="list-group-item list-group-item-action ripple nav-link nav-link-sidebar"
+               data-toggle="tooltip" data-html="true" data-placement="right"
+               title="Gestión de Inquilinos" aria-current="true"
+               data-mdb-collapse-init href="#inquilinosSubMenu" aria-expanded="false"
+               aria-controls="inquilinosSubMenu"
+               onclick="toggleSubMenu(event, 'inquilinosSubMenu')">
+                <i class="fas fa-house-user icon-sidebar"></i>
+                <span class="sidebar-text">Inquilinos</span>
+                <span class="active-dot"></span>
+                <i class="fas fa-chevron-down float-end" id="inquilinosArrow"></i>
             </a>
         </li>
-        <!-- Contenido colapsable para Inquilinos -->
         <ul id="inquilinosSubMenu" class="collapse list-group list-group-flush">
-            <li class="sidebar-nav-item">
-                <a class="nav-link text-dark" asp-area="" asp-controller="TbInquilinoes" asp-action="Index"
-                    data-toggle="tooltip" data-html="true" data-placement="right" title="Inquilinos">
-                    <i class="fas fa-users"></i> <span class="sidebar-text">Gestión de Inquilinos</span>
+            <li class="sidebar-nav-item subMenu">
+                <a class="nav-link subMenu"
+                   asp-controller="TbInquilinoes"
+                   asp-action="Index"
+                   asp-route-vista="crear"
+                   data-toggle="tooltip"
+                   data-placement="right"
+                   title="Crear inquilino">
+                    <i class="fas fa-plus"></i>
+                    <span class="sidebar-text">Crear Inquilino</span>
+                </a>
+            </li>
+             <li class="sidebar-nav-item subMenu">
+                <a class="nav-link subMenu"
+                   asp-controller="TbInquilinoes"
+                   asp-action="Index"
+                   asp-route-vista="lista"
+                   data-toggle="tooltip"
+                   data-placement="right"
+                   title="Lista de inquilinos">
+                    <i class="fas fa-list-ul"></i>
+                    <span class="sidebar-text">Lista inquilinos</span>
                 </a>
             </li>
         </ul>
 
-        <!-- Enlace principal con colapso para Propietarios -->
+        <hr class="sidebar-divider">
+
+        <!-- Propietarios -->
         <li class="sidebar-nav-item">
-            <a class="list-group-item list-group-item-action ripple nav-link text-dark" data-toggle="tooltip"
-                data-html="true" data-placement="right" title="Gestión de Propietarios" aria-current="true"
-                data-mdb-collapse-init href="#propietariosSubMenu" aria-expanded="false"
-                aria-controls="propietariosSubMenu" onclick="toggleSubMenu(event, 'propietariosSubMenu')">
-                <i class="fas fa-user-tie"></i><span class="sidebar-text">Propietarios</span>
-                <i class="fas fa-chevron-down float-end" id="propietariosArrow"></i> <!-- Icono de flecha -->
+            <a class="list-group-item list-group-item-action ripple nav-link nav-link-sidebar"
+               data-toggle="tooltip" data-html="true" data-placement="right"
+               title="Gestión de Propietarios" aria-current="true"
+               data-mdb-collapse-init href="#propietariosSubMenu" aria-expanded="false"
+               aria-controls="propietariosSubMenu"
+               onclick="toggleSubMenu(event, 'propietariosSubMenu')">
+                <i class="fas fa-user-shield"></i>
+                <span class="sidebar-text">Propietarios</span>
+                <span class="active-dot"></span>
+                <i class="fas fa-chevron-down float-end" id="propietariosArrow"></i>
             </a>
         </li>
-        <!-- Contenido colapsable para Propietarios -->
         <ul id="propietariosSubMenu" class="collapse list-group list-group-flush">
-            <li class="sidebar-nav-item">
-                <a class="nav-link text-dark" asp-area="" asp-controller="TbPropietarios" asp-action="Index"
-                    data-toggle="tooltip" data-html="true" data-placement="right" title="Propietarios">
-                    <i class="fas fa-user-tie"></i> <span class="sidebar-text">Gestión Propietarios</span>
+            <li class="sidebar-nav-item subMenu">
+                <a class="nav-link subMenu"
+                   asp-controller="TbPropietarios"
+                   asp-action="Index"
+                   asp-route-vista="crear"
+                   data-toggle="tooltip"
+                   data-placement="right"
+                   title="Crear propietario">
+                    <i class="fas fa-plus"></i>
+                    <span class="sidebar-text">Crear propietario</span>
+                </a>
+            </li>
+            <li class="sidebar-nav-item subMenu">
+                <a class="nav-link subMenu"
+                   asp-controller="TbPropietarios"
+                   asp-action="Index"
+                   asp-route-vista="lista"
+                   data-toggle="tooltip"
+                   data-placement="right"
+                   title="Lista de propietarios">
+                    <i class="fas fa-list-ul"></i>
+                    <span class="sidebar-text">Lista propietarios</span>
                 </a>
             </li>
         </ul>
 
-        <!-- Enlace principal con colapso para Inmuebles -->
+        <hr class="sidebar-divider">
+
+        <!-- Inmuebles -->
         <li class="sidebar-nav-item">
-            <a class="list-group-item list-group-item-action ripple nav-link text-dark" data-toggle="tooltip"
-                data-html="true" data-placement="right" title="Gestión de Inmuebles" aria-current="true"
-                data-mdb-collapse-init href="#inmueblesSubMenu" aria-expanded="false" aria-controls="inmueblesSubMenu"
-                onclick="toggleSubMenu(event, 'inmueblesSubMenu')">
-                <i class="fas fa-building"></i><span class="sidebar-text">Inmuebles</span>
-                <i class="fas fa-chevron-down float-end" id="inmueblesArrow"></i> <!-- Icono de flecha -->
+            <a class="list-group-item list-group-item-action ripple nav-link nav-link-sidebar"
+               data-toggle="tooltip" data-html="true" data-placement="right"
+               title="Gestión de Inmuebles" aria-current="true"
+               data-mdb-collapse-init href="#inmueblesSubMenu" aria-expanded="false"
+               aria-controls="inmueblesSubMenu"
+               onclick="toggleSubMenu(event, 'inmueblesSubMenu')">
+                <i class="fas fa-building"></i>
+                <span class="sidebar-text">Inmuebles</span>
+                <span class="active-dot"></span>
+                <i class="fas fa-chevron-down float-end" id="inmueblesArrow"></i>
             </a>
         </li>
-        <!-- Contenido colapsable para Inmuebles -->
         <ul id="inmueblesSubMenu" class="collapse list-group list-group-flush">
-            <li class="sidebar-nav-item">
-                <a class="nav-link text-dark" asp-area="" asp-controller="TbInmuebles" asp-action="Index"
-                    data-toggle="tooltip" data-html="true" data-placement="right" title="Inmuebles">
-                    <i class="fas fa-building"></i> <span class="sidebar-text">Gestión Inmuebles</span>
+            <li class="sidebar-nav-item subMenu">
+                <a class="nav-link subMenu"
+                   asp-controller="TbInmuebles"
+                   asp-action="Index"
+                   asp-route-vista="crear"
+                   data-toggle="tooltip"
+                   data-placement="right"
+                   title="Crear inmueble">
+                    <i class="fas fa-plus"></i>
+                    <span class="sidebar-text">Crear inmueble</span>
+                </a>
+            </li>
+             <li class="sidebar-nav-item subMenu">
+                <a class="nav-link subMenu"
+                   asp-controller="TbInmuebles"
+                   asp-action="Index"
+                   asp-route-vista="lista"
+                   data-toggle="tooltip"
+                   data-placement="right"
+                   title="Lista de inmuebles">
+                    <i class="fas fa-list-ul"></i>
+                    <span class="sidebar-text">Lista inmuebles</span>
                 </a>
             </li>
         </ul>
-        <!-- Enlace a Cuentas por Cobrar -->
+
+        <hr class="sidebar-divider">
+
+        <!-- Cuentas por Cobrar -->
         <li class="sidebar-nav-item">
-            <a class="list-group-item list-group-item-action ripple nav-link text-dark" data-toggle="tooltip"
-                data-html="true" data-placement="right" title="Gestión de Cuentas por Cobrar" aria-current="true"
-                data-mdb-collapse-init href="#cuentasPorCobrarSubMenu" aria-expanded="false"
-                aria-controls="cuentasPorCobrarSubMenu" onclick="toggleSubMenu(event, 'cuentasPorCobrarSubMenu')">
-                <i class="fas fa-dollar"></i><span class="sidebar-text">Cuentas por cobrar</span>
-                <i class="fas fa-chevron-down float-end" id="cuentasPorCobrarArrow"></i> <!-- Icono de flecha -->
+            <a class="list-group-item list-group-item-action ripple nav-link nav-link-sidebar"
+               data-toggle="tooltip" data-html="true" data-placement="right"
+               title="Gestión de Cuentas por Cobrar" aria-current="true"
+               data-mdb-collapse-init href="#cuentasPorCobrarSubMenu" aria-expanded="false"
+               aria-controls="cuentasPorCobrarSubMenu"
+               onclick="toggleSubMenu(event, 'cuentasPorCobrarSubMenu')">
+                <i class="fas fa-file-invoice"></i>
+                <span class="sidebar-text">Cuentas por cobrar</span>
+                <span class="active-dot"></span>
+                <i class="fas fa-chevron-down float-end" id="cuentasPorCobrarArrow"></i>
             </a>
         </li>
-        <!-- Contenido colapsable para Cuentas por Cobrar -->
         <ul id="cuentasPorCobrarSubMenu" class="collapse list-group list-group-flush">
-            <li class="sidebar-nav-item">
-                <a class="nav-link text-dark" asp-area="" asp-controller="TbCuentasPorCobrar" asp-action="Index"
-                    data-toggle="tooltip" data-html="true" data-placement="right" title="Cuentas por Cobrar">
-                    <i class="fas fa-dollar-sign"></i> <span class="sidebar-text">Crear CxC</span>
+            <li class="sidebar-nav-item subMenu">
+                <a class="nav-link subMenu"
+                   asp-controller="TbCuentasPorCobrar"
+                   asp-action="Index"
+                   asp-route-vista="crear"
+                   data-toggle="tooltip"
+                   data-placement="right"
+                   title="Crear cuenta por cobrar">
+                    <i class="fas fa-plus"></i>
+                    <span class="sidebar-text">Crear CxC</span>
                 </a>
             </li>
-            <li class="sidebar-nav-item">
-                <a class="nav-link text-dark" asp-area="" asp-controller="TbCuotas" asp-action="Index"
-                    data-toggle="tooltip" data-html="true" data-placement="right" title="Crear Cuotas">
-                    <i class="fas fa-check-circle"></i> <span class="sidebar-text">Gestión de Cuotas</span>
-                </a>
-            </li>
-        </ul>
-        <!-- Enlace principal con colapso para Cobros -->
-        <li class="sidebar-nav-item">
-            <a class="list-group-item list-group-item-action ripple nav-link text-dark" data-toggle="tooltip"
-                data-html="true" data-placement="right" title="Gestión de Cobros" aria-current="true"
-                data-mdb-collapse-init href="#cobrosSubMenu" aria-expanded="false" aria-controls="cobrosSubMenu"
-                onclick="toggleSubMenu(event, 'cobrosSubMenu')">
-                <i class="fas fa-money-bill-wave fa-fw"></i><span class="sidebar-text">Cobros</span>
-                <i class="fas fa-chevron-down float-end" id="cobrosArrow"></i> <!-- Icono de flecha -->
-            </a>
-        </li>
-        <!-- Contenido colapsable -->
-        <ul id="cobrosSubMenu" class="collapse list-group list-group-flush"> <!-- Lista anidada para el submenú -->
-            <li class="sidebar-nav-item">
-                <a class="nav-link text-dark" asp-area="" asp-controller="TbCobros" asp-action="Index"
-                    data-toggle="tooltip" data-html="true" data-placement="right" title="Cobros">
-                    <i class="fas fa-money-bill-wave"></i> <span class="sidebar-text">Cobros</span>
+            <li class="sidebar-nav-item subMenu">
+                <a class="nav-link subMenu"
+                   asp-controller="TbCuentasPorCobrar"
+                   asp-action="Index"
+                   asp-route-vista="lista"
+                   data-toggle="tooltip"
+                   data-placement="right"
+                   title="Lista de cuentas por cobrar">
+                    <i class="fas fa-list-ul"></i>
+                    <span class="sidebar-text">Lista CxC</span>
                 </a>
             </li>
         </ul>
-        <!-- Enlace principal con colapso para Reportes -->
+
+        <hr class="sidebar-divider">
+
+        <!-- Cuotas -->
         <li class="sidebar-nav-item">
-            <a class="list-group-item list-group-item-action ripple nav-link text-dark" data-toggle="tooltip"
-                data-html="true" data-placement="right" title="Reportes" aria-current="true" data-mdb-collapse-init
-                href="#reportesSubMenu" aria-expanded="false" aria-controls="reportesSubMenu"
-                onclick="toggleSubMenu(event, 'reportesSubMenu')">
-                <i class="fas fa-chart-line fa-fw"></i><span class="sidebar-text">Reportes</span>
-                <i class="fas fa-chevron-down float-end" id="cobrosArrow"></i> <!-- Icono de flecha -->
+            <a class="list-group-item list-group-item-action ripple nav-link nav-link-sidebar"
+               data-toggle="tooltip" data-html="true" data-placement="right"
+               title="Gestión de Cuotas" aria-current="true"
+               data-mdb-collapse-init href="#cuotasSubMenu" aria-expanded="false"
+               aria-controls="cuotasSubMenu"
+               onclick="toggleSubMenu(event, 'cuotasSubMenu')">
+                <i class="fas fa-calendar-alt"></i>
+                <span class="sidebar-text">Cuotas</span>
+                <span class="active-dot"></span>
+                <i class="fas fa-chevron-down float-end" id="cuotasArrow"></i>
             </a>
         </li>
-        <!-- Contenido colapsable -->
+        <ul id="cuotasSubMenu" class="collapse list-group list-group-flush">
+            <li class="sidebar-nav-item subMenu">
+                <a class="nav-link subMenu"
+                   asp-controller="TbCuotas"
+                   asp-action="Index"
+                   asp-route-vista="crear"
+                   data-toggle="tooltip"
+                   data-placement="right"
+                   title="Crear cuota">
+                    <i class="fas fa-plus"></i>
+                    <span class="sidebar-text">Crear cuota</span>
+                </a>
+            </li>
+            <li class="sidebar-nav-item subMenu">
+                <a class="nav-link subMenu"
+                   asp-controller="TbCuotas"
+                   asp-action="Index"
+                   asp-route-vista="eliminar"
+                   data-toggle="tooltip"
+                   data-placement="right"
+                   title="Eliminar cuota">
+                    <i class="fas fa-minus"></i>
+                    <span class="sidebar-text">Eliminar cuota</span>
+                </a>
+            </li>
+            <li class="sidebar-nav-item subMenu">
+                <a class="nav-link subMenu"
+                   asp-controller="TbCuotas"
+                   asp-action="Index"
+                   asp-route-vista="lista"
+                   data-toggle="tooltip"
+                   data-placement="right"
+                   title="Lista de cuotas">
+                    <i class="fas fa-list-ul"></i>
+                    <span class="sidebar-text">Lista cuotas</span>
+                </a>
+            </li>
+        </ul>
+
+        <hr class="sidebar-divider">
+
+        <!-- Cobros -->
+        <li class="sidebar-nav-item">
+            <a class="list-group-item list-group-item-action ripple nav-link nav-link-sidebar"
+               data-toggle="tooltip" data-html="true" data-placement="right"
+               title="Gestión de Cobros" aria-current="true"
+               data-mdb-collapse-init href="#cobrosSubMenu" aria-expanded="false"
+               aria-controls="cobrosSubMenu"
+               onclick="toggleSubMenu(event, 'cobrosSubMenu')">
+                <i class="fas fa-money-bill-wave"></i>
+                <span class="sidebar-text">Cobros</span>
+                <span class="active-dot"></span>
+                <i class="fas fa-chevron-down float-end" id="cobrosArrow"></i>
+            </a>
+        </li>
+        <ul id="cobrosSubMenu" class="collapse list-group list-group-flush"> 
+            <li class="sidebar-nav-item subMenu">
+                <a class="nav-link subMenu"
+                   asp-controller="TbCobros"
+                   asp-action="Index"
+                   asp-route-vista="crear"
+                   data-toggle="tooltip"
+                   data-placement="right"
+                   title="Crear cobro">
+                    <i class="fas fa-plus"></i>
+                    <span class="sidebar-text">Crear cobro</span>
+                </a>
+            </li>
+            <li class="sidebar-nav-item subMenu">
+                <a class="nav-link subMenu"
+                   asp-controller="TbCobros"
+                   asp-action="Index"
+                   asp-route-vista="lista"
+                   data-toggle="tooltip"
+                   data-placement="right"
+                   title="Lista de cobros">
+                    <i class="fas fa-list-ul"></i>
+                    <span class="sidebar-text">Lista cobros</span>
+                </a>
+            </li>
+        </ul>
+
+        <hr class="sidebar-divider">
+
+        <!-- Gastos -->
+        <li class="sidebar-nav-item">
+            <a class="list-group-item list-group-item-action ripple nav-link nav-link-sidebar"
+               data-toggle="tooltip" data-html="true" data-placement="right"
+               title="Gastos" aria-current="true" data-mdb-collapse-init
+               href="#gastosSubMenu" aria-expanded="false" aria-controls="gastosSubMenu"
+               onclick="toggleSubMenu(event, 'gastosSubMenu')">
+                <i class="fas fa-receipt"></i>
+                <span class="sidebar-text">Gastos</span>
+                <span class="active-dot"></span>
+                <i class="fas fa-chevron-down float-end" id="gastosArrow"></i>
+            </a>
+        </li>
+
+        <ul id="gastosSubMenu" class="collapse list-group list-group-flush">
+            <li class="sidebar-nav-item subMenu">
+                <a class="nav-link subMenu"
+                   asp-controller="TbGastos"
+                   asp-action="Index"
+                   asp-route-vista="crear"
+                   data-toggle="tooltip"
+                   data-placement="right"
+                   title="Crear gasto">
+                    <i class="fas fa-plus"></i>
+                    <span class="sidebar-text">Crear gasto</span>
+                </a>
+            </li>
+
+            <li class="sidebar-nav-item subMenu">
+                <a class="nav-link subMenu"
+                   asp-controller="TbGastos"
+                   asp-action="Index"
+                   asp-route-vista="tipoGasto"
+                   data-toggle="tooltip"
+                   data-placement="right"
+                   title="Crear tipo gasto">
+                    <i class="fas fa-tags"></i>
+                    <span class="sidebar-text">Crear tipo gasto</span>
+                </a>
+            </li>
+
+            <li class="sidebar-nav-item subMenu">
+                <a class="nav-link subMenu"
+                   asp-controller="TbGastos"
+                   asp-action="Index"
+                   asp-route-vista="lista"
+                   data-toggle="tooltip"
+                   data-placement="right"
+                   title="Lista gasto">
+                    <i class="fas fa-list-ul"></i>
+                    <span class="sidebar-text">Lista gastos</span>
+                </a>
+            </li>
+        </ul>
+
+        <hr class="sidebar-divider">
+
+        <!-- Reportes -->
+        <li class="sidebar-nav-item">
+            <a class="list-group-item list-group-item-action ripple nav-link nav-link-sidebar"
+               data-toggle="tooltip" data-html="true" data-placement="right"
+               title="Reportes" aria-current="true"
+               data-mdb-collapse-init href="#reportesSubMenu" aria-expanded="false"
+               aria-controls="reportesSubMenu"
+               onclick="toggleSubMenu(event, 'reportesSubMenu')">
+                <i class="fas fa-chart-pie"></i>
+                <span class="sidebar-text">Reportes</span>
+                <span class="active-dot"></span>
+                <i class="fas fa-chevron-down float-end" id="reportesArrow"></i>
+            </a>
+        </li>
         <ul id="reportesSubMenu" class="collapse list-group list-group-flush">
             <li class="sidebar-nav-item">
-                <a class="nav-link text-dark" asp-controller="Reportes" asp-action="Index" asp-route-tipoReporte="CxC"
-                    data-toggle="tooltip" title="Reportes de cuentas por cobrar">
-                    <i class="fas fa-file-invoice-dollar"></i> <span class="sidebar-text">Reportes CxC</span>
+                <a class="nav-link subMenu" asp-controller="Reportes" asp-action="Index" asp-route-tipoReporte="CxC"
+                   data-toggle="tooltip" title="Reportes de cuentas por cobrar">
+                    <i class="fas fa-file-contract"></i>
+                    <span class="sidebar-text">Reportes CxC</span>
                 </a>
             </li>
             <li class="sidebar-nav-item">
-                <a class="nav-link text-dark" asp-controller="Reportes" asp-action="Index"
-                    asp-route-tipoReporte="Cobros" data-toggle="tooltip" title="Reportes de cobros">
-                    <i class="fas fa-cash-register"></i> <span class="sidebar-text">Reportes Cobros</span>
+                <a class="nav-link subMenu" asp-controller="Reportes" asp-action="Index" asp-route-tipoReporte="Cobros"
+                   data-toggle="tooltip" title="Reportes de cobros">
+                    <i class="fas fa-chart-line"></i>
+                    <span class="sidebar-text">Reportes Cobros</span>
                 </a>
             </li>
             <li class="sidebar-nav-item">
-                <a class="nav-link text-dark" asp-controller="Reportes" asp-action="Index"
-                    asp-route-tipoReporte="Atrasos" data-toggle="tooltip" title="Reportes de atrasos">
-                    <i class="fas fa-exclamation-triangle"></i> <span class="sidebar-text">Reportes Atrasos</span>
+                <a class="nav-link subMenu" asp-controller="Reportes" asp-action="Index" asp-route-tipoReporte="Atrasos"
+                   data-toggle="tooltip" title="Reportes de atrasos">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span class="sidebar-text">Reportes Atrasos</span>
+                </a>
+            </li>
+            <li class="sidebar-nav-item">
+                <a class="nav-link subMenu" asp-controller="Reportes" asp-action="Index"
+                   asp-route-tipoReporte="EstadoCuenta" data-toggle="tooltip" title="Reportes de estados de cuentas">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <span class="sidebar-text">Reportes Estado de Cuenta</span>
+                </a>
+            </li>
+            <li class="sidebar-nav-item">
+                <a class="nav-link subMenu" asp-controller="Reportes" asp-action="Index"
+                   asp-route-tipoReporte="EstadoGasto" data-toggle="tooltip" title="Reportes de estados de gastos">
+                    <i class="fas fa-calculator"></i>
+                    <span class="sidebar-text">Reportes Estado de Gasto</span>
                 </a>
             </li>
         </ul>
-
     </div>
 </div>

@@ -1,0 +1,58 @@
+@* Card de gestión de permisos para uso directo en la vista de usuarios *@
+@using Alquileres.Models
+@{
+    var categories = Permissions.GetPermissionsByCategory();
+}
+<div class="permissions-card-container" id="permissionsCardUsuario" style="display: none;">
+    <div class="permissions-card">
+        <div class="card-header">
+            <h3 id="permissionsCardTitleUsuario">Permisos para <span id="selectedUserNameUsuario"></span></h3>
+            <button type="button" class="btn-close-permissions" id="closePermissionsCardUsuario">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="card-body">
+            <ul class="nav nav-tabs" id="permissionsTabsUsuario" role="tablist">
+                @{
+                    int tabIndex = 0;
+                }
+                @foreach (var category in categories)
+                {
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link @(tabIndex == 0 ? "active" : "")" id="@($"tab-usuario-{category.Key}")"
+                            data-bs-toggle="tab" data-bs-target="@($"#content-usuario-{category.Key}")" type="button"
+                            role="tab">
+                            @Permissions.GetCategoryDisplayName(category.Key)
+                        </button>
+                    </li>
+                    tabIndex++;
+                }
+            </ul>
+            <div class="tab-content" id="permissionsTabContentUsuario">
+                @{
+                    int tabIndex2 = 0;
+                }
+                @foreach (var category in categories)
+                {
+                    <div class="tab-pane fade @(tabIndex2 == 0 ? "show active" : "")"
+                        id="@($"content-usuario-{category.Key}")" role="tabpanel">
+                        <div class="permission-items-container-usuario">
+                            <!-- Contenido cargado via AJAX -->
+                        </div>
+                    </div>
+                    tabIndex2++;
+                }
+            </div>
+        </div>
+        <div class="card-footer">
+            <button type="button" class="btn btn-secondary" id="cancelPermissionsUsuario">
+                <i class="fas fa-times"></i> Cancelar
+            </button>
+            <button type="button" class="btn btn-primary" id="savePermissionsUsuario">
+                <i class="fas fa-save"></i> Guardar Cambios
+            </button>
+        </div>
+    </div>
+</div>
+
+                       

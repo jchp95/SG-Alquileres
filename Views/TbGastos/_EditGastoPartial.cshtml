@@ -1,0 +1,46 @@
+@using System.Globalization
+@model Alquileres.Models.TbGasto
+
+<h3 class="mb-4">Editar Gasto</h3>
+
+<div class="card shadow-sm rounded-4 p-4 mb-4">
+    <form asp-action="EditGasto">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+        <input type="hidden" asp-for="FidGasto" />
+
+        <div class="mb-3">
+            <label class="form-label">Tipo de gastos</label>
+            <input type="text" class="form-control rounded-3" value="@ViewBag.TipoGasto" readonly />
+            <input type="hidden" asp-for="FkidGastoTipo" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Fmonto" class="form-label">Monto</label>
+            <input asp-for="Fmonto" class="form-control rounded-3" readonly />
+            <span asp-validation-for="Fmonto" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Ffecha" class="form-label">Fecha</label>
+            <input asp-for="Ffecha" type="date" class="form-control rounded-3" />
+            <span asp-validation-for="Ffecha" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Fdescripcion" class="form-label">Descripcion</label>
+            <input asp-for="Fdescripcion" class="form-control rounded-3" readonly />
+            <span asp-validation-for="Fdescripcion" class="text-danger"></span>
+        </div>
+
+        <div class="d-flex gap-2">
+            <input type="submit" value="Guardar" class="btn btn-primary px-4 shadow-sm" />
+            <a asp-action="Index" class="btn btn-secondary">Volver a la lista</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

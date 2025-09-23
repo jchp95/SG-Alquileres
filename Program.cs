@@ -9,7 +9,12 @@ using Microsoft.OpenApi.Models;
 using Alquileres.Models;
 using Microsoft.AspNetCore.Authorization;
 using Alquileres.Services;
-using NoOpEmailSender = Alquileres.Services.NoOpEmailSender;
+using Alquileres.Interfaces;
+using EmailSender = Alquileres.Services.EmailSender;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +35,13 @@ builder.Services.AddControllersWithViews(options =>
     options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
 });
 
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    });
+
+
 // Configura Identity
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 {
@@ -38,57 +50,137 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireUppercase = false;
     options.Password.RequireLowercase = false;
+
+    // Configuración del token de recuperación de contraseña
+    options.Tokens.PasswordResetTokenProvider = TokenOptions.DefaultProvider;
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
+.AddDefaultUI()
 .AddDefaultTokenProviders();
 
-// Servicio de permisos
+// Configuración del tiempo de vida del token (forma correcta)
+builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
+{
+    options.TokenLifespan = TimeSpan.FromHours(1); // 1 hora de duración
+});
+
+// Servicios personalizados
+builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IPermissionService, PermissionService>();
-
-// Servicio de generar cuotas
 builder.Services.AddScoped<GeneradorDeCuotasService>();
-
-// Servicio de chequear CxC vencidas
 builder.Services.AddScoped<ChequeaCxCVencidasServices>();
+builder.Services.AddScoped<ActualizadorMoraService>();
 
-// Servicio de actualización de moras
-builder.Services.AddHostedService<ActualizadorMoraService>();
+// En Program.cs, agrega esto en tus servicios 
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddSingleton<IEmailSender, ConsoleEmailSender>();
+}
+else
+{
+    builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+    builder.Services.AddTransient<IEmailSender, EmailSender>();
+}
 
+// Configuración de autenticación dual (Cookies + JWT)
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = IdentityConstants.ApplicationScheme;
+    options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+})
+.AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+{
+    var jwtSecretKey = builder.Configuration["Jwt:SecretKey"];
+    if (string.IsNullOrEmpty(jwtSecretKey))
+    {
+        throw new InvalidOperationException("JWT Secret Key is not configured");
+    }
 
-// Configuración de autorización
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSecretKey)),
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero
+    };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            context.Token = context.Request.Query["access_token"];
+            return Task.CompletedTask;
+        },
+        OnAuthenticationFailed = context =>
+        {
+            Console.WriteLine($"Authentication failed: {context.Exception.Message}");
+            return Task.CompletedTask;
+        }
+    };
+});
+
+// Configuración de autorización CORREGIDA con todos los roles
 builder.Services.AddAuthorization(options =>
 {
-    // Configura todas las políticas de permisos automáticamente
+    // Políticas basadas en permisos (mantener esto si lo necesitas)
     var permissions = typeof(Permissions).GetNestedTypes()
         .SelectMany(t => t.GetFields(System.Reflection.BindingFlags.Public |
-                      System.Reflection.BindingFlags.Static)
+                      System.Reflection.BindingFlags.Static))
         .Where(f => f.FieldType == typeof(string))
-        .Select(f => (string)f.GetValue(null)));
+        .Select(f => (string)f.GetValue(null));
 
     foreach (var permission in permissions)
     {
-        options.AddPolicy(permission,
-            policy => policy.RequireClaim("Permission", permission));
+        options.AddPolicy(permission, policy => policy.RequireClaim("Permission", permission));
     }
 
-    // Políticas personalizadas adicionales si son necesarias
-    options.AddPolicy("RequiereRolAdministrador",
-        policy => policy.RequireRole("Administrador"));
+    // POLÍTICAS BASADAS EN ROLES - AGREGAR ESTO
+    options.AddPolicy("RequiereRolAdministrador", policy =>
+    {
+        policy.RequireRole(AppConstants.AdministratorRole);
+        policy.RequireAuthenticatedUser();
+    });
+
+    options.AddPolicy("RequiereRolUsuario", policy =>
+    {
+        policy.RequireRole(AppConstants.UserRole, AppConstants.AdministratorRole); // Usuario, Gerente o Admin
+        policy.RequireAuthenticatedUser();
+    });
+
+    // Política para cualquier usuario autenticado
+    options.AddPolicy("RequiereAutenticacion", policy =>
+    {
+        policy.RequireAuthenticatedUser();
+    });
+
+    // Política para API (JWT)
+    options.AddPolicy("ApiPolicy", policy =>
+    {
+        policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
+        policy.RequireAuthenticatedUser();
+    });
+
+    // Política para MVC (Cookies)
+    options.AddPolicy("MvcPolicy", policy =>
+    {
+        policy.AddAuthenticationSchemes(IdentityConstants.ApplicationScheme);
+        policy.RequireAuthenticatedUser();
+    });
 });
 
-// Configura ruta de Login y Access Denied
-builder.Services.ConfigureApplicationCookie(options =>
+// Configuración de CORS
+builder.Services.AddCors(options =>
 {
-    options.LoginPath = "/Identity/Account/Login";
-    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
-    options.ExpireTimeSpan = TimeSpan.FromDays(30);
-    options.SlidingExpiration = true;
+    options.AddPolicy("AllowAll", builder =>
+    {
+        builder.AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader();
+    });
 });
 
-// Configura EmailSender
-builder.Services.AddTransient<IEmailSender, NoOpEmailSender>();
-
-// Configura DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
@@ -97,25 +189,38 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
            .LogTo(Console.WriteLine, LogLevel.Information);
 });
 
-// Configuración de Swagger/OpenAPI
+// Configuración de Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "API de Alquileres",
-        Version = "v1",
-        Description = "API para la gestión de alquileres",
-    });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "API de Alquileres", Version = "v1" });
 
-    // Configuración de seguridad para Swagger
+    // Configuración para JWT
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Description = "JWT Authorization header using the Bearer scheme",
+        Description = "JWT Authorization header using the Bearer scheme.",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
         Type = SecuritySchemeType.Http,
-        Scheme = "bearer"
+        Scheme = "Bearer",
+        BearerFormat = "JWT"
     });
 
+    // Configuración para CSRF
+    c.AddSecurityDefinition("X-RequestVerificationToken", new OpenApiSecurityScheme
+    {
+        Description = "Token CSRF para protección contra ataques de falsificación.",
+        Name = "X-RequestVerificationToken",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey
+    });
+
+    // Registrar el filtro CSRF
+    c.OperationFilter<CsrfOperationFilter>();
+    c.OperationFilter<AuthResponsesOperationFilter>();
+    c.OperationFilter<AppendAuthorizeToSummaryOperationFilter>();
+
+    // Configuración de seguridad global
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -127,9 +232,15 @@ builder.Services.AddSwaggerGen(c =>
                     Id = "Bearer"
                 }
             },
-            Array.Empty<string>()
+            new string[] {}
         }
     });
+});
+
+// Configurar Antiforgery
+builder.Services.AddAntiforgery(options =>
+{
+    options.HeaderName = "X-RequestVerificationToken";
 });
 
 // Construye la aplicación
@@ -146,20 +257,56 @@ else
     app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "API de Alquileres v1");
-        c.RoutePrefix = "swagger";
-    });
+ {
+     c.SwaggerEndpoint("/swagger/v1/swagger.json", "API de Alquileres v1");
+
+     // Habilitar credenciales para incluir cookies
+     c.ConfigObject.AdditionalItems["requestCredentials"] = "include";
+
+     // Inyectar script para manejar CSRF automáticamente
+     c.InjectJavascript("/js/swagger-custom.js");
+ });
 }
 
-app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    ServeUnknownFileTypes = true // Para servir el .js personalizado
+});
 app.UseHttpsRedirection();
 app.UseRouting();
-
+app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Mapeo de endpoints
+// Middleware para redireccionar a login en errores 401 (solo para MVC)
+app.Use(async (context, next) =>
+{
+    await next();
+
+    // Solo manejar 401 para requests no-API
+    if (context.Response.StatusCode == 401 &&
+        !context.Request.Path.StartsWithSegments("/api"))
+    {
+        // Verificar si es una petición AJAX
+        if (context.Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+        {
+            // Para AJAX, devolver JSON con URL de redirección
+            context.Response.ContentType = "application/json";
+            await context.Response.WriteAsync(
+                JsonSerializer.Serialize(new
+                {
+                    redirectUrl = $"/Identity/Account/Login?ReturnUrl={Uri.EscapeDataString(context.Request.Path)}"
+                })
+            );
+        }
+        else
+        {
+            // Para navegación normal, redirigir directamente
+            context.Response.Redirect($"/Identity/Account/Login?ReturnUrl={Uri.EscapeDataString(context.Request.Path)}");
+        }
+    }
+});
+
 app.MapStaticAssets();
 app.MapControllers();
 app.MapRazorPages();
@@ -171,12 +318,7 @@ app.MapControllerRoute(
 
 // Inicialización de la base de datos
 await InitializeDatabase(app);
-
 await app.RunAsync();
-
-// ===============================
-// MÉTODOS AUXILIARES
-// ===============================
 
 async Task InitializeDatabase(WebApplication app)
 {
@@ -187,11 +329,8 @@ async Task InitializeDatabase(WebApplication app)
         var logger = services.GetRequiredService<ILogger<Program>>();
         logger.LogInformation("Inicializando base de datos...");
 
-        // Ejecutar migraciones
         var dbContext = services.GetRequiredService<ApplicationDbContext>();
         await dbContext.Database.MigrateAsync();
-
-        // Sembrar datos iniciales
         await SeedData.InitializeAsync(services);
 
         logger.LogInformation("Base de datos inicializada correctamente.");

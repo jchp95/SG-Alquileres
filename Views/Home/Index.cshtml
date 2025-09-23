@@ -64,7 +64,21 @@
                 </div>
             </div>
 
-            <!-- Card 4: Ingresos Mensuales -->
+            <!-- Card 4: Ocupación -->
+            <div class="metric-card warning"
+                data-intro="Relación entre los inmuebles activos e inactivos. Donde los inmuebles activos representará los inmuebles rentados"
+                data-step="5">
+                <div class="metric-content">
+                    <h3 class="metric-title">Ocupación</h3>
+                    <p class="metric-value">@Model.OcupacionActual.ToString("F0")%</p>
+                    <p class="metric-change @Model.ClaseCambioInmuebles">@Model.TextoCambioInmuebles</p>
+                </div>
+                <div class="metric-icon">
+                    <i class="fas fa-percentage"></i>
+                </div>
+            </div>
+
+            <!-- Card 5: Ingresos Mensuales Esperados -->
             <div class="metric-card success" data-intro="Datos estadísticos de los pagos efectuados" data-step="4">
                 <div class="metric-content">
                     <h3 class="metric-title">Ingresos Mensuales Esperados</h3>
@@ -76,20 +90,6 @@
                 </div>
                 <div class="metric-icon">
                     <i class="fas fa-chart-line"></i>
-                </div>
-            </div>
-
-            <!-- Card 5: Ocupación -->
-            <div class="metric-card warning"
-                data-intro="Relación entre los inmuebles activos e inactivos. Donde los inmuebles activos representará los inmuebles rentados"
-                data-step="5">
-                <div class="metric-content">
-                    <h3 class="metric-title">Ocupación</h3>
-                    <p class="metric-value">@Model.OcupacionActual.ToString("F0")%</p>
-                    <p class="metric-change @Model.ClaseCambioInmuebles">@Model.TextoCambioInmuebles</p>
-                </div>
-                <div class="metric-icon">
-                    <i class="fas fa-percentage"></i>
                 </div>
             </div>
         </section>

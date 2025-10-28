@@ -329,7 +329,7 @@ Este proyecto está licenciado bajo la **MIT License** - ver el archivo [LICENSE
 ## 👨‍💻 Desarrollado por
 
 **Anthony & Julio** - Desarrollo Full Stack  
-📧 Email: [tu-email@gmail.com](mailto:tu-email@gmail.com)  
+📧 Email: [julio,hdez.blog@gmail.com](mailto:julio,hdez.blog@gmail.com)  
 🐙 GitHub: [@tu-usuario](https://github.com/tu-usuario)
 
 ---
@@ -351,3 +351,4 @@ Este proyecto está licenciado bajo la **MIT License** - ver el archivo [LICENSE
 [⬆️ Volver arriba](#-sg-alquileres---sistema-de-gestión-de-alquileres)
 
 </div>" 
+
